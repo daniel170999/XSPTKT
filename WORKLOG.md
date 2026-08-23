@@ -30,6 +30,8 @@
 | Backtest nội bộ | XSMB / tất cả giải / 3 số / W365 / 300 kỳ / dàn 10: **0,728 giây**, hit **67** vs kỳ vọng **68,37**, uplift **−2,00%**, top1 z **0,45** |
 | Crawler thật | `update.py --max-fetch 40`: **1 giây**; trước/sau XSMB **7.531→7.531**, XSMN **6.676→6.676**, cùng đến **23/08/2026**; không mất kỳ cũ |
 | Auto-update | Scheduled run GitHub Actions **#2**, ID `32635122337`: `success`, **17 giây**, ngày 23/08/2026; workflow vẫn có cron 16:42/18:42 ICT |
+| Production | Commit giao diện `b87460a` đã lên `main`; `https://xsptkt.vercel.app/` trả **HTTP 200**, mobile/desktop **0px tràn**, **0 lỗi console**; favicon/social card/privacy/sitemap đều HTTP 200 |
+| Security headers | Production có CSP, HSTS 2 năm, `nosniff`, `SAMEORIGIN`, Referrer-Policy, Permissions-Policy; `data/meta.js` trả `Cache-Control: no-store` |
 | Copy public | Quét 5 view đang hiển thị: **0** từ/cụm liên quan trò chơi số ngoài luồng, bộ số, cược, đơn vị tổ chức hoặc dự đoán kỳ sau |
 | PII/secrets | Không có private key, credential, email riêng hay path người dùng trong source chuẩn bị commit; GitHub owner và email `users.noreply.github.com` trong lịch sử là metadata public sẵn có |
 
