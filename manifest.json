@@ -1,7 +1,7 @@
 {
-  "name": "Soi XS — Thống kê XSMN & XSMB",
+  "name": "Soi XS — Kết quả & thống kê XSMN, XSMB",
   "short_name": "Soi XS",
-  "description": "Thống kê tần suất, gan, chu kỳ 2 và 3 số đuôi XSMB/XSMN dựa trên dữ liệu đã đo — không hứa hẹn trúng thưởng.",
+  "description": "Xem kết quả XSMN, XSMB trực tiếp từ Minh Ngọc và thống kê minh bạch 2 số, 3 số đuôi.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

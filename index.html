@@ -3,9 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Soi XS — Thống kê XSMB & XSMN</title>
+<title>Soi XS — Kết quả trực tiếp & thống kê XSMN, XSMB</title>
+<meta name="description" content="Xem kết quả xổ số XSMN, XSMB trực tiếp từ Minh Ngọc và phân tích thống kê 2 số, 3 số đuôi trên dữ liệu lịch sử.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Soi XS — Kết quả trực tiếp & thống kê xổ số">
+<meta property="og:description" content="Xem XSMN, XSMB trực tiếp; soi 2 số và 3 số đuôi bằng thống kê minh bạch.">
+<meta property="og:type" content="website">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://www.minhngoc.net.vn" crossorigin>
 <meta name="theme-color" content="#070b12">
 <style>
 :root{
@@ -373,7 +379,15 @@ td.n{font-weight:800;color:var(--gold);font-size:14px;letter-spacing:1px;font-va
 .err{background:rgba(255,95,109,.1);border:1px solid rgba(255,95,109,.35);color:#ffbcc1;padding:18px;border-radius:12px;line-height:1.8}
 code{background:var(--card2);padding:2px 7px;border-radius:5px;font-size:12px;color:var(--gold)}
 .empty{color:var(--dim2);font-size:13px;padding:24px;text-align:center;white-space:normal}
-.foot{color:var(--dim2);font-size:11.5px;line-height:1.75;border:1px solid var(--line);border-radius:14px;padding:15px 17px;margin-top:36px;background:rgba(16,25,39,.52)}
+.foot{color:var(--dim2);font-size:11px;line-height:1.65;border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-top:36px;background:rgba(16,25,39,.62)}
+.foot-grid{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr);gap:24px;align-items:start}
+.foot-brand{display:flex;align-items:flex-start;gap:10px}
+.foot-brand-mark{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:var(--acc);color:#07111e;font-weight:950;flex:0 0 auto}
+.foot-brand b{display:block;color:var(--txt);font-size:13px}.foot-brand span{display:block;margin-top:2px}
+.foot-trust{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.foot-trust span{padding-left:12px;border-left:1px solid var(--line)}
+.foot a{color:var(--acc);font-weight:750;text-decoration:none}.foot a:hover{text-decoration:underline}
+.foot-legal{margin-top:15px;padding-top:13px;border-top:1px solid var(--line)}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:10px 20px;border-radius:10px;font-size:13px;z-index:200;transition:transform .25s,opacity .25s;opacity:0;box-shadow:var(--sh)}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .jdel{appearance:none;font:inherit;background:transparent;border:0;color:var(--dim2);cursor:pointer;padding:0 5px;border-radius:5px}
@@ -479,6 +493,7 @@ sup.info:hover{background:var(--acc);color:#04101f}
   .live-frame{height:1380px}
   .live-credit{flex-direction:column;padding:12px 14px;gap:8px}
   .live-next{grid-template-columns:1fr;gap:8px;margin-top:12px}
+  .foot{padding:15px 14px}.foot-grid,.foot-trust{grid-template-columns:1fr;gap:12px}.foot-trust span{padding:0;border:0}
   .view-intro{margin-bottom:18px;padding-bottom:14px}
   .view-intro h1{font-size:27px}
   .subnav{display:grid;grid-template-columns:1fr;width:100%}

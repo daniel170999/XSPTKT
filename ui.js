@@ -1821,10 +1821,13 @@ setInterval(checkStale, 5*60000);
   if(!DB.MB.days.length) ST.region="MN";
   checkStale();
   $("#foot").innerHTML=`
-    <b style="color:var(--dim)">Nguồn trực tiếp:</b> bảng kết quả được nhúng từ Minh Ngọc™ và chỉ mang tính tham khảo.
-    <b style="color:var(--dim)">Miễn trừ trách nhiệm:</b> xổ số là trò chơi ngẫu nhiên.
-    App này là công cụ <b>thống kê và phân tích dữ liệu quá khứ</b>, không dự báo được tương lai và không đảm bảo bất kỳ kết quả nào.
-    Mọi con số hiển thị đều kèm mức nền để bạn tự đánh giá. Hãy dùng tab Kiểm chứng trước khi tin vào bất kỳ tín hiệu nào.
-    Chơi có trách nhiệm — chỉ dùng số tiền bạn sẵn sàng mất.`;
+    <div class="foot-grid">
+      <div class="foot-brand"><span class="foot-brand-mark" aria-hidden="true">◎</span><span><b>Soi XS</b><span>Kết quả trực tiếp & thống kê xổ số minh bạch.</span></span></div>
+      <div class="foot-trust">
+        <span><b style="color:var(--dim)">Kết quả trực tiếp</b><br>Nhúng nguyên trạng từ <a href="https://www.minhngoc.net.vn/tao-ma-nhung/ket-qua-xo-so.html" target="_blank" rel="noopener noreferrer">Minh Ngọc™</a>; dữ liệu mang tính tham khảo.</span>
+        <span><b style="color:var(--dim)">Kho thống kê</b><br>Cập nhật tự động sau kỳ quay · lần cuối ${window.XS_META?.updated||"chưa xác định"}.</span>
+      </div>
+    </div>
+    <div class="foot-legal"><b style="color:var(--dim)">Miễn trừ trách nhiệm:</b> xổ số là trò chơi ngẫu nhiên. Phân tích dữ liệu quá khứ không dự báo được tương lai và không đảm bảo kết quả. Chơi có trách nhiệm — chỉ dùng số tiền bạn sẵn sàng mất.</div>`;
   refresh();
 })();
