@@ -1734,6 +1734,7 @@ $("#pinIn").addEventListener("keydown", e=>{ if(e.key==="Enter") pxAdd("pin") })
 $("#exclIn").addEventListener("keydown", e=>{ if(e.key==="Enter") pxAdd("excl") });
 $("#gs").addEventListener("keydown", e=>{
   if(e.key!=="Enter") return;
+  e.preventDefault();
   const v=e.target.value.trim();
   if(!/^\d{2,3}$/.test(v)){
     e.target.style.borderColor="var(--hot)";

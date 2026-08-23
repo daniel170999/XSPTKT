@@ -7,8 +7,9 @@
 
 ## 1. Triết lý sản phẩm — 3 nguyên tắc không đổi
 
-1. **Một việc duy nhất:** giúp người dùng chọn dàn **2 số đuôi (00–99)** hoặc **3 số đuôi (000–999)**
-   cho kỳ XSMB/XSMN sắp tới, kèm đầy đủ ngữ cảnh thống kê. Không làm gì khác.
+1. **Một luồng xổ số rõ ràng:** cho người dùng xem kết quả đang quay, rồi tra cứu/chọn dàn **2 số đuôi
+   (00–99)** hoặc **3 số đuôi (000–999)** cho XSMN/XSMB kèm đầy đủ ngữ cảnh thống kê. Phần phân tích
+   không mở rộng sang loại số khác.
 2. **Toán quyết định, không phải cảm xúc:** mọi con số trên UI đều truy được về một công thức trong `app.js`
    và đều so được với mức nền. Trọng số tín hiệu do **dữ liệu tự quyết** (mục 3.4), không ai đặt tay.
 3. **Trung thực là tính năng:** app đã tự đo và biết xổ số không có trí nhớ (mục 4).
@@ -34,13 +35,17 @@
 | File | Vai trò | Cấm |
 |---|---|---|
 | `app.js` | **Toán thuần**: parse, `analyze()`, EB shrinkage, hazard, Wilson, χ², `rankAll()`, `unbiasedPick()` | đụng DOM |
-| `ui.js` | **Vẽ**: state `ST`, 5 view, modal, backtest UI, nhật ký, tooltip | tự chế công thức |
+| `ui.js` | **Vẽ**: 5 view public (`live/pred/ana/cross/verify`), modal, backtest UI, tooltip; nhật ký/trợ giúp là code legacy không public | tự chế công thức |
 | `index.html` | Khung + toàn bộ CSS (design tokens ở `:root`) | logic |
 | `update.py` | Crawler đa luồng, alias tên đài, lock, ghi nguyên tử | logic hiển thị |
 | `serve.py` | HTTP + vòng tự cập nhật 16:35/18:32 | logic thống kê |
 
 Không framework, không npm/pip/CDN. Mở `index.html` trực tiếp phải chạy được (chế độ tĩnh),
 `MoApp.bat` → chế độ LIVE.
+
+Bản public có thêm một nguồn chỉ-đọc độc lập: tab `live` nhúng iframe miễn phí chính thức của
+`minhngoc.net.vn/free/`. Iframe chỉ phục vụ **bảng kết quả trực tiếp**, luôn kèm credit + link nguồn và
+không được nhập nhằng với kho lịch sử do `update.py` tổng hợp. Không chèn script bên thứ ba vào origin app.
 
 ---
 
@@ -90,7 +95,7 @@ score(i) = pBaseFor(targetDow) + Σ_signals w_s · (p̂_s(i) − mean_s)
   và **bảng đối chứng in-sample vs out-of-sample** (shift bội 7 để giữ thứ) — thước đo overfit, cấm gỡ.
 - Mặc định 300 kỳ; <200 kỳ phải hiện cảnh báo mẫu nhỏ.
 
-### 3.4b Máy tính EV (Trợ giúp, cuối trang)
+### 3.4b Máy tính EV (code legacy của Trợ giúp, không public)
 Xác nhận với người dùng: host trả **theo số lần về** ("trả theo số lần xuất hiện"), không phải 1 lần cố định.
 Với kiểu trả này, EV rút gọn đẹp: `EV% = tỉ lệ trả/U − 1`, **không phụ thuộc n hay phạm vi cược**
 (chứng minh bằng linearity of expectation: E[số lần về] = n/U đúng dù các vị trí độc lập hay không).
@@ -101,7 +106,7 @@ chạy lại mỗi lần đổi input sẽ tốn không cần thiết. Có toggl
 cho host nào trả kiểu đó — khi đó scope hẹp (n nhỏ) thường đỡ lỗ hơn vì dễ trúng hơn.
 **Không có dòng EV nào dương** — không sửa để "tìm cửa thắng", chỉ xếp hạng "lỗ ít nhất".
 
-### 3.5 Nhật ký (localStorage `xs_journal_v1`)
+### 3.5 Nhật ký legacy (localStorage `xs_journal_v1`, không public)
 `{id,date,region,digits,scope,provs,picks[],appPicks[],note}` — `appPicks` **chốt cứng lúc lưu**
 bằng `appPicksFor()` (chỉ dùng dữ liệu trước ngày đích). Cấm tính lại khi hiển thị. Có export/import JSON.
 
@@ -208,16 +213,15 @@ Lỗ hổng dữ liệu hợp lệ (không phải lỗi crawler): COVID 4/2020 c
 
 ---
 
-## 5. Đặc tả UI — 6 tab, tên đời thường
+## 5. Đặc tả UI public — 5 tab, tên đời thường
 
 | Tab | Mục đích | Thành phần chính |
 |---|---|---|
-| 🎯 **Bộ số hôm nay** | Trả lời trong 10 giây | Banner 3 bước (lần đầu) · hero + đếm ngược · **dàn máy chọn đều 2–10 số** khi chưa có OOS · 2 bảng lịch sử nổi bật tách riêng · hộp "Đọc cho đúng" |
-| 🔍 **Phân tích sâu** | Soi số | 3 màn con bằng chip: Bản đồ nhiệt & bảng số · Gan & chu kỳ · Cầu & mẫu số |
-| 🔗 **2 Miền** | Dò và kiểm tra liên miền | Kết quả hai miền cùng ngày · phép đo XSMN chiều vs XSMB tối · thống kê gộp |
-| 📓 **Sổ theo dõi** | Sự thật của chính người dùng | Tổng kết BẠN vs APP vs chọn bừa · form ghi bộ số · lịch sử chấm ✓/✗ |
-| 🧪 **App có đáng tin?** | Tự kiểm chứng | Backtest + đối chứng · χ² |
-| ❓ **Trợ giúp** | Không bao giờ lạc | Hướng dẫn 2 phút · từ điển đầy đủ · kho dữ liệu · kết quả gần đây |
+| 🔴 **Kết quả** | Xem số đang quay | XSMN/XSMB switch · trạng thái theo giờ Việt Nam · iframe chính thức Minh Ngọc · credit/link nguồn · tải lại |
+| 🎯 **Chọn dàn** | Trả lời trong 10 giây | Flow 3 bước · **dàn máy chọn đều 2–10 số** khi chưa có OOS · xác suất nền · lịch sử nổi bật tách riêng |
+| 📊 **Thống kê** | Soi số | 3 màn con: Bản đồ nhiệt & bảng số · Gan & chu kỳ · Cầu & mẫu số |
+| 🔗 **Hai miền** | Dò và kiểm tra liên miền | Kết quả hai miền cùng ngày · phép đo XSMN chiều vs XSMB tối · thống kê gộp |
+| 🧪 **Kiểm chứng** | Tự kiểm chứng | Backtest + đối chứng · χ² |
 
 **Quy tắc UI bắt buộc:**
 - Mọi thuật ngữ có dấu **!** (class `info`, `data-tip=key` → `GLOSSARY[key]` trong ui.js). Thêm chỉ số mới = thêm entry GLOSSARY + dấu !.
@@ -225,6 +229,8 @@ Lỗ hổng dữ liệu hợp lệ (không phải lỗi crawler): COVID 4/2020 c
   chữ tự đổi đen/trắng theo độ sáng (`heatColor`), viền trắng khi |z|≥2σ, chú giải luôn nói rõ
   "màu theo hạng, chênh lệch thật rất nhỏ". Không bao giờ trải màu tuyến tính theo giá trị thô (bài học: 100 ô cùng màu).
 - Bấm số ở bất kỳ đâu → `openNum(tail, digits)`.
+- Bảng live bên thứ ba phải nằm trong iframe sandbox riêng, có nút mở nguồn trực tiếp và không được tuyên bố
+  kho lịch sử của app là dữ liệu Minh Ngọc.
 - Không tràn ngang ở 375px và 1280px (script kiểm ở RULES §R4; bẫy `min-width:auto` của grid/flex).
 - Thanh kỳ mẫu trên mobile cuộn ngang một hàng; không có bộ chọn “Tại ngày”.
 - Việc nặng chia lô ≤110ms (mẫu: `runBacktest`).
@@ -236,7 +242,9 @@ Lỗ hổng dữ liệu hợp lệ (không phải lỗi crawler): COVID 4/2020 c
 
 - Định dạng `data/xsmb.js`, `data/xsmn.js`, alias tên đài (`PROV_ALIAS` — TP.HCM≡TPHCM…, đúng **21 đài**),
   lock chống chạy trùng, ghi nguyên tử — chi tiết ở RULES §R3.
-- Lịch: XSMN quay 16:15 → serve tự crawl 16:35 · XSMB 18:15 → 18:32 · trang tự reload.
+- Local: XSMN quay 16:15 → `serve.py` tự crawl 16:35 · XSMB 18:15 → 18:32 · trang tự reload.
+- Public: GitHub Actions crawl 16:42 và 18:42 giờ Việt Nam, commit `data/` khi có đổi để Vercel redeploy;
+  iframe Minh Ngọc hiển thị live độc lập trong lúc quay.
 - `TaiDuLieu.bat` (một lần) · `MoApp.bat` (hằng ngày) · `CapNhat.bat` (thủ công).
 - Nguồn hỏng → quy trình chẩn đoán RULES §R6. Kho `data/xsmn.json` là tài sản — cấm xoá.
 
@@ -245,16 +253,16 @@ Lỗ hổng dữ liệu hợp lệ (không phải lỗi crawler): COVID 4/2020 c
 ## 7. Việc tiếp theo (thứ tự ưu tiên, kèm tiêu chí nghiệm thu)
 
 > **Giai đoạn xây đã xong.** Không tồn tại tín hiệu dự đoán (§4) ⇒ thêm tính năng phân tích = giá trị 0.
-> Việc duy nhất còn tạo thông tin mới: người dùng ghi nhật ký 30–60 kỳ.
+> Việc còn tạo giá trị là giữ nguồn live/crawler ổn định và kiểm tra dữ liệu mới không làm vỡ parser.
 
 | # | Việc | Nghiệm thu |
 |---|---|---|
 | ✅ | ~~Thông báo trình duyệt khi có kết quả~~ | Xong — pill 🔔, báo kèm kết quả bộ số, mỗi bộ số 1 lần |
 | ✅ | ~~Cảnh báo dữ liệu cũ~~ | Xong — vàng khi trễ 1 kỳ, đỏ khi ≥2 kỳ, có nút cập nhật ngay |
-| 2 | **Ghim/loại số** trong dàn gợi ý trước khi copy/ghi nhật ký | Trạng thái giữ trong phiên; dàn xuất phản ánh đúng |
-| 3 | **So sánh nhiều cửa sổ** (30/100/1000/all) cạnh nhau cho 1 số trong modal | Bảng 4 cột + KTC mỗi cửa sổ |
-| 4 | **Lọc theo giải cụ thể** (chỉ GĐB, chỉ G7…) | SCOPE mở rộng; mọi thống kê + backtest chạy đúng |
-| 5 | **PWA offline** | Mở được không mạng sau lần đầu |
+| ✅ | ~~Ghim/loại số trong dàn gợi ý~~ | Xong trong code; trạng thái local, không đổi scoring |
+| ✅ | ~~So sánh nhiều cửa sổ cạnh nhau cho 1 số~~ | Xong — 3 tháng/1 năm/3 năm/toàn bộ + KTC |
+| — | **Lọc theo giải cụ thể** (chỉ GĐB, chỉ G7…) | Hoãn vô thời hạn; xem ROADMAP §5 |
+| — | **PWA offline** | Chỉ có manifest; không thêm service worker để tránh cache dữ liệu cũ |
 | 6 | Kiểm tra parser mọi thời kỳ 2008–2026 + nguồn dự phòng | Script quét 20 ngày rải đều parse đủ 18 số/đài |
 
 Việc **cấm làm**: tự tối ưu trọng số theo backtest rồi ship (overfit); mọi thứ trong RULES §R2.4.
@@ -266,5 +274,5 @@ Việc **cấm làm**: tự tối ưu trọng số theo backtest rồi ship (ove
 ```bash
 node --check app.js && node --check ui.js
 ```
-6 view × 2 miền × 2 chế độ số + 3 màn con Phân tích, console sạch, không tràn ngang 375/1280px,
+5 view public × 2 miền × 2 chế độ số + 3 màn con Thống kê, console sạch, không tràn ngang 375/1280px,
 backtest 300 kỳ <10s, `py update.py` không mất dữ liệu. Đổi công thức → đo lại + cập nhật bảng mục 4.

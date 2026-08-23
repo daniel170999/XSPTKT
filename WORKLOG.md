@@ -1,5 +1,35 @@
 # WORKLOG — Kết Số
 
+## 2026-08-23 — Kết quả live Minh Ngọc + polish public lần cuối
+
+### Phạm vi đã làm
+
+- Thêm tab **Kết quả** đứng đầu và là màn mặc định; nhúng iframe miễn phí chính thức của Minh Ngọc cho
+  XSMN/XSMB, có trạng thái theo giờ Việt Nam, tải lại bảng, link mở nguồn, credit và miễn trừ trách nhiệm.
+  Chỉ bảng live được ghi nguồn Minh Ngọc; kho lịch sử của app vẫn ghi đúng là dữ liệu crawler riêng.
+- Hoàn thiện visual public: 5 tab có hierarchy rõ, hero live, source lockup, footer nguồn/tin cậy,
+  metadata SEO/OG + manifest; mobile giữ search lớn và nav nhìn thấy ngay. Không sửa `app.js`, scoring,
+  xác suất hay tín hiệu dự đoán.
+- Sửa lịch GitHub Actions từ 17:37/19:37 thành **16:42/18:42 ICT** (`09:42`/`11:42 UTC`) để crawl
+  ngay sau hai kỳ quay; vẫn chỉ commit khi `data/` thật sự đổi.
+- Tìm và sửa 1 bug UI thật: nhấn Enter trong ô soi số mở modal rồi đóng ngay vì focus chuyển sang nút
+  đóng trong cùng key event. Thêm `preventDefault()` tại handler search; không ảnh hưởng `openNum()` từ nút số.
+
+### Kiểm chứng có số liệu
+
+| Hạng mục | Kết quả |
+|---|---|
+| Cú pháp + regression | `node --check app.js`, `node --check ui.js`, `node test_model.cjs`: đạt (`test_model: OK`) |
+| Test crawler | Python bundled `test_update.py`: **4/4 đạt** |
+| Crawler thật | `update.py --max-fetch 40`: **2 giây**; XSMB **7.530→7.531** kỳ, XSMN **6.676→6.676**; cả hai đến **23/08/2026**, không mất dữ liệu cũ |
+| GitHub Actions hiện hữu | Scheduled run **#2** hoàn tất `success` trong **17 giây**, tạo commit dữ liệu `a55a8ce`; chứng minh quyền ghi + auto-update đang hoạt động trước khi đổi lịch |
+| Browser matrix | **56 lượt render**: 5 tab public + 3 màn Thống kê × MN/MB × 2/3 số tại **375px và 1280px**; **0 case lỗi, 0px tràn ngang** |
+| Live source | Iframe MN/MB tải xong, URL live/source/credit đúng; origin app **0 lỗi console**. Iframe Minh Ngọc có 2 `SecurityError` cross-origin từ jQuery của chính nguồn nhưng bảng vẫn tải và tự cập nhật |
+| Search/modal | `68` và `668` đều mở đúng modal, giữ focus ở nút đóng, có bảng 4 cỡ mẫu; input `6` bị chặn với thông báo đúng; **0px tràn** |
+| Backtest UI | XSMB / tất cả giải / 3 số / 300 kỳ / W365 / dàn 10: **0,8 giây**; OOS **−2,0%**, top1 **p=0,325**, trong mẫu **+98,9%** |
+
+Kết luận thống kê không đổi: chưa có predictive edge; tab Chọn dàn tiếp tục chọn đều, tái lập theo ngày.
+
 ## 2026-08-23 — Redesign toàn bộ flow public, ưu tiên mobile
 
 - Phạm vi được Daniel mở lại sau bản khoá v1.0: chỉ thay kiến trúc thông tin, visual, responsive, animation và accessibility; **không sửa `app.js`, scoring, xác suất hay tín hiệu dự đoán**.

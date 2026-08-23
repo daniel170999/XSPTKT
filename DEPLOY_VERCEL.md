@@ -4,9 +4,11 @@
 
 Không cần database cho bản public này.
 
-`GitHub Actions` chạy `update.py` lúc 17:37 và 19:37 giờ Việt Nam mỗi ngày. Khi có dữ liệu mới, nó commit các file trong `data/`; Vercel nhận commit đó và tự redeploy website. Như vậy mọi người cùng xem một dữ liệu thống kê, không có dữ liệu cá nhân hay tài khoản cần lưu.
+`GitHub Actions` chạy `update.py` lúc **16:42** và **18:42** giờ Việt Nam mỗi ngày, ngay sau hai kỳ quay. Khi có dữ liệu mới, nó commit các file trong `data/`; Vercel nhận commit đó và tự redeploy website. Như vậy mọi người cùng xem một dữ liệu thống kê, không có dữ liệu cá nhân hay tài khoản cần lưu.
 
-> GitHub Actions chạy theo UTC, nên hai lịch trong workflow là 10:37 và 12:37 UTC. Có nút chạy tay khi cần.
+> GitHub Actions chạy theo UTC, nên hai lịch trong workflow là **09:42** và **11:42 UTC**. Lịch có thể bị GitHub xếp hàng trễ vài phút; workflow vẫn có nút chạy tay khi cần.
+
+Trang **Kết quả** không chờ workflow: nó dùng iframe miễn phí chính thức của Minh Ngọc để hiển thị bảng quay trực tiếp. Iframe có credit và link nguồn ngay trên giao diện. Kho `data/` chỉ phục vụ các màn thống kê lịch sử và được cập nhật sau kỳ quay.
 
 ## Chỉ làm một lần
 
@@ -34,7 +36,7 @@ Vercel tự deploy lại mỗi khi GitHub có commit mới. File `vercel.json` �
 2. Bấm **Run workflow** để thử ngay lần đầu.
 3. Chờ run xanh; nếu có dữ liệu mới, tab **Commits** có commit từ `xs-data-bot` và Vercel tự tạo deployment mới.
 
-GitHub có thể làm lịch chạy chậm một chút khi hệ thống tải cao. Workflow đã tránh phút đầu giờ và có hai lần chạy mỗi ngày. Nếu repo public không có hoạt động trong 60 ngày, GitHub có thể tắt workflow lịch; vào Actions và bật lại workflow.
+GitHub có thể làm lịch chạy chậm một chút khi hệ thống tải cao. Workflow đã tránh phút đầu giờ và chạy riêng sau giờ quay của từng miền. Nếu repo public không có hoạt động trong 60 ngày, GitHub có thể tắt workflow lịch; vào Actions và bật lại workflow.
 
 ## Không dùng gì
 

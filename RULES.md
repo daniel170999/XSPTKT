@@ -138,9 +138,9 @@ Số đã pad 0 sẵn (`"08"` chứ không phải `"8"`). Đừng pad lại lầ
 - Mọi trang phải chạy tốt trên điện thoại. Bảng rộng bọc trong `.tw` hoặc `.scrolly` (đều có `overflow-x:auto`).
 - **Không được để trang tràn ngang.** Kiểm tra bắt buộc sau mỗi lần sửa CSS/bảng, ở cả 375px và 1280px:
   ```js
-  // dán vào console, phải in ra "ok" cho mọi tổ hợp
+  // dán vào console, phải in ra "ok" cho mọi tổ hợp public
   (()=>{const d=document.documentElement;const s=()=>{const o=[];
-   for(const v of ["pred","journal","verify","help"]){showView(v);
+   for(const v of ["live","pred","cross","verify"]){showView(v);
    if(d.scrollWidth>d.clientWidth)o.push(v+":"+(d.scrollWidth-d.clientWidth)+"px")}
    for(const x of ["board","gap","pattern"]){ST.anaSub=x;showView("ana");
    if(d.scrollWidth>d.clientWidth)o.push("ana/"+x+":"+(d.scrollWidth-d.clientWidth)+"px")}
@@ -165,11 +165,12 @@ Số đã pad 0 sẵn (`"08"` chứ không phải `"8"`). Đừng pad lại lầ
 ```bash
 node --check app.js && node --check ui.js
 ```
-Rồi mở app và kiểm tra đủ **6 tab (+3 màn con của Phân tích) × 2 miền × 2 chế độ số** không lỗi console:
+Rồi mở app và kiểm tra đủ **5 tab public (+3 màn con của Thống kê) × 2 miền × 2 chế độ số** không lỗi console:
 
 - [ ] `node --check` sạch cho `app.js` và `ui.js`
 - [ ] Console trình duyệt không có lỗi đỏ
-- [ ] Cả 6 tab + 3 màn con Phân tích render được ở XSMB và XSMN
+- [ ] Cả 5 tab public + 3 màn con Thống kê render được ở XSMB và XSMN
+- [ ] Tab Kết quả tải được iframe XSMN/XSMB, đúng link nguồn/credit; lỗi bên thứ ba không được làm lỗi origin app
 - [ ] Đổi 2 số ↔ 3 số không vỡ
 - [ ] Dàn nhanh, bảng lịch sử và modal soi số thống nhất cùng `actionable`/nền đúng thứ
 - [ ] Backtest 300 kỳ chạy xong dưới 10 giây

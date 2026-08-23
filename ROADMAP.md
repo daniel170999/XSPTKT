@@ -15,11 +15,13 @@ Toàn bộ checklist RULES §R5 đã chạy sạch (xem mục 4 dưới). Chỉ 
 BLUEPRINT §4 đã chỉ ra hướng đó không có kết quả, tốn công mà không đổi được kết luận cốt lõi.
 
 > Cập nhật triển khai 23/08/2026: theo yêu cầu chuyển sang website public, v1.0 được giữ nguyên phần
-> thống kê/scoring. Chỉ thay lớp phân phối và giao diện: 4 tab công khai, bỏ Nhật ký cá nhân/nhắc local;
+> thống kê/scoring. Chỉ thay lớp phân phối và giao diện: 5 tab công khai, bỏ Nhật ký cá nhân/nhắc local;
 > GitHub Actions cập nhật `data/` hằng ngày và Vercel deploy commit mới. Không dùng database, không có
 > service worker và không thêm tín hiệu dự đoán. Lượt redesign cùng ngày đặt XSMN làm miền mặc định,
 > sắp kỳ mẫu tăng dần với Toàn bộ lịch sử ở cuối, tách switch miền khỏi tab chức năng và xây lại flow
-> dàn 3 bước responsive; vẫn không đổi `app.js` hay công thức. Xem `DEPLOY_VERCEL.md`.
+> dàn 3 bước responsive. Tab Kết quả nhúng bảng live chính thức Minh Ngọc (credit/link nguồn rõ ràng),
+> độc lập với kho lịch sử; Actions chạy 16:42/18:42 giờ Việt Nam. Vẫn không đổi `app.js` hay công thức.
+> Xem `DEPLOY_VERCEL.md`.
 
 ---
 
@@ -57,10 +59,10 @@ App **chỉ** làm 2 số đuôi và 3 số đuôi.
 
 ```
 XS/
-├── index.html      Khung 4 tab public + toàn bộ CSS (tokens ở :root). Không chứa logic.
+├── index.html      Khung 5 tab public + toàn bộ CSS (tokens ở :root). Không chứa logic.
 ├── app.js          BỘ NÃO: analyze(), ebWeight (co ngót Bayes), hazard KM, Wilson, χ²,
 │                   buildModel/scoreOf/rankAll (flat theo zCrit), unbiasedPick, percentile
-├── ui.js           LỚP VẼ: 4 view public (pred/ana/cross/verify) + 3 màn con của ana; code legacy
+├── ui.js           LỚP VẼ: 5 view public (live/pred/ana/cross/verify) + 3 màn con của ana; code legacy
 │                   journal/help còn trong source nhưng không public; GLOSSARY, tooltip và backtest UI
 ├── update.py       Crawler đa luồng 8 workers, PROV_ALIAS (21 đài), lock, ghi nguyên tử
 ├── serve.py        LIVE server 127.0.0.1:8368, tự crawl 16:35/18:32, /api/status
@@ -72,13 +74,13 @@ XS/
 └── data/  xsmb.js · xsmn.js · xsmn.json (kho thô — CẤM XOÁ) · xsmb_extra.json · meta.js · config.json
 ```
 
-## 4. Trạng thái (07/08/2026)
+## 4. Trạng thái (23/08/2026)
 
 ### Đã xong
-- [x] Dữ liệu tối đa hiện có: XSMB **7.514 kỳ** (10/2005→06/08/2026) · XSMN **6.659 kỳ** (01/2008→06/08/2026)
+- [x] Kho public hiện có (23/08/2026): XSMB **7.531 kỳ** (10/2005→23/08/2026) · XSMN **6.676 kỳ** (01/2008→23/08/2026)
       · **21 tên đài** chuẩn hoá alias
 - [x] LIVE tự cập nhật + tự reload; đã chạy thật ngày 04/08 (crawl 2s sau giờ quay)
-- [x] 6 tab tên đời thường; tab Phân tích gộp 3 màn con; banner 3 bước lần đầu; hướng dẫn 2 phút
+- [x] 5 tab public tên đời thường; Kết quả live đứng đầu; Thống kê gộp 3 màn con; flow Chọn dàn 3 bước
 - [x] Nút ⚡ chọn 2–10 số: khi chưa có chứng nhận OOS → chọn đều seed theo ngày, không reroll; lịch sử nổi bật tách khỏi dàn kỳ tới
 - [x] Chấm điểm co ngót Bayes thực nghiệm; tâm riêng từng tín hiệu, nền đúng thứ, sai số đúng cỡ mẫu; cổng `actionable` bắt buộc OOS
 - [x] Nền theo thứ `pBaseFor(w)` dùng ở mọi chỗ hiển thị kỳ vọng
@@ -158,7 +160,8 @@ XS/
 ## 6. Vận hành hằng ngày
 
 ```
-16:15 XSMN quay → 16:35 tự crawl → trang tự reload
-18:15 XSMB quay → 18:32 tự crawl → trang tự reload
+Local:  16:15 XSMN quay → 16:35 serve.py crawl · 18:15 XSMB → 18:32 crawl
+Public: 16:42 GitHub Actions crawl XSMN · 18:42 crawl XSMB → commit → Vercel redeploy
 ```
-Người dùng chỉ cần `MoApp.bat`. Nhật ký nhắc họ ghi bộ số; tab Kiểm chứng để tự thuyết phục.
+Người dùng public mở tab Kết quả để xem bảng live Minh Ngọc; kho thống kê theo sau qua Actions.
+Người dùng local chỉ cần `MoApp.bat`; tab Kiểm chứng dùng để tự đối chiếu model với chọn bừa.
