@@ -1,5 +1,25 @@
 # WORKLOG — Kết Số
 
+## 2026-08-23 — Polish luồng public trước khi tái deploy
+
+- Phạm vi chỉ là UI, trải nghiệm và workflow cập nhật: không sửa `app.js`, scoring, thống kê hay tín hiệu dự đoán.
+- Tab Hôm nay chỉ giữ lựa chọn cần thiết trong card dàn số; thanh bộ lọc lớn tự ẩn ở tab này để không lặp thao tác. Dàn số, ô heatmap và thẻ kết quả đều là nút có nhãn truy cập được; thêm nút sang Thống kê, trạng thái toast, focus rõ ràng, skip link và reduced motion.
+- Mobile: tách 3 hàng Giải / Số đuôi / Mẫu; bảng dữ liệu đầy đủ được thu gọn mặc định. Ô soi số, ghim/loại và lọc bảng có nhãn, bàn phím số, không tự điền hoặc kiểm tra chính tả.
+- GitHub Actions chỉ nâng runtime action `checkout@v5` và `setup-python@v6` để bỏ cảnh báo Node.js 20; lịch chạy, nguồn dữ liệu và quy tắc chỉ commit khi `data/` đổi không thay đổi.
+
+### Kiểm chứng có số liệu
+
+| Hạng mục | Kết quả |
+|---|---|
+| Cú pháp + regression | `node --check app.js`, `node --check ui.js`, `node test_model.cjs`: đạt (`test_model: OK`) |
+| Crawler | `update.py --max-fetch 40`: **2 giây**; trước/sau XSMB **7.530**, XSMN **6.675** kỳ, cùng mới nhất **22/08/2026**; thêm/sửa/mất **0** kỳ |
+| Test crawler | `test_update.py`: **4/4** đạt |
+| Browser local | 4 tab công khai; XSMB/XSMN × 2/3 số; 3 màn Thống kê; modal soi số và thông báo nhập sai: console **0 lỗi** |
+| Responsive | 320px: nội dung **305px / viewport 320px**; 768px, 1024px, 1440px: **0px tràn ngang** |
+| Backtest UI | XSMN / tất cả giải / 3 số / 300 kỳ / W365 / dàn 10: **2,6 giây**; OOS **−0,1%**, top1 **p=0,752**, đối chứng trong mẫu **+116,9%** |
+
+Kết luận: bản polish không tạo hoặc diễn giải thành predictive edge; dàn kỳ tới vẫn chọn đều, tái lập được theo ngày.
+
 ## 2026-08-23 — Chuẩn bị website public + tinh gọn giao diện
 
 ### Phạm vi đã làm

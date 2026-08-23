@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kết Số — XSMB / XSMN — Thống kê 2 số & 3 số đuôi</title>
+<title>Soi XS — Thống kê XSMB & XSMN</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b0f1a">
@@ -15,10 +15,14 @@
   --r:14px; --sh:0 2px 12px rgba(0,0,0,.28);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:var(--txt);font:14px/1.55 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;padding-bottom:80px;overflow-x:hidden}
+html{color-scheme:dark;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--txt);font:14px/1.55 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;padding-bottom:80px;overflow-x:hidden;touch-action:manipulation;-webkit-tap-highlight-color:rgba(77,157,255,.2)}
 .wrap{max-width:1180px;margin:0 auto;padding:0 16px}
 button,input,select{font-family:inherit}
+button{touch-action:manipulation}
+button:focus-visible,input:focus-visible,summary:focus-visible,.cl:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.skip{position:fixed;left:12px;top:-48px;z-index:500;background:var(--gold);color:#101520;padding:8px 12px;border-radius:8px;font-weight:800;text-decoration:none;transition:top .15s}
+.skip:focus{top:12px}
 
 /* ---------- header ---------- */
 header{position:sticky;top:0;z-index:60;background:rgba(11,15,26,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
@@ -36,7 +40,7 @@ header{position:sticky;top:0;z-index:60;background:rgba(11,15,26,.93);backdrop-f
 @keyframes pulse{50%{opacity:.25}}
 .searchbox{position:relative;flex:1 1 360px;max-width:520px;min-width:230px}
 .searchbox input{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 14px 10px 42px;font-size:16px;outline:none;width:100%;height:44px;transition:.15s}
-.searchbox input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(77,157,255,.14)}
+.searchbox input:focus-visible{border-color:var(--acc);box-shadow:0 0 0 3px rgba(77,157,255,.14)}
 .searchbox .ic{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--dim2);font-size:16px;pointer-events:none}
 
 /* ---------- nav ---------- */
@@ -48,20 +52,21 @@ nav button:hover{color:var(--txt)}
 
 /* ---------- filter bar ---------- */
 .filters{background:var(--bg2);border-bottom:1px solid var(--line);padding:10px 0}
+.filters[hidden]{display:none}
 .frow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:7px}
 .frow:last-child{margin-bottom:0}
 .flab{font-size:10.5px;color:var(--dim2);font-weight:800;letter-spacing:.7px;text-transform:uppercase;min-width:62px}
 /* Nhóm chip phải tự xuống dòng, nếu không thanh 21 đài sẽ kéo tràn ngang cả trang */
 #fScope,#fDigit,#fWin,#fProv,#btDays,#btWin{display:flex;flex-wrap:wrap;gap:7px;flex:1 1 auto;min-width:0}
-.chip{padding:5px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:12.5px;user-select:none;white-space:nowrap;transition:.12s;color:var(--dim)}
+.chip{appearance:none;padding:5px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:12.5px;user-select:none;white-space:nowrap;transition:background .12s,border-color .12s,color .12s;color:var(--dim);line-height:1.3}
 .chip:hover{color:var(--txt);border-color:#36436a}
 .chip.on{background:var(--acc);border-color:var(--acc);color:#04101f;font-weight:700}
-.chip.dis{opacity:.3;pointer-events:none}
+.chip.dis,.chip:disabled{opacity:.3;pointer-events:none;cursor:default}
 .chip small{opacity:.65;font-size:10.5px}
 input[type=date]{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:5px 9px;font-size:12.5px;outline:none;color-scheme:dark}
 input[type=date]:focus{border-color:var(--acc)}
 input[type=text]{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:5px 9px;font-size:12.5px;outline:none}
-input[type=text]:focus{border-color:var(--acc)}
+input[type=text]:focus-visible{border-color:var(--acc);box-shadow:0 0 0 3px rgba(77,157,255,.14)}
 
 /* ---------- layout ---------- */
 .view{display:none;padding-top:20px}
@@ -90,13 +95,14 @@ section{margin-bottom:24px}
   border-radius:var(--r);padding:18px 20px;margin-bottom:18px}
 .qhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .qhead .t{font-size:15.5px;font-weight:800}
-.qbtn{background:linear-gradient(135deg,var(--acc),#7b6dff);color:#04101f;border:0;border-radius:11px;
-  padding:11px 22px;font-size:14.5px;font-weight:800;cursor:pointer;transition:.15s;white-space:nowrap}
+.qbtn{background:var(--acc);color:#04101f;border:0;border-radius:11px;
+  padding:11px 22px;font-size:14.5px;font-weight:800;cursor:pointer;transition:background .15s,transform .15s;white-space:nowrap}
 .qbtn:hover{filter:brightness(1.12);transform:translateY(-1px)}
 .qout{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.qn{background:var(--card2);border:2px solid var(--acc);border-radius:14px;padding:10px 20px;
+.qnums{display:flex;gap:10px;flex-wrap:wrap}
+.qn{appearance:none;background:var(--card2);border:2px solid var(--acc);border-radius:14px;padding:10px 20px;
   font-size:38px;font-weight:900;letter-spacing:3px;color:var(--gold);line-height:1.05;
-  font-variant-numeric:tabular-nums;cursor:pointer;transition:.13s}
+  font-variant-numeric:tabular-nums;cursor:pointer;transition:border-color .13s,transform .13s}
 .qn:hover{border-color:var(--gold);transform:translateY(-2px)}
 .qmeta{font-size:12.5px;color:var(--dim);line-height:1.65;flex:1;min-width:210px}
 .qmeta b{color:var(--txt)}
@@ -128,7 +134,7 @@ section{margin-bottom:24px}
 .nums{display:grid;gap:9px}
 .nums.n2{grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}
 .nums.n3{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
-.nb{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:11px 12px;cursor:pointer;position:relative;transition:.13s;overflow:hidden}
+.nb{appearance:none;width:100%;text-align:left;font:inherit;background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:11px 12px;cursor:pointer;position:relative;transition:border-color .13s,transform .13s;overflow:hidden}
 .nb:hover{border-color:var(--acc);transform:translateY(-1px)}
 .nb .rk{position:absolute;top:7px;right:9px;font-size:10px;color:var(--dim2);font-weight:700}
 .nb .v{font-size:27px;font-weight:800;letter-spacing:1.5px;line-height:1.1;color:var(--gold);font-variant-numeric:tabular-nums}
@@ -166,7 +172,7 @@ section{margin-bottom:24px}
 .hm{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
 @media(max-width:620px){.hm{grid-template-columns:repeat(5,1fr)}}
 .hm3{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:5px}
-.cl{border-radius:8px;text-align:center;padding:8px 2px 6px;cursor:pointer;
+.cl{appearance:none;font:inherit;border-radius:8px;text-align:center;padding:8px 2px 6px;cursor:pointer;
   border:1px solid rgba(255,255,255,.07);transition:transform .09s,box-shadow .09s;position:relative}
 .cl:hover{transform:scale(1.16);box-shadow:0 4px 16px rgba(0,0,0,.55);z-index:3;
   border-color:rgba(255,255,255,.7)}
@@ -213,13 +219,13 @@ td.n{font-weight:800;color:var(--gold);font-size:14px;letter-spacing:1px;font-va
 .hzx span{flex:1 1 0;min-width:0;text-align:center;overflow:hidden}
 
 /* ---------- modal ---------- */
-.mbg{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:32px 12px;overflow-y:auto;backdrop-filter:blur(3px)}
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:32px 12px;overflow-y:auto;overscroll-behavior:contain;backdrop-filter:blur(3px)}
 .mbg.show{display:flex}
 .modal{background:var(--card);border:1px solid var(--line);border-radius:16px;max-width:700px;width:100%;padding:22px;box-shadow:var(--sh)}
 .mhead{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
 .mhead .big{font-size:38px;font-weight:900;letter-spacing:3px;color:var(--gold);line-height:1;font-variant-numeric:tabular-nums}
 .mhead .meta{font-size:12px;color:var(--dim);padding-top:5px}
-.x{margin-left:auto;cursor:pointer;color:var(--dim);font-size:19px;padding:2px 8px;border-radius:7px;line-height:1}
+.x{appearance:none;border:0;background:transparent;margin-left:auto;cursor:pointer;color:var(--dim);font-size:19px;padding:2px 8px;border-radius:7px;line-height:1}
 .x:hover{color:var(--txt);background:var(--card2)}
 .ms{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin-bottom:16px}
 .ms div{background:var(--card2);border-radius:10px;padding:9px 11px;font-size:10.5px;color:var(--dim);line-height:1.3}
@@ -259,7 +265,7 @@ td.n{font-weight:800;color:var(--gold);font-size:14px;letter-spacing:1px;font-va
 code{background:var(--card2);padding:2px 7px;border-radius:5px;font-size:12px;color:var(--gold)}
 .empty{color:var(--dim2);font-size:13px;padding:24px;text-align:center;white-space:normal}
 .foot{color:var(--dim2);font-size:11.5px;line-height:1.7;border-top:1px solid var(--line);padding-top:16px;margin-top:34px}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:10px 20px;border-radius:10px;font-size:13px;z-index:200;transition:.25s;opacity:0;box-shadow:var(--sh)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:10px 20px;border-radius:10px;font-size:13px;z-index:200;transition:transform .25s,opacity .25s;opacity:0;box-shadow:var(--sh)}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .jdel{color:var(--dim2);cursor:pointer;padding:0 5px;border-radius:5px}
 .jdel:hover{color:var(--hot);background:var(--card2)}
@@ -317,11 +323,18 @@ sup.info:hover{background:var(--acc);color:#04101f}
   .hero .sm{font-size:11.5px}
   .cd .t{font-size:19px}
   .quick{padding:14px;margin-bottom:14px}
+  .qout{align-items:stretch}
+  .qnums{width:100%}
+  .qn{flex:1;min-width:110px;padding:10px 12px}
+  .qmeta{min-width:0;width:100%}
+  .qacts .qbtn{width:100%}
 }
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
 
+<a class="skip" href="#appMain">Đi đến nội dung chính</a>
 <header>
   <div class="wrap">
     <div class="hbar">
@@ -330,7 +343,7 @@ sup.info:hover{background:var(--acc);color:#04101f}
         <button data-r="MB">XSMB</button>
         <button data-r="MN">XSMN</button>
       </div>
-      <div class="searchbox"><span class="ic">🔍</span><input id="gs" type="search" aria-label="Soi số 2 hoặc 3 chữ số" placeholder="Nhập số cần soi — ví dụ 68 hoặc 668" maxlength="3" inputmode="numeric"></div>
+      <div class="searchbox"><span class="ic" aria-hidden="true">🔍</span><input id="gs" name="soi-so" type="search" aria-label="Soi số 2 hoặc 3 chữ số" placeholder="Nhập 68 hoặc 668…" maxlength="3" inputmode="numeric" autocomplete="off" spellcheck="false"></div>
       <div class="hspace"></div>
       <span class="pill live" id="liveP" title="Dữ liệu được cập nhật tự động mỗi ngày">● Cập nhật hằng ngày</span>
     </div>
@@ -343,17 +356,17 @@ sup.info:hover{background:var(--acc);color:#04101f}
   </div>
 </header>
 
-<div class="filters"><div class="wrap">
-  <div class="frow"><span class="flab">Giải</span><span id="fScope"></span>
-    <span class="flab" style="margin-left:8px">Số đuôi</span><span id="fDigit"></span></div>
+<div class="filters" id="filtersBar"><div class="wrap">
+  <div class="frow"><span class="flab">Giải</span><span id="fScope"></span></div>
+  <div class="frow"><span class="flab">Số đuôi</span><span id="fDigit"></span></div>
   <div class="frow"><span class="flab">Mẫu</span><span id="fWin"></span></div>
   <div class="frow" id="fProvRow" style="display:none"><span class="flab">Đài</span><span id="fProv"></span></div>
 </div></div>
 
-<div class="wrap">
+<main class="wrap" id="appMain">
   <div id="staleBar" style="display:none"></div>
   <div id="noData" style="display:none" class="err">
-    <b>Chưa có dữ liệu.</b><br>Bấm đúp <code>TaiDuLieu.bat</code> trong thư mục app để tải toàn bộ lịch sử, sau đó mở lại trang này.
+    <b>Chưa có dữ liệu.</b><br>Thử tải lại trang sau ít phút. Nếu vẫn trống, kiểm tra workflow cập nhật trên GitHub.
   </div>
 
   <!-- ============ DỰ ĐOÁN ============ -->
@@ -366,13 +379,13 @@ sup.info:hover{background:var(--acc);color:#04101f}
       <div class="qhead"><span style="font-size:12px;color:var(--dim)">Áp dụng cho dàn ⚡ ở trên · không đổi cách xếp hạng</span></div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <span class="flab">Luôn có (ghim)</span>
-        <input type="text" id="pinIn" placeholder="vd: 79 25">
+        <input type="text" id="pinIn" name="ghim-so" aria-label="Các số muốn ghim" placeholder="Ví dụ: 79 25…" autocomplete="off" inputmode="numeric" spellcheck="false">
         <button class="btn g" id="pinAddBtn">+ Ghim</button>
       </div>
       <div id="pinChips" style="margin:8px 0 2px;display:flex;gap:6px;flex-wrap:wrap"></div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px">
         <span class="flab">Không lấy (loại)</span>
-        <input type="text" id="exclIn" placeholder="vd: 13 44">
+        <input type="text" id="exclIn" name="loai-so" aria-label="Các số muốn loại" placeholder="Ví dụ: 13 44…" autocomplete="off" inputmode="numeric" spellcheck="false">
         <button class="btn g" id="exclAddBtn">+ Loại</button>
       </div>
       <div id="exclChips" style="margin:8px 0 2px;display:flex;gap:6px;flex-wrap:wrap"></div>
@@ -427,13 +440,16 @@ sup.info:hover{background:var(--acc);color:#04101f}
         <div><div style="color:var(--dim);font-size:12px;margin-bottom:8px">ĐUÔI</div><div id="bTail"></div></div>
       </div>
     </section>
-    <section>
-      <div class="stitle">📋 Bảng đầy đủ
-        <input id="tf" class="chip" style="margin-left:auto;padding:6px 12px;background:var(--card2);color:var(--txt);width:130px" placeholder="Lọc số…">
-      </div>
-      <div class="ssub">Bấm tiêu đề cột để sắp xếp · bấm dòng để soi chi tiết</div>
-      <div class="card" style="padding:0"><div class="scrolly" style="max-height:560px"><table id="tFull"></table></div></div>
-    </section>
+    <details class="moreStats">
+      <summary>Xem bảng đầy đủ & lọc số</summary>
+      <section style="margin-top:8px">
+        <div class="stitle">Bảng đầy đủ
+          <input id="tf" name="loc-bang-so" class="chip" aria-label="Lọc bảng số" autocomplete="off" inputmode="numeric" spellcheck="false" style="margin-left:auto;padding:6px 12px;background:var(--card2);color:var(--txt);width:130px" placeholder="Lọc số…">
+        </div>
+        <div class="ssub">Bấm tiêu đề cột để sắp xếp · bấm dòng để soi chi tiết</div>
+        <div class="card" style="padding:0"><div class="scrolly" style="max-height:560px"><table id="tFull"></table></div></div>
+      </section>
+    </details>
     </div>
 
     <div id="sub-gap" style="display:none">
@@ -513,7 +529,7 @@ sup.info:hover{background:var(--acc);color:#04101f}
     </section>
     <section>
       <div class="stitle">🔬 Biết XSMN chiều có đoán được XSMB tối không?</div>
-      <div class="ssub">Đo trực tiếp trên mọi ngày có đủ cả hai miền — đây là câu hỏi đáng tiền nhất của app</div>
+      <div class="ssub">Đo trực tiếp trên mọi ngày có đủ cả hai miền để xem dữ liệu có hỗ trợ mối liên hệ này hay không.</div>
       <div class="card" id="crossTest"></div>
     </section>
     <section>
@@ -593,11 +609,11 @@ sup.info:hover{background:var(--acc);color:#04101f}
   </div>
 
   <div class="foot" id="foot"></div>
-</div>
+ </main>
 
-<div class="mbg" id="mbg"><div class="modal" id="modal"></div></div>
-<div class="toast" id="toast"></div>
-<div id="tipPop"></div>
+<div class="mbg" id="mbg"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="tipPop" role="tooltip"></div>
 
 <script src="data/meta.js"></script>
 <script src="data/xsmb.js"></script>

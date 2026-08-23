@@ -61,8 +61,8 @@ function recompute(){
 
 /* ---------------- helper UI ---------------- */
 function mkChip(label, on, cb, dis, sub){
-  const c = el("span","chip"+(on?" on":"")+(dis?" dis":""), label + (sub?` <small>${sub}</small>`:""));
-  c.onclick = cb; return c;
+  const c = el("button","chip"+(on?" on":"")+(dis?" dis":""), label + (sub?` <small>${sub}</small>`:""));
+  c.type="button"; c.disabled=!!dis; c.setAttribute("aria-pressed",String(!!on)); c.onclick = cb; return c;
 }
 function liftTag(l){
   const cls = l>=1.15?"up": l<=0.87?"dn":"flat";
@@ -162,7 +162,10 @@ document.addEventListener("click", e=>{
    BỘ LỌC
    ========================================================================== */
 function renderFilters(sl){
-  $$("#regSeg button").forEach(b=>b.classList.toggle("on", b.dataset.r===ST.region));
+  $$("#regSeg button").forEach(b=>{
+    const on=b.dataset.r===ST.region;
+    b.classList.toggle("on",on); b.setAttribute("aria-pressed",String(on));
+  });
 
   const sc=$("#fScope"); sc.innerHTML="";
   sc.append(
@@ -227,16 +230,16 @@ function predPanel(node, Ax, rank, kind){
   const pSet=Ax.baseSetProb(N,NEXT.w);
   const cells=top.map((r,i)=>{
     const s=r.s;
-    return `<div class="nb ${i===0&&rank.model.actionable?"p1":""}" onclick="openNum('${r.tail}',${Ax.digits})">
+    return `<button type="button" class="nb ${i===0&&rank.model.actionable?"p1":""}" onclick="openNum('${r.tail}',${Ax.digits})" aria-label="Soi số ${r.tail}">
       <div class="rk">#${i+1}</div>
       <div class="v">${r.tail}</div>
       <div class="mt">Ra <b>${s?s.daysCnt:0}</b>/${Ax.K} kỳ · gan <b>${r.curGap}</b></div>
       ${liftTag(r.lift)}
-    </div>`;
+    </button>`;
   }).join("");
 
   const dan=[5,10,20,30].map(n=>
-    `<span class="chip ${N===n?"on":""}" onclick="setDan(${n})">${n} số</span>`).join("");
+    `<button type="button" class="chip ${N===n?"on":""}" onclick="setDan(${n})" aria-pressed="${N===n}">${n} số</button>`).join("");
 
   node.innerHTML=`
     <div class="predhead">
@@ -336,28 +339,27 @@ function renderQuick(){
     </div>
     <div class="qcfg">
       <span class="flab">Đánh giải</span>
-      ${["all","dd"].map(sc=>`<span class="chip ${ST.scope===sc?"on":""}" onclick="setQScope('${sc}')">${scopeLabel(ST.region,sc)}</span>`).join("")}
-      <span class="flab" style="margin-left:6px">Loại</span>
-      ${[2,3].map(dg=>`<span class="chip ${ST.digits===dg?"on":""}" onclick="setQDigits(${dg})">${dg} số</span>`).join("")}
-      <span class="flab" style="margin-left:6px">Lấy</span>
-      ${[2,3,4,5,6,8,10].map(k=>`<span class="chip ${n===k?"on":""}" onclick="setQuickN(${k})">${k}</span>`).join("")}
+      ${["all","dd"].map(sc=>`<button type="button" class="chip ${ST.scope===sc?"on":""}" onclick="setQScope('${sc}')" aria-pressed="${ST.scope===sc}">${scopeLabel(ST.region,sc)}</button>`).join("")}
+      <span class="flab" style="margin-left:6px">Đuôi</span>
+      ${[2,3].map(dg=>`<button type="button" class="chip ${ST.digits===dg?"on":""}" onclick="setQDigits(${dg})" aria-pressed="${ST.digits===dg}">${dg} số</button>`).join("")}
+      <span class="flab" style="margin-left:6px">Số lượng</span>
+      ${[2,3,4,5,6,8,10].map(k=>`<button type="button" class="chip ${n===k?"on":""}" onclick="setQuickN(${k})" aria-pressed="${n===k}">${k}</button>`).join("")}
     </div>
     <div class="qout">
-      ${q.picks.map(t=>
-        `<div class="qn" onclick="openNum('${t}',${Ax.digits})">${t}</div>`
-      ).join("")}
+      <div class="qnums">${q.picks.map(t=>
+        `<button type="button" class="qn" onclick="openNum('${t}',${Ax.digits})" aria-label="Soi chi tiết số ${t}">${t}</button>`
+      ).join("")}</div>
       <div class="qmeta">
-        Mỗi số có <b>${pctS(pB,2)}</b>${tip("nen")} khả năng về ở kỳ ${DOW_S[NEXT.w]}${ST.region==="MN"?tip("nendow"):""}.<br>
-        Chọn cả <b>${nEff} số</b>${q.pinned>n?` <span style="color:var(--dim2)">(đã ghim ${q.pinned}, nhiều hơn ${n} số "Lấy")</span>`:""}
-        → xác suất nền có ít nhất 1: <b style="color:var(--ok);font-size:15px">${pctS(pAny)}</b>${tip("dan")}<br>
-        Kỳ vọng số lần trúng: <b>${(nEff*pB).toFixed(2)}</b>
+        Nền mỗi số: <b>${pctS(pB,2)}</b>${tip("nen")} ở kỳ ${DOW_S[NEXT.w]}${ST.region==="MN"?tip("nendow"):""}.<br>
+        Dàn <b>${nEff} số</b>${q.pinned>n?` <span style="color:var(--dim2)">(ghim ${q.pinned})</span>`:""} → có ≥1 số: <b style="color:var(--ok);font-size:15px">${pctS(pAny)}</b>${tip("dan")}
       </div>
     </div>
     <div class="qacts">
-      <button class="qbtn" onclick="copyQuick()">📋 Copy dàn số</button>
+      <button class="qbtn" onclick="copyQuick()">📋 Copy ${nEff} số</button>
+      <button class="btn g" onclick="goToStats()">Xem thống kê</button>
     </div>
     <div style="font-size:11.5px;color:var(--dim2);margin-top:9px">
-      Bộ số này được tạo cố định theo ngày. Bấm một số để xem lịch sử chi tiết; đổi bộ lọc để soi theo nhu cầu.
+      Bấm số để soi lịch sử. Bộ số cố định theo ngày, không có nút quay lại để đổi số.
     </div>
     <details class="qwhy">
       <summary>${!M.actionable?"Vì sao app chọn đều?":"Vì sao app chọn các số này?"}</summary>
@@ -388,6 +390,7 @@ function renderQuick(){
 window.setQuickN = k => { ST.quickN=k; renderQuick() };
 window.setQScope = sc => { ST.scope=sc; refresh() };
 window.setQDigits = dg => { ST.digits=dg; refresh() };
+window.goToStats = () => showView("ana");
 
 window.copyQuick = () => {
   const Ax=ST.digits===2?A2:A3, rank=ST.digits===2?RANK2:RANK3;
@@ -400,10 +403,10 @@ function renderPred(){
   const gb=$("#guideB");
   if(!localStorage.getItem("xs_guide_v1")){
     gb.innerHTML=`<div class="guide">
-      <b>👋 Dùng lần đầu:</b>
-      <span class="num">1</span>Chọn giải · loại số · số lượng
+      <b>Chọn dàn trong 3 bước:</b>
+      <span class="num">1</span>Chọn phạm vi, 2/3 số & số lượng
       <span class="num">2</span>Copy dàn hoặc bấm số để soi kỹ
-      <span class="num">3</span>Vào <b>Thống kê</b> để xem nóng/lạnh/gan.
+      <span class="num">3</span>Mở <b>Thống kê</b> khi cần xem lịch sử.
       <button class="btn g" style="margin-left:10px;padding:4px 12px" onclick="localStorage.setItem('xs_guide_v1','1');this.parentElement.parentElement.innerHTML=''">Đã hiểu ✓</button>
     </div>`;
   } else gb.innerHTML="";
@@ -485,8 +488,9 @@ function renderBoard(){
     const tt = mode.k==="gap" ? 1-pct01(v) : pct01(v);
     const col=heatColor(tt);
     const s=A.S.get(t);
-    const c=el("div","cl"+(Math.abs(z)>=2?" mark":""),
+    const c=el("button","cl"+(Math.abs(z)>=2?" mark":""),
       `<div class="n">${t}</div><div class="c">${label(t)}</div>`);
+    c.type="button"; c.setAttribute("aria-label",`Soi số ${t}`);
     c.style.background=col.bg; c.style.color=col.fg;
     c.title=`${t} — ra ${s?s.daysCnt:0}/${A.K} kỳ (${pctS(s?s.daysCnt/A.K:0)}) · ${s?s.occ:0} lần`+
             ` · gan ${s?s.curGap:A.K} · 30 kỳ gần ${s?s.recCnt:0}`+
@@ -796,7 +800,7 @@ function renderGroups(){
 const JKEY="xs_journal_v1";
 const JST={region:"MN", digits:2, scope:"all"};
 /** Nhãn ngắn cho phạm vi giải — dùng cả ở form lẫn bảng lịch sử */
-const scopeLabel=(reg,sc)=> sc==="dd" ? (reg==="MB"?"G7+GĐB":"G8+GĐB") : "Tất cả giải";
+const scopeLabel=(reg,sc)=> sc==="dd" ? (reg==="MB"?"G7 + GĐB":"G8 + GĐB") : "Tất cả giải";
 
 function jLoad(){ try{ return JSON.parse(localStorage.getItem(JKEY))||[] }catch(e){ return [] } }
 function jStore(l){ try{ localStorage.setItem(JKEY, JSON.stringify(l)) }catch(e){ toast("Không lưu được — bộ nhớ trình duyệt đầy") } }
@@ -1526,7 +1530,7 @@ window.openNum = (tail, digits) => {
         <div class="meta">${ST.region} · ${ST.scope==="all"?"tất cả giải":(ST.region==="MB"?"G7+GĐB":"G8+GĐB")} · ${digits} số đuôi<br>
           mẫu ${Ax.K} kỳ (${Ax.K?fmtD(Ax.from)+" → "+fmtD(Ax.to):"—"})</div>
       </div>
-      <span class="x" onclick="closeM()">✕</span>
+      <button type="button" class="x" onclick="closeM()" aria-label="Đóng soi số">✕</button>
     </div>
     <div class="ms">
       <div>Tổng lần ra<b>${s?s.occ:0}</b></div>
@@ -1578,6 +1582,7 @@ window.openNum = (tail, digits) => {
       ? hits.slice(-60).reverse().map(h=>`<span class="tag"><b>${fmtD(h.d)}</b> ${DOW_S[h.w]} · ${h.prize}${h.prov?" "+h.prov:""}</span>`).join("")
       : `<span class="tag">Chưa ra lần nào trong mẫu này</span>`}</div>`;
   $("#mbg").classList.add("show");
+  $("#modal .x")?.focus();
 };
 window.closeM = () => $("#mbg").classList.remove("show");
 
@@ -1586,9 +1591,9 @@ window.closeM = () => $("#mbg").classList.remove("show");
    ========================================================================== */
 /* Tab "Phân tích sâu" gộp 3 màn cũ; chọn màn con bằng chip. */
 const ANA_SUBS=[
-  {k:"board",   n:"🌡️ Bản đồ nhiệt & bảng số", fn:()=>renderBoard()},
-  {k:"gap",     n:"⏳ Gan & chu kỳ",            fn:()=>renderGap()},
-  {k:"pattern", n:"🧩 Cầu & mẫu số",            fn:()=>renderPattern()},
+  {k:"board",   n:"🌡️ Bảng số",       fn:()=>renderBoard()},
+  {k:"gap",     n:"⏳ Gan & chu kỳ",   fn:()=>renderGap()},
+  {k:"pattern", n:"🧩 Mẫu & liên quan",fn:()=>renderPattern()},
 ];
 function renderAna(){
   const ac=$("#anaChips"); ac.innerHTML="";
@@ -1610,7 +1615,12 @@ function refresh(){
 }
 function showView(v){
   ST.view=v;
-  $$("#nav button").forEach(b=>b.classList.toggle("on", b.dataset.v===v));
+  $("#filtersBar").hidden = v==="pred";
+  $$("#nav button").forEach(b=>{
+    const on=b.dataset.v===v;
+    b.classList.toggle("on",on);
+    b.setAttribute("aria-current",on?"page":"false");
+  });
   $$(".view").forEach(n=>n.classList.toggle("on", n.id==="v-"+v));
   if(dirty[v]){ RENDER[v](); dirty[v]=0 }
   window.scrollTo({top:0,behavior:"instant"});
@@ -1633,7 +1643,11 @@ $("#exclIn").addEventListener("keydown", e=>{ if(e.key==="Enter") pxAdd("excl") 
 $("#gs").addEventListener("keydown", e=>{
   if(e.key!=="Enter") return;
   const v=e.target.value.trim();
-  if(!/^\d{2,3}$/.test(v)){ e.target.style.borderColor="var(--hot)"; setTimeout(()=>e.target.style.borderColor="",900); return }
+  if(!/^\d{2,3}$/.test(v)){
+    e.target.style.borderColor="var(--hot)";
+    toast("Nhập đúng 2 hoặc 3 chữ số, ví dụ 68 hoặc 668.");
+    setTimeout(()=>e.target.style.borderColor="",900); return;
+  }
   openNum(v, v.length);
   e.target.value="";
 });
