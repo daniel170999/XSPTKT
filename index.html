@@ -53,6 +53,8 @@ header{position:sticky;top:0;z-index:60;background:rgba(7,11,18,.9);backdrop-fil
 .reg-name{display:block;font-size:10px;font-weight:650;opacity:.72;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pill{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:99px;font-size:11.5px;font-weight:750;border:1px solid var(--line);background:var(--card);color:var(--dim);cursor:default;white-space:nowrap}
 .pill.live{background:rgba(61,221,154,.08);color:var(--ok);border-color:rgba(61,221,154,.28)}
+.pill.action{font-family:inherit;cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
+.pill.action:hover{background:rgba(61,221,154,.14);border-color:rgba(61,221,154,.5);transform:translateY(-1px)}
 .pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.6s infinite}
 @keyframes pulse{50%{opacity:.25}}
 .searchbox{position:relative;min-width:0;width:100%;max-width:720px;justify-self:center}
@@ -62,13 +64,15 @@ header{position:sticky;top:0;z-index:60;background:rgba(7,11,18,.9);backdrop-fil
 .searchbox .ic{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--dim2);font-size:16px;pointer-events:none}
 
 /* ---------- nav ---------- */
-.appnav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:rgba(16,25,39,.78);border:1px solid var(--line);border-radius:12px;padding:4px;min-width:0}
+.appnav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;background:rgba(16,25,39,.78);border:1px solid var(--line);border-radius:12px;padding:4px;min-width:0}
 .appnav button{appearance:none;display:flex;align-items:center;gap:9px;background:transparent;border:0;color:var(--dim);padding:7px 10px;border-radius:9px;cursor:pointer;text-align:left;min-width:0;transition:background .16s,color .16s,transform .16s}
 .appnav button.on{color:var(--txt);background:var(--card2);box-shadow:inset 0 0 0 1px rgba(var(--acc-rgb),.16)}
 .appnav button:hover{color:var(--txt);background:var(--card2)}
 .nav-icon{width:28px;height:28px;border-radius:8px;background:rgba(var(--acc-rgb),.1);display:grid;place-items:center;color:var(--acc);flex:0 0 auto;transition:background .16s,color .16s,transform .16s}
 .nav-icon svg{width:16px;height:16px}
 .appnav button.on .nav-icon{background:var(--acc);color:#04101f}
+.appnav button[data-v="live"] .nav-icon{color:var(--hot);background:rgba(255,96,114,.1)}
+.appnav button[data-v="live"].on .nav-icon{color:#1a0710;background:var(--hot)}
 .nav-copy{display:flex;flex-direction:column;min-width:0;line-height:1.15}
 .nav-title{font-size:12.5px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nav-hint{font-size:9.5px;color:var(--dim2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -117,6 +121,46 @@ section{margin-bottom:30px}
    min-width:0 cho phép ô co lại, bảng tự cuộn ngang trong .scrolly của nó. */
 .grid2>*,.grid3>*{min-width:0}
 @media(max-width:880px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* ---------- kết quả trực tiếp ---------- */
+.live-stage{position:relative;overflow:hidden;margin-bottom:18px;padding:26px 28px;border:1px solid rgba(var(--acc-rgb),.24);border-radius:20px;background:
+  radial-gradient(circle at 88% 18%,rgba(var(--acc-rgb),.18),transparent 24rem),
+  linear-gradient(145deg,#121d2c,#0c1420);box-shadow:var(--sh)}
+.live-stage::before{content:"";position:absolute;left:0;top:22px;bottom:22px;width:3px;border-radius:0 99px 99px 0;background:var(--acc)}
+.live-stage-grid{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}
+.live-kicker{display:flex;align-items:center;gap:9px;color:var(--dim);font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}
+.live-signal{position:relative;width:9px;height:9px;border-radius:50%;background:var(--dim2);box-shadow:0 0 0 5px rgba(105,119,141,.12)}
+.live-signal.on{background:var(--hot);box-shadow:0 0 0 5px rgba(255,96,114,.12)}
+.live-signal.on::after{content:"";position:absolute;inset:-6px;border:1px solid rgba(255,96,114,.5);border-radius:50%;animation:liveRing 1.8s ease-out infinite}
+.live-stage h1{font-size:clamp(30px,4vw,50px);font-weight:920;line-height:1;margin-top:10px;max-width:720px}
+.live-stage p{color:var(--dim);font-size:13px;max-width:700px;margin-top:11px}
+.live-clock{text-align:right;min-width:180px;padding:14px 16px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(7,11,18,.45)}
+.live-clock span{display:block;color:var(--dim2);font-size:9.5px;font-weight:850;letter-spacing:.8px;text-transform:uppercase}
+.live-clock b{display:block;color:var(--gold);font-size:24px;font-variant-numeric:tabular-nums;line-height:1.1;margin-top:5px}
+.live-clock small{display:block;color:var(--dim);font-size:10px;margin-top:4px}
+.live-shell{overflow:hidden;border:1px solid var(--line);border-radius:20px;background:rgba(12,19,31,.96);box-shadow:var(--sh)}
+.live-shell-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding:20px 22px;border-bottom:1px solid var(--line)}
+.live-shell-head h2{font-size:22px;font-weight:900;line-height:1.15;margin-top:4px}
+.live-shell-head p{font-size:11.5px;color:var(--dim);margin-top:6px;max-width:640px}
+.source-lockup{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;min-width:230px}
+.source-badge{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:7px 10px;border:1px solid rgba(61,221,154,.25);border-radius:9px;background:rgba(61,221,154,.07);color:var(--ok);font-size:10.5px;font-weight:800;white-space:nowrap}
+.source-badge::before{content:"✓";display:grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--ok);color:#07111e;font-size:10px}
+.source-link,.live-tool{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--dim);font:inherit;font-size:10.5px;font-weight:800;text-decoration:none;cursor:pointer;transition:color .15s,border-color .15s,background .15s,transform .15s}
+.source-link:hover,.live-tool:hover{color:var(--txt);border-color:rgba(var(--acc-rgb),.55);background:var(--card2);transform:translateY(-1px)}
+.live-frame-wrap{position:relative;min-height:720px;background:#fff}
+.live-frame{display:block;width:100%;height:1280px;border:0;background:#fff}
+.frame-loading{position:absolute;left:50%;top:36px;z-index:2;transform:translateX(-50%);display:flex;align-items:center;gap:9px;padding:8px 12px;border:1px solid var(--line);border-radius:9px;background:#0e1724;color:var(--dim);font-size:11px;box-shadow:0 8px 24px rgba(0,0,0,.24);transition:opacity .2s,visibility .2s}
+.frame-loading.done{opacity:0;visibility:hidden}
+.frame-loading i{width:8px;height:8px;border-radius:50%;background:var(--acc);animation:pulse 1s infinite}
+.live-credit{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;padding:14px 18px;border-top:1px solid var(--line);background:rgba(16,25,39,.98);color:var(--dim2);font-size:10.5px;line-height:1.6}
+.live-credit b{color:var(--dim)}
+.live-credit a{color:var(--acc);text-decoration:none;font-weight:750}
+.live-credit a:hover{text-decoration:underline}
+.live-next{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.live-next button{appearance:none;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 16px;border:1px solid var(--line);border-radius:13px;background:var(--card);color:var(--txt);text-align:left;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.live-next button:hover{border-color:rgba(var(--acc-rgb),.5);background:var(--card2);transform:translateY(-1px)}
+.live-next b{display:block;font-size:13px}.live-next span{display:block;color:var(--dim);font-size:10.5px;margin-top:2px}.live-next i{color:var(--acc);font-style:normal;font-size:20px}
+@keyframes liveRing{0%{opacity:.9;transform:scale(.7)}80%,100%{opacity:0;transform:scale(1.65)}}
 
 /* ---------- hero dự đoán ---------- */
 .hero{position:relative;overflow:hidden;background:
@@ -377,6 +421,11 @@ sup.info:hover{background:var(--acc);color:#04101f}
   .qstep:last-child{grid-column:1/-1}
   .view-intro{align-items:flex-start;flex-direction:column;gap:14px}
   .subnav{justify-content:flex-start}
+  .live-stage-grid{grid-template-columns:1fr}
+  .live-clock{text-align:left;min-width:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .live-clock span,.live-clock b,.live-clock small{display:inline;margin:0}
+  .live-shell-head{flex-direction:column;gap:14px}
+  .source-lockup{justify-content:flex-start;min-width:0}
 }
 @media(max-width:620px){
   .wrap{padding:0 12px}
@@ -413,6 +462,23 @@ sup.info:hover{background:var(--acc);color:#04101f}
   #fWin .chip,#fProv .chip{flex:0 0 auto}
   .period-row .swipe-hint,.province-row .swipe-hint{display:block;width:100%;padding-left:57px;margin-top:-2px;color:var(--dim2);font-size:9px}
   .view{padding-top:17px}
+  .live-stage{padding:18px 16px;margin-bottom:13px;border-radius:16px}
+  .live-stage::before{top:16px;bottom:16px}
+  .live-stage-grid{gap:15px}
+  .live-stage h1{font-size:28px;margin-top:8px}
+  .live-stage p{font-size:11.5px;margin-top:8px}
+  .live-clock{padding:10px 11px;border-radius:11px}
+  .live-clock b{font-size:18px}
+  .live-shell{border-radius:16px}
+  .live-shell-head{padding:16px 14px}
+  .live-shell-head h2{font-size:19px}
+  .source-lockup{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .source-badge{grid-column:1/-1;justify-content:center}
+  .source-link,.live-tool{width:100%}
+  .live-frame-wrap{min-height:680px}
+  .live-frame{height:1380px}
+  .live-credit{flex-direction:column;padding:12px 14px;gap:8px}
+  .live-next{grid-template-columns:1fr;gap:8px;margin-top:12px}
   .view-intro{margin-bottom:18px;padding-bottom:14px}
   .view-intro h1{font-size:27px}
   .subnav{display:grid;grid-template-columns:1fr;width:100%}
@@ -474,7 +540,7 @@ sup.info:hover{background:var(--acc);color:#04101f}
         <span class="brand-copy">Soi XS<small>Thống kê minh bạch</small></span>
       </div>
       <div class="searchbox"><span class="ic" aria-hidden="true">⌕</span><input id="gs" name="soi-so" type="search" aria-label="Soi số 2 hoặc 3 chữ số" placeholder="Soi nhanh số 68 hoặc 668…" maxlength="3" inputmode="numeric" autocomplete="off" spellcheck="false"></div>
-      <span class="pill live" id="liveP" title="Dữ liệu được cập nhật tự động mỗi ngày">● Cập nhật hằng ngày</span>
+      <button type="button" class="pill live action" id="liveP" title="Mở kết quả trực tiếp"><span class="dot" aria-hidden="true"></span>Kết quả trực tiếp</button>
     </div>
     <div class="toolbar">
       <div class="region-picker">
@@ -485,7 +551,8 @@ sup.info:hover{background:var(--acc);color:#04101f}
         </div>
       </div>
       <nav class="appnav" id="nav" aria-label="Điều hướng chính">
-        <button type="button" data-v="pred" class="on" aria-label="Hôm nay — chọn dàn nhanh"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M12 4v16"/><circle cx="12" cy="12" r="8"/></svg></span><span class="nav-copy"><span class="nav-title">Hôm nay</span><span class="nav-hint">Chọn dàn nhanh</span></span></button>
+        <button type="button" data-v="live" class="on" aria-label="Kết quả — xem tường thuật trực tiếp"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 5v14l11-7z" stroke-linejoin="round"/><circle cx="12" cy="12" r="10"/></svg></span><span class="nav-copy"><span class="nav-title">Kết quả</span><span class="nav-hint">Trực tiếp từng giải</span></span></button>
+        <button type="button" data-v="pred" aria-label="Chọn dàn — lấy dàn tham khảo"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M12 4v16"/><circle cx="12" cy="12" r="8"/></svg></span><span class="nav-copy"><span class="nav-title">Chọn dàn</span><span class="nav-hint">2 số & 3 số</span></span></button>
         <button type="button" data-v="ana" aria-label="Thống kê — tần suất và gan"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 20V10M12 20V4M19 20v-7" stroke-linecap="round"/></svg></span><span class="nav-copy"><span class="nav-title">Thống kê</span><span class="nav-hint">Tần suất & gan</span></span></button>
         <button type="button" data-v="cross" aria-label="Hai miền — đối chiếu miền Bắc và miền Nam"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h11l-3-3M17 17H6l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="nav-copy"><span class="nav-title">Hai miền</span><span class="nav-hint">Đối chiếu MB/MN</span></span></button>
         <button type="button" data-v="verify" aria-label="Kiểm chứng — chạy backtest"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 13 4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="nav-copy"><span class="nav-title">Kiểm chứng</span><span class="nav-hint">Backtest thật</span></span></button>
@@ -510,8 +577,50 @@ sup.info:hover{background:var(--acc);color:#04101f}
     <b>Chưa có dữ liệu.</b><br>Thử tải lại trang sau ít phút. Nếu vẫn trống, kiểm tra workflow cập nhật trên GitHub.
   </div>
 
+  <!-- ============ KẾT QUẢ TRỰC TIẾP ============ -->
+  <div class="view on" id="v-live">
+    <section class="live-stage" aria-labelledby="liveTitle">
+      <div class="live-stage-grid">
+        <div>
+          <div class="live-kicker"><span class="live-signal" id="liveSignal" aria-hidden="true"></span><span id="liveStatus">Đang kiểm tra lịch quay</span></div>
+          <h1 id="liveTitle">Kết quả xổ số trực tiếp</h1>
+          <p id="liveLead">Theo dõi từng giải ngay trên website. Chọn XSMN hoặc XSMB ở thanh phía trên để đổi bảng.</p>
+        </div>
+        <div class="live-clock"><span>Giờ Việt Nam</span><b id="liveClock">--:--</b><small id="liveSchedule">XSMN 16:15 · XSMB 18:15</small></div>
+      </div>
+    </section>
+
+    <section class="live-shell" aria-labelledby="liveBoardTitle">
+      <div class="live-shell-head">
+        <div>
+          <span class="eyebrow">Tường thuật từ nguồn chính thức đã chọn</span>
+          <h2 id="liveBoardTitle">Trực tiếp XSMN</h2>
+          <p id="liveBoardNote">Bảng tự cập nhật khi các đài bắt đầu quay; không cần tải lại cả website.</p>
+        </div>
+        <div class="source-lockup">
+          <span class="source-badge">Nguồn Minh Ngọc™</span>
+          <button type="button" class="live-tool" id="liveRefresh">Tải lại bảng</button>
+          <a class="source-link" id="liveSource" href="https://www.minhngoc.net.vn/xo-so-truc-tiep/mien-nam.html" target="_blank" rel="noopener noreferrer">Mở nguồn ↗</a>
+        </div>
+      </div>
+      <div class="live-frame-wrap">
+        <div class="frame-loading" id="liveLoading" role="status" aria-live="polite"><i aria-hidden="true"></i>Đang kết nối bảng kết quả…</div>
+        <iframe class="live-frame" id="liveFrame" name="iframe_xosominhngoc" title="Bảng kết quả xổ số trực tiếp từ Minh Ngọc" src="https://www.minhngoc.net.vn/free/xo-so-truc-tiep/mien-nam.html" loading="eager" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+      </div>
+      <div class="live-credit">
+        <span><b>Nguồn & credit:</b> Bảng kết quả trực tiếp được nhúng nguyên trạng từ <a href="https://www.minhngoc.net.vn/tao-ma-nhung/ket-qua-xo-so.html" target="_blank" rel="noopener noreferrer">công cụ miễn phí của Minh Ngọc™</a>. Nội dung mang tính tham khảo.</span>
+        <span>Kết quả cuối cùng căn cứ biên bản mở thưởng niêm yết tại công ty xổ số kiến thiết. <a href="https://www.minhngoc.net.vn/thong-tin/dieu-khoan-su-dung.html" target="_blank" rel="noopener noreferrer">Điều khoản nguồn ↗</a></span>
+      </div>
+    </section>
+
+    <div class="live-next" aria-label="Tiếp tục sử dụng ứng dụng">
+      <button type="button" id="liveToPred"><span><b>Phân tích 2 số & 3 số đuôi</b><span>Mở dàn tham khảo cho kỳ tiếp theo</span></span><i aria-hidden="true">→</i></button>
+      <button type="button" id="liveToCross"><span><b>Đối chiếu hai miền</b><span>Xem XSMN và XSMB trong cùng ngày</span></span><i aria-hidden="true">→</i></button>
+    </div>
+  </div>
+
   <!-- ============ DỰ ĐOÁN ============ -->
-  <div class="view on" id="v-pred">
+  <div class="view" id="v-pred">
     <div id="guideB"></div>
     <div class="hero" id="hero"></div>
     <div class="quick" id="quick"></div>

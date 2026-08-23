@@ -7,7 +7,7 @@ const $$ = s => [...document.querySelectorAll(s)];
 const el = (tag, cls, html) => { const e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e };
 
 const ST = {
-  region:"MN", scope:"all", digits:2, win:"max", provs:null, view:"pred",
+  region:"MN", scope:"all", digits:2, win:"max", provs:null, view:"live",
   danSize:10, btDays:300, btWin:365, hmMode:"freq", quickN:2, anaSub:"board"
 };
 const WINS = [
@@ -226,6 +226,73 @@ function renderHero(){
         ${ST.region==="MN"?`<span>${ST.provs&&ST.provs.size?[...ST.provs].join(", "):"Tất cả đài"}</span>`:""}</div>
     </div>
     <div class="cd"><div class="l">${cdL}</div><div class="t">${cdT}</div><div class="cd-foot">Giờ Việt Nam</div></div>`;
+}
+
+/* ---------------- kết quả trực tiếp ---------------- */
+const LIVE_SOURCE={
+  MN:{
+    name:"Miền Nam", code:"XSMN",
+    embed:"https://www.minhngoc.net.vn/free/xo-so-truc-tiep/mien-nam.html",
+    source:"https://www.minhngoc.net.vn/xo-so-truc-tiep/mien-nam.html"
+  },
+  MB:{
+    name:"Miền Bắc", code:"XSMB",
+    embed:"https://www.minhngoc.net.vn/free/xo-so-truc-tiep/mien-bac.html",
+    source:"https://www.minhngoc.net.vn/xo-so-truc-tiep/mien-bac.html"
+  }
+};
+const VN_TIME_FMT=new Intl.DateTimeFormat("vi-VN",{
+  timeZone:"Asia/Ho_Chi_Minh",hour:"2-digit",minute:"2-digit",hourCycle:"h23"
+});
+const VN_DATE_FMT=new Intl.DateTimeFormat("vi-VN",{
+  timeZone:"Asia/Ho_Chi_Minh",weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"
+});
+function vnTime(){
+  const parts=Object.fromEntries(VN_TIME_FMT.formatToParts(new Date()).map(p=>[p.type,p.value]));
+  return {text:VN_TIME_FMT.format(new Date()), mins:Number(parts.hour)*60+Number(parts.minute)};
+}
+function livePhase(region){
+  const now=vnTime(), start=DRAW_TIME[region], open=start-10, close=start+55;
+  if(now.mins>=open && now.mins<=close)
+    return {live:true,label:"Đang tường thuật trực tiếp",detail:"Bảng bên dưới tự nhận từng giải khi nguồn công bố"};
+  if(now.mins<open){
+    const left=open-now.mins;
+    return left<=90
+      ? {live:false,label:`Sắp quay · còn khoảng ${left} phút`,detail:"Giữ trang này mở, bảng nguồn sẽ tự cập nhật"}
+      : {live:false,label:"Xem kết quả mới nhất",detail:`Kỳ ${region} thường bắt đầu lúc ${Math.floor(start/60)}:${pad(start%60,2)}`};
+  }
+  return {live:false,label:"Kỳ hôm nay đã kết thúc",detail:"Bảng bên dưới đang hiển thị kết quả mới nhất"};
+}
+function setLiveFrame(region,force=false){
+  const frame=$("#liveFrame"), loading=$("#liveLoading"), src=LIVE_SOURCE[region];
+  if(!frame||(!force && frame.dataset.region===region)) return;
+  loading?.classList.remove("done");
+  if(loading) loading.lastChild.textContent="Đang kết nối bảng kết quả…";
+  frame.dataset.region=region;
+  frame.title=`Bảng kết quả ${src.code} trực tiếp từ Minh Ngọc`;
+  frame.src=src.embed;
+}
+function updateLiveStatus(){
+  const src=LIVE_SOURCE[ST.region], phase=livePhase(ST.region), now=vnTime();
+  $("#liveClock").textContent=now.text;
+  $("#liveStatus").textContent=phase.label;
+  $("#liveSignal").classList.toggle("on",phase.live);
+  $("#liveTitle").textContent=`Kết quả xổ số ${src.name}`;
+  $("#liveLead").textContent=phase.detail+". Chọn miền ở thanh phía trên để đổi bảng.";
+  $("#liveBoardTitle").textContent=`Trực tiếp ${src.code} · ${VN_DATE_FMT.format(new Date())}`;
+  $("#liveBoardNote").textContent=ST.region==="MN"
+    ? "Bảng tự cập nhật khi các đài bắt đầu quay. Trên điện thoại, vuốt ngang trong bảng để xem đủ đài."
+    : "Bảng tự cập nhật từng giải khi miền Bắc bắt đầu quay; không cần tải lại cả website.";
+  $("#liveSource").href=src.source;
+  const p=$("#liveP");
+  if(p){
+    p.innerHTML=`<span class="dot" aria-hidden="true"></span>${phase.live?"Đang quay":"Xem kết quả"}`;
+    p.title=`Mở bảng ${src.code} trực tiếp từ Minh Ngọc`;
+  }
+}
+function renderLive(){
+  updateLiveStatus();
+  setLiveFrame(ST.region);
 }
 
 function predPanel(node, Ax, rank, kind){
@@ -1619,24 +1686,26 @@ function renderAna(){
   ANA_SUBS.find(s=>s.k===ST.anaSub).fn();
 }
 
-const RENDER = { pred:renderPred, ana:renderAna, cross:renderCross, verify:renderVerify };
+const RENDER = { live:renderLive, pred:renderPred, ana:renderAna, cross:renderCross, verify:renderVerify };
 let dirty = {};
 
 function refresh(){
   const sl=recompute();
   renderFilters(sl);
-  dirty = {pred:1,ana:1,cross:1,verify:1};
+  dirty = {live:1,pred:1,ana:1,cross:1,verify:1};
   showView(ST.view);
 }
 function showView(v){
   ST.view=v;
-  $("#filtersBar").hidden = v==="pred";
+  $("#filtersBar").hidden = v==="live" || v==="pred";
   $$("#nav button").forEach(b=>{
     const on=b.dataset.v===v;
     b.classList.toggle("on",on);
     b.setAttribute("aria-current",on?"page":"false");
   });
   $$(".view").forEach(n=>n.classList.toggle("on", n.id==="v-"+v));
+  const stale=$("#staleBar");
+  if(stale) stale.style.display=v==="live"||!stale.innerHTML?"none":"";
   if(dirty[v]){ RENDER[v](); dirty[v]=0 }
   window.scrollTo({top:0,behavior:"instant"});
 }
@@ -1644,6 +1713,14 @@ function showView(v){
 /* --------- sự kiện --------- */
 $("#nav").addEventListener("click", e=>{
   const b=e.target.closest("button"); if(b) showView(b.dataset.v);
+});
+$("#liveP").addEventListener("click",()=>showView("live"));
+$("#liveRefresh").addEventListener("click",()=>setLiveFrame(ST.region,true));
+$("#liveToPred").addEventListener("click",()=>showView("pred"));
+$("#liveToCross").addEventListener("click",()=>showView("cross"));
+$("#liveFrame").addEventListener("load",()=>{
+  const loading=$("#liveLoading");
+  if(loading){ loading.lastChild.textContent="Đã kết nối nguồn Minh Ngọc"; setTimeout(()=>loading.classList.add("done"),350) }
 });
 $("#regSeg").addEventListener("click", e=>{
   const b=e.target.closest("button"); if(!b) return;
@@ -1703,7 +1780,7 @@ function checkStale(){
   if(!rows.length){ bar.style.display="none"; bar.innerHTML=""; return }
   const worst=Math.max(...rows.map(r=>r.lag));
   const bad=worst>=2;
-  bar.style.display="";
+  bar.style.display=ST.view==="live"?"none":"";
   bar.innerHTML=`<div class="stale ${bad?"bad":"warn"}">
     <span class="ico">${bad?"🚨":"⚠️"}</span>
     <div style="flex:1;min-width:210px">
@@ -1723,27 +1800,29 @@ function checkStale(){
 (function dataStatus(){
   const p=$("#liveP");
   const updated=(window.XS_META||{}).updated;
-  p.className="pill live";
-  p.innerHTML='<span class="dot"></span>Cập nhật hằng ngày';
+  p.className="pill live action";
   p.title=updated
-    ? `Kho dữ liệu cập nhật lần cuối: ${updated}. Website tự nhận bản mới sau lần chạy hằng ngày.`
-    : "Kho dữ liệu được cập nhật tự động hằng ngày.";
+    ? `Mở kết quả trực tiếp. Kho thống kê cập nhật lần cuối: ${updated}.`
+    : "Mở kết quả xổ số trực tiếp.";
 })();
 setInterval(()=>{ if(ST.view==="pred") renderHero() }, 30000);
+setInterval(()=>{ if(ST.view==="live") updateLiveStatus() }, 30000);
 setInterval(checkStale, 5*60000);
 
 /* --------- khởi động --------- */
 (function init(){
   if(!DB.MB.days.length && !DB.MN.days.length){
     $("#noData").style.display="";
-    $$(".view").forEach(n=>n.style.display="none");
+    $$(".view").forEach(n=>n.classList.toggle("on",n.id==="v-live"));
     document.querySelector(".filters").style.display="none";
+    renderLive();
     return;
   }
   if(!DB.MB.days.length) ST.region="MN";
   checkStale();
   $("#foot").innerHTML=`
-    <b style="color:var(--dim)">⚖️ Miễn trừ trách nhiệm.</b> Xổ số là trò chơi ngẫu nhiên.
+    <b style="color:var(--dim)">Nguồn trực tiếp:</b> bảng kết quả được nhúng từ Minh Ngọc™ và chỉ mang tính tham khảo.
+    <b style="color:var(--dim)">Miễn trừ trách nhiệm:</b> xổ số là trò chơi ngẫu nhiên.
     App này là công cụ <b>thống kê và phân tích dữ liệu quá khứ</b>, không dự báo được tương lai và không đảm bảo bất kỳ kết quả nào.
     Mọi con số hiển thị đều kèm mức nền để bạn tự đánh giá. Hãy dùng tab Kiểm chứng trước khi tin vào bất kỳ tín hiệu nào.
     Chơi có trách nhiệm — chỉ dùng số tiền bạn sẵn sàng mất.`;
