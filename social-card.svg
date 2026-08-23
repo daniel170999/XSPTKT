@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Kết Số — Kết quả xổ số mỗi ngày</title>
+  <desc id="desc">Thẻ chia sẻ của website Kết Số</desc>
+  <defs>
+    <linearGradient id="bg" x1="90" y1="30" x2="1110" y2="600" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FBFF"/>
+      <stop offset="1" stop-color="#EAF3FC"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#1677E8"/>
+      <stop offset="1" stop-color="#0757B8"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#1A3E69" flood-opacity=".13"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1070" cy="80" r="190" fill="#FF6B4A" opacity=".07"/>
+  <circle cx="110" cy="590" r="220" fill="#1677E8" opacity=".07"/>
+  <g transform="translate(72 64)">
+    <rect width="92" height="92" rx="23" fill="url(#mark)"/>
+    <path d="M29 22v49M31 48 60 23M31 48l31 24" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="64" cy="22" r="7" fill="#FF6B4A" stroke="#fff" stroke-width="3"/>
+    <circle cx="66" cy="74" r="6" fill="#FFD166" stroke="#fff" stroke-width="3"/>
+  </g>
+  <text x="188" y="113" fill="#172338" font-family="Segoe UI, Arial, sans-serif" font-size="48" font-weight="800">Kết Số</text>
+  <text x="190" y="145" fill="#667790" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600" letter-spacing="2">KẾT QUẢ RÕ RÀNG, MỖI NGÀY</text>
+  <text x="72" y="259" fill="#172338" font-family="Segoe UI, Arial, sans-serif" font-size="62" font-weight="800">Kết quả xổ số trực tiếp</text>
+  <text x="72" y="317" fill="#51647D" font-family="Segoe UI, Arial, sans-serif" font-size="29">XSMN · XSMB · Lịch sử · Thống kê dữ liệu</text>
+  <g transform="translate(72 374)" filter="url(#shadow)">
+    <rect width="1056" height="166" rx="24" fill="#fff"/>
+    <rect x="28" y="26" width="164" height="46" rx="12" fill="#DE5837"/>
+    <text x="110" y="57" text-anchor="middle" fill="#fff" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800">XSMN</text>
+    <rect x="208" y="26" width="164" height="46" rx="12" fill="#0B6EDC"/>
+    <text x="290" y="57" text-anchor="middle" fill="#fff" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800">XSMB</text>
+    <text x="28" y="119" fill="#667790" font-family="Segoe UI, Arial, sans-serif" font-size="18">Xem từng giải · tra lại theo ngày · dễ đọc trên điện thoại</text>
+    <g transform="translate(650 34)">
+      <circle cx="40" cy="40" r="38" fill="#FFF0F2"/><text x="40" y="50" text-anchor="middle" fill="#CF263E" font-family="Segoe UI, Arial, sans-serif" font-size="29" font-weight="800">68</text>
+      <circle cx="132" cy="40" r="38" fill="#EEF5FC"/><text x="132" y="50" text-anchor="middle" fill="#0B6EDC" font-family="Segoe UI, Arial, sans-serif" font-size="29" font-weight="800">23</text>
+      <circle cx="224" cy="40" r="38" fill="#FFF7E1"/><text x="224" y="50" text-anchor="middle" fill="#9A6100" font-family="Segoe UI, Arial, sans-serif" font-size="29" font-weight="800">50</text>
+      <circle cx="316" cy="40" r="38" fill="#ECFBF5"/><text x="316" y="50" text-anchor="middle" fill="#087F59" font-family="Segoe UI, Arial, sans-serif" font-size="29" font-weight="800">32</text>
+    </g>
+  </g>
+</svg>

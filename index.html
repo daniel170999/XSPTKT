@@ -3,16 +3,43 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Soi XS — Kết quả trực tiếp & thống kê XSMN, XSMB</title>
-<meta name="description" content="Xem kết quả xổ số XSMN, XSMB trực tiếp từ Minh Ngọc và phân tích thống kê 2 số, 3 số đuôi trên dữ liệu lịch sử.">
+<title>Kết quả xổ số hôm nay XSMN, XSMB trực tiếp | Kết Số</title>
+<meta name="description" content="Xem kết quả xổ số Miền Nam, Miền Bắc trực tiếp mỗi ngày; tra cứu các kỳ gần nhất và thống kê lịch sử số đã công bố.">
 <meta name="robots" content="index,follow">
-<meta property="og:title" content="Soi XS — Kết quả trực tiếp & thống kê xổ số">
-<meta property="og:description" content="Xem XSMN, XSMB trực tiếp; soi 2 số và 3 số đuôi bằng thống kê minh bạch.">
+<meta name="application-name" content="Kết Số">
+<link rel="canonical" href="https://xsptkt.vercel.app/">
+<meta property="og:title" content="Kết Số — Kết quả xổ số XSMN, XSMB trực tiếp">
+<meta property="og:description" content="Kết quả trực tiếp, lịch sử các kỳ gần nhất và thống kê dữ liệu XSMN, XSMB dễ xem.">
 <meta property="og:type" content="website">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="manifest" href="manifest.json">
+<meta property="og:url" content="https://xsptkt.vercel.app/">
+<meta property="og:site_name" content="Kết Số">
+<meta property="og:locale" content="vi_VN">
+<meta property="og:image" content="https://xsptkt.vercel.app/social-card.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Kết Số — kết quả XSMN, XSMB rõ ràng mỗi ngày">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Kết Số — Kết quả xổ số mỗi ngày">
+<meta name="twitter:description" content="Xem trực tiếp XSMN, XSMB và tra cứu dữ liệu đã công bố.">
+<meta name="twitter:image" content="https://xsptkt.vercel.app/social-card.png">
+<meta name="twitter:image:alt" content="Kết Số — kết quả XSMN, XSMB rõ ràng mỗi ngày">
+<link rel="icon" href="/icon.svg?v=2" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
 <link rel="preconnect" href="https://www.minhngoc.net.vn" crossorigin>
-<meta name="theme-color" content="#070b12">
+<meta name="theme-color" content="#ffffff">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Kết Số",
+  "alternateName": ["KếtSố", "KQXS XSMN XSMB"],
+  "url": "https://xsptkt.vercel.app/",
+  "inLanguage": "vi-VN",
+  "description": "Kết quả xổ số Miền Nam, Miền Bắc trực tiếp, lịch sử và thống kê dữ liệu đã công bố."
+}
+</script>
 <style>
 :root{
   --bg:#070b12; --bg2:#0a111c; --card:#101927; --card2:#162235; --line:#223149;
@@ -168,7 +195,7 @@ section{margin-bottom:30px}
 .live-next b{display:block;font-size:13px}.live-next span{display:block;color:var(--dim);font-size:10.5px;margin-top:2px}.live-next i{color:var(--acc);font-style:normal;font-size:20px}
 @keyframes liveRing{0%{opacity:.9;transform:scale(.7)}80%,100%{opacity:0;transform:scale(1.65)}}
 
-/* ---------- hero dự đoán ---------- */
+/* ---------- hero kết quả ---------- */
 .hero{position:relative;overflow:hidden;background:
   radial-gradient(circle at 88% 20%,rgba(var(--acc-rgb),.17),transparent 23rem),
   linear-gradient(145deg,#121d2c,#0d1522);border:1px solid rgba(var(--acc-rgb),.24);border-radius:20px;
@@ -235,7 +262,7 @@ section{margin-bottom:30px}
 .qwhy .ok{color:var(--ok);font-weight:700}
 .qwhy .wn{color:var(--warn);font-weight:700}
 
-/* ---------- panel dự đoán ---------- */
+/* ---------- bảng kết quả ---------- */
 .predhead{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
 .predlabel{font-size:12px;color:var(--dim);font-weight:700}
 .badge{padding:3px 10px;border-radius:7px;font-size:11px;font-weight:800;letter-spacing:.4px}
@@ -541,6 +568,198 @@ sup.info:hover{background:var(--acc);color:#04101f}
   .qacts .qbtn,.qacts .btn{width:100%}
   .moreStats>section,.moreStats>.grid2,.moreStats>.honest{margin-left:10px!important;margin-right:10px!important}
 }
+/* ========================================================================
+   KẾT SỐ — giao diện công khai sáng, dễ đọc
+   ======================================================================== */
+:root{
+  --bg:#f4f7fb;--bg2:#edf3f9;--card:#ffffff;--card2:#eef4fb;--line:#d9e3ef;
+  --txt:#172338;--dim:#52627a;--dim2:#77869a;
+  --acc:#0b6edc;--acc2:#0758b5;--acc-rgb:11,110,220;
+  --hot:#d7354d;--gold:#9a6100;--ok:#087f59;--warn:#a95600;
+  --r:16px;--r-sm:11px;--sh:0 14px 38px rgba(37,64,96,.10)
+}
+html[data-region="MN"]{--acc:#de5837;--acc2:#b83e22;--acc-rgb:222,88,55}
+html[data-region="MB"]{--acc:#0b6edc;--acc2:#0758b5;--acc-rgb:11,110,220}
+html{color-scheme:light;background:var(--bg);scroll-behavior:smooth}
+body{background:
+  radial-gradient(circle at 8% -4%,rgba(var(--acc-rgb),.10),transparent 30rem),
+  linear-gradient(180deg,#fff 0,#f7f9fc 250px,var(--bg) 620px);
+  color:var(--txt);font-size:16px;line-height:1.6}
+.wrap{max-width:1280px}
+a{color:var(--acc)}
+header{background:rgba(255,255,255,.94);border-bottom:1px solid rgba(30,60,96,.10);box-shadow:0 8px 28px rgba(35,58,84,.08)}
+.hbar{grid-template-columns:auto minmax(320px,1fr) auto;gap:22px;padding:13px 0}
+.brand{color:var(--txt);text-decoration:none;font-size:20px;gap:11px}
+.brand:hover .brand-copy{color:var(--acc)}
+.brand-mark{width:42px;height:42px;border-radius:12px;background:transparent;box-shadow:0 8px 22px rgba(11,110,220,.18);overflow:hidden}
+.brand-mark img{display:block;width:100%;height:100%}
+.brand-copy{transition:color .16s}
+.brand-copy small{color:var(--dim);font-size:9.5px;letter-spacing:.9px}
+.searchbox{max-width:760px}
+.searchbox input{height:52px;border-color:#cedaea;background:#f7f9fc;color:var(--txt);font-size:17px;padding-left:48px;box-shadow:inset 0 1px 1px rgba(26,46,72,.03)}
+.searchbox input:hover,.searchbox input:focus-visible{background:#fff}
+.searchbox .ic{left:17px;color:var(--acc);font-size:20px}
+.pill{background:#fff;color:var(--dim);border-color:var(--line)}
+.pill.live{background:#ecfbf5;color:#087f59;border-color:#b8e7d4}
+.pill.action:hover{background:#ddf7ed;border-color:#8bd4b8}
+.pill .dot{animation:none}
+.toolbar{grid-template-columns:minmax(250px,300px) minmax(0,1fr);gap:14px;padding-bottom:13px}
+.region-label{color:var(--dim)}
+.seg{background:#edf3fa;border-color:#d7e2ef}
+.seg button{color:var(--dim);text-align:left}
+.seg button.on,.chip.on{color:#fff;box-shadow:0 5px 15px rgba(var(--acc-rgb),.20)}
+.seg button:not(.on):hover{background:#fff;color:var(--txt)}
+.appnav{background:#f2f6fb;border-color:#dbe4ee}
+.appnav button{color:var(--dim);min-height:50px}
+.appnav button:hover,.appnav button.on{background:#fff;color:var(--txt);box-shadow:0 3px 12px rgba(35,60,90,.07)}
+.nav-icon{background:rgba(var(--acc-rgb),.09)}
+.appnav button.on .nav-icon{color:#fff}
+.appnav button[data-v="live"] .nav-icon{color:#d7354d;background:#fdecef}
+.appnav button[data-v="live"].on .nav-icon{color:#fff;background:#d7354d}
+.nav-title{font-size:13px}.nav-hint{font-size:10px;color:var(--dim2)}
+.filters{background:rgba(247,249,252,.97);border-bottom-color:var(--line);box-shadow:0 8px 20px rgba(35,58,84,.05)}
+.filter-title{color:var(--txt)}
+.chip{background:#fff;border-color:#d5e0ec;color:var(--dim)}
+.chip:hover{color:var(--txt);background:#f7faff}
+.chip.on{background:var(--acc);border-color:var(--acc)}
+input[type=text],input[type=date]{background:#fff;color:var(--txt);border-color:#cfdae7;color-scheme:light}
+.view{padding-top:30px}
+.view-intro{border-bottom-color:var(--line);margin-bottom:22px}
+.view-intro p,.ssub{color:var(--dim);font-size:14px}
+.eyebrow{font-size:11px}
+.card{background:#fff;border-color:var(--line);box-shadow:0 10px 28px rgba(35,60,90,.07)}
+
+/* Trang kết quả */
+.live-stage{background:
+  radial-gradient(circle at 88% 20%,rgba(var(--acc-rgb),.15),transparent 26rem),
+  linear-gradient(145deg,#ffffff,#eef5fc);border-color:rgba(var(--acc-rgb),.26);box-shadow:var(--sh)}
+.live-stage p,.live-kicker{color:var(--dim)}
+.live-clock{background:#fff;border-color:var(--line);box-shadow:0 8px 24px rgba(35,60,90,.07)}
+.live-clock span,.live-clock small{color:var(--dim)}
+.live-clock b{color:var(--acc)}
+.home-stream{display:flex;flex-direction:column;gap:20px}
+#recentShell{order:1}#liveShell{order:2}
+#v-live.is-live #liveShell{order:0}
+.result-shell,.live-shell{overflow:hidden;border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:var(--sh)}
+.result-shell-head,.live-shell-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding:21px 24px;border-bottom:1px solid var(--line)}
+.result-shell-head h2,.live-shell-head h2{font-size:24px;font-weight:900;line-height:1.2;margin-top:4px}
+.result-shell-head p,.live-shell-head p{font-size:13px;color:var(--dim);margin-top:5px}
+.plain-link{appearance:none;border:0;background:transparent;color:var(--acc);font:inherit;font-size:13px;font-weight:800;cursor:pointer;padding:8px 0;white-space:nowrap}
+.plain-link:hover{text-decoration:underline}
+.date-strip{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;padding:13px 20px;background:#f7f9fc;border-bottom:1px solid var(--line);scrollbar-width:thin}
+.date-chip{appearance:none;flex:0 0 auto;min-width:92px;padding:8px 11px;border:1px solid #d4dfeb;border-radius:10px;background:#fff;color:var(--dim);font:inherit;text-align:left;cursor:pointer;scroll-snap-align:start;transition:transform .15s,border-color .15s,background .15s,color .15s}
+.date-chip:hover{border-color:var(--acc);transform:translateY(-1px)}
+.date-chip.on{background:var(--acc);border-color:var(--acc);color:#fff;box-shadow:0 6px 16px rgba(var(--acc-rgb),.2)}
+.date-chip b{display:block;font-size:12px;line-height:1.2}.date-chip span{display:block;font-size:10px;opacity:.78;margin-top:3px}
+.result-sheet{padding:0 20px 20px}
+.result-meta{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 2px 13px;color:var(--dim);font-size:13px}
+.result-meta h3{font-size:20px;color:var(--txt);font-weight:900}
+.result-meta span{font-size:11px}
+.result-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fff;overscroll-behavior-x:contain}
+.draw-table{width:100%;font-size:15px;table-layout:fixed}
+.draw-table th,.draw-table td{position:static;padding:10px 13px;border-bottom:1px solid #e7edf4;background:#fff;cursor:default}
+.draw-table tr:last-child th,.draw-table tr:last-child td{border-bottom:0}
+.draw-table .prize-name{width:108px;text-align:center;color:var(--dim);font-size:13px;font-weight:800;background:#f7f9fc;border-right:1px solid #e7edf4}
+.draw-values{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:6px 12px;text-align:center}
+.draw-number{display:inline-block;color:#152238;font-size:22px;font-weight:850;letter-spacing:.8px;line-height:1.25;font-variant-numeric:tabular-nums}
+.draw-row.edge .draw-number{color:#cf263e;font-size:26px;font-weight:950}
+.draw-table-mn{min-width:720px;table-layout:auto}
+.draw-table-mn thead th{position:static;background:#edf4fc;color:#183253;text-align:center;font-size:14px;font-weight:900;cursor:default}
+.draw-table-mn thead th:first-child{width:88px}
+.draw-table-mn .prize-name{position:sticky;left:0;z-index:2;width:88px;min-width:88px}
+.draw-table-mn td{min-width:188px;text-align:center;border-left:1px solid #edf1f6;vertical-align:middle}
+.draw-table-mn .draw-values{grid-template-columns:1fr;gap:4px}
+.result-empty{padding:36px 20px;text-align:center;color:var(--dim)}
+.history-dates{flex-wrap:wrap;overflow:visible}
+.history-more{display:flex;justify-content:center;padding:0 20px 22px}
+.trust-note{display:flex;align-items:flex-start;gap:11px;margin:18px 0;padding:13px 16px;border:1px solid #d9e5f1;border-radius:13px;background:#f5f9fd;color:var(--dim);font-size:13px}
+.trust-note>span{display:grid;place-items:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:#dcecff;color:#0758b5;font-weight:900;font-family:Georgia,serif}
+.source-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.source-card{min-width:0;padding:22px;border:1px solid var(--line);border-radius:17px;background:#fff;box-shadow:0 10px 28px rgba(35,60,90,.07)}
+.source-card-icon{display:inline-flex;align-items:center;justify-content:center;min-width:52px;height:30px;padding:0 9px;border-radius:8px;background:#ecfbf5;color:#087f59;font-size:10px;font-weight:950;letter-spacing:.6px}
+.source-card-icon.archive{background:#eef5fc;color:#0758b5}.source-card-icon.update{background:#fff3eb;color:#b83e22}
+.source-card h2{font-size:20px;margin-top:15px}.source-card p{font-size:13px;color:var(--dim);margin:7px 0 12px}
+.source-card a{font-size:13px;font-weight:800;text-decoration:none}.source-card a:hover{text-decoration:underline}
+.source-detail{display:block;color:var(--dim2);font-size:11.5px;line-height:1.55}
+.data-overview{overflow:hidden;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:var(--sh)}
+.data-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line)}
+.data-kpis>div{background:#fff;padding:21px 24px}.data-kpis span,.data-kpis small{display:block;color:var(--dim);font-size:12px}.data-kpis b{display:block;color:var(--txt);font-size:32px;line-height:1.1;margin:5px 0;font-variant-numeric:tabular-nums}
+.method-note{padding:15px 17px;border:1px solid #d6e3ef;border-radius:13px;background:#f5f9fd;color:var(--dim);font-size:13px}.method-note b{color:var(--txt)}
+.live-shell{background:#fff}
+.source-badge{background:#ecfbf5;color:#087f59;border-color:#b8e7d4}
+.source-badge::before{background:#087f59;color:#fff}
+.source-link,.live-tool{background:#fff;color:var(--dim);border-color:var(--line)}
+.source-link:hover,.live-tool:hover{background:#f5f8fc;color:var(--txt)}
+.live-frame-wrap{min-height:650px}
+.live-frame{height:900px}
+.frame-loading{background:#fff;color:var(--dim);border-color:var(--line);box-shadow:0 8px 24px rgba(35,60,90,.14)}
+.live-credit{background:#f7f9fc;color:var(--dim);border-top-color:var(--line);font-size:12px}
+.live-credit b{color:var(--txt)}
+.live-next button{background:#fff;color:var(--txt);border-color:var(--line);box-shadow:0 7px 22px rgba(35,60,90,.05)}
+.live-next button:hover{background:#f7faff}
+.live-next span{color:var(--dim)}
+
+/* Thống kê và modal */
+.moreStats,.pinExcl{background:#fff}
+.cl{border-color:rgba(255,255,255,.55);box-shadow:0 1px 4px rgba(23,35,56,.08)}
+.cl:hover{box-shadow:0 7px 18px rgba(23,35,56,.2)}
+.scrolly,.tw{border-radius:10px}
+table{font-size:13.5px}
+th,td{border-bottom-color:var(--line)}
+th{background:#f7f9fc;color:var(--dim)}
+tbody tr:hover{background:#f4f8fc}
+td.n{color:#8a5700}
+.cold{color:#1768bd}.warm{color:#c52f45}.good{color:#087f59}
+.br .t,.hz,.dw .d .t,.gp,.ms div,.stats3 .b,.tag,code{background:var(--card2)}
+.hz .b.dim i{background:#aebdce}
+.modal{background:#fff;border-color:var(--line);box-shadow:0 28px 80px rgba(22,42,66,.28)}
+.mbg{background:rgba(15,29,47,.58)}
+.mhead .big{color:var(--acc)}
+.btn{color:#fff}.btn.g{background:#fff;color:var(--txt);border-color:var(--line)}
+.btn.g:hover{background:#f2f6fb}
+.toast{background:#172338;color:#fff;border-color:#172338}
+#tipPop{background:#fff;border-color:#c9d7e6;color:var(--dim);box-shadow:0 12px 36px rgba(28,48,72,.2)}
+#tipPop b{color:var(--txt)}
+.foot{background:#fff;color:var(--dim);font-size:12px;box-shadow:0 8px 24px rgba(35,60,90,.05)}
+.foot-brand-mark{background:transparent;color:var(--acc)}
+.stale.warn{background:#fff8e8;border-color:#efd28f;color:#765019}.stale.bad{background:#fff0f2;border-color:#efb4bd;color:#8f2635}.stale b{color:var(--txt)}
+.err{background:#fff0f2;border-color:#efb4bd;color:#8f2635}
+
+@media(max-width:900px){
+  .hbar{grid-template-columns:auto minmax(0,1fr) auto}
+  .result-shell-head{flex-direction:column;gap:8px}
+  .source-grid{grid-template-columns:1fr}.data-kpis{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  body{font-size:15px;padding-bottom:max(42px,env(safe-area-inset-bottom))}
+  header{position:static}
+  .hbar{grid-template-columns:1fr auto;gap:9px;padding:10px 0}
+  .brand{font-size:18px}.brand-mark{width:38px;height:38px}
+  .searchbox input{height:52px;font-size:17px}
+  .toolbar{grid-template-columns:1fr;padding-bottom:10px}
+  .region-picker{grid-row:1}.appnav{grid-row:2}
+  .region-label,.reg-name{display:block}
+  .seg button{padding:8px 10px;text-align:left}.reg-code{font-size:13px}
+  .appnav button{min-height:58px;padding:6px 2px}
+  .nav-icon{width:27px;height:27px}.nav-title{font-size:11.5px;line-height:1.1}.nav-hint{display:none}
+  #liveP{font-size:11px;min-height:38px}
+  .view{padding-top:18px}
+  .live-stage{padding:20px 17px}.live-stage h1{font-size:30px}.live-stage p{font-size:14px}
+  .result-shell,.live-shell{border-radius:15px}
+  .result-shell-head,.live-shell-head{padding:17px 15px}
+  .result-shell-head h2,.live-shell-head h2{font-size:21px}
+  .date-strip{padding:11px 12px}.date-chip{min-width:86px}
+  .result-sheet{padding:0 10px 12px}.result-meta{padding:14px 3px 10px;align-items:flex-start;flex-direction:column;gap:2px}.result-meta h3{font-size:18px}
+  .draw-table .prize-name{width:72px;padding:9px 5px;font-size:12px}
+  .draw-table td{padding:9px 6px}.draw-values{gap:4px 6px;grid-template-columns:repeat(auto-fit,minmax(58px,1fr))}
+  .draw-number{font-size:19px}.draw-row.edge .draw-number{font-size:23px}
+  .draw-table-mn{min-width:650px}.draw-table-mn td{min-width:164px}
+  .history-dates{flex-wrap:nowrap;overflow-x:auto}
+  .live-frame-wrap{min-height:600px}.live-frame{height:760px}
+  .live-credit{font-size:11px}.trust-note{font-size:12px}
+  .source-lockup{display:flex}.source-badge,.source-link,.live-tool{width:auto}.source-badge{grid-column:auto}
+  .foot{font-size:11.5px}
+}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -550,12 +769,12 @@ sup.info:hover{background:var(--acc);color:#04101f}
 <header>
   <div class="wrap">
     <div class="hbar">
-      <div class="brand">
-        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 2v3M22 12h-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
-        <span class="brand-copy">Soi XS<small>Thống kê minh bạch</small></span>
-      </div>
-      <div class="searchbox"><span class="ic" aria-hidden="true">⌕</span><input id="gs" name="soi-so" type="search" aria-label="Soi số 2 hoặc 3 chữ số" placeholder="Soi nhanh số 68 hoặc 668…" maxlength="3" inputmode="numeric" autocomplete="off" spellcheck="false"></div>
-      <button type="button" class="pill live action" id="liveP" title="Mở kết quả trực tiếp"><span class="dot" aria-hidden="true"></span>Kết quả trực tiếp</button>
+      <a class="brand" href="#ket-qua" aria-label="Kết Số — về trang kết quả">
+        <span class="brand-mark" aria-hidden="true"><img src="/icon.svg?v=2" width="42" height="42" alt=""></span>
+        <span class="brand-copy">Kết Số<small>Kết quả rõ ràng, mỗi ngày</small></span>
+      </a>
+      <div class="searchbox"><span class="ic" aria-hidden="true">⌕</span><input id="gs" name="tra-cuu-so" type="search" aria-label="Tra cứu lịch sử số có 2 hoặc 3 chữ số" placeholder="Nhập 68 hoặc 668 để xem lịch sử…" maxlength="3" inputmode="numeric" autocomplete="off" spellcheck="false"></div>
+      <button type="button" class="pill live action" id="liveP" title="Mở kết quả trực tiếp"><span class="dot" aria-hidden="true"></span>Live hôm nay</button>
     </div>
     <div class="toolbar">
       <div class="region-picker">
@@ -566,11 +785,11 @@ sup.info:hover{background:var(--acc);color:#04101f}
         </div>
       </div>
       <nav class="appnav" id="nav" aria-label="Điều hướng chính">
-        <button type="button" data-v="live" class="on" aria-label="Kết quả — xem tường thuật trực tiếp"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 5v14l11-7z" stroke-linejoin="round"/><circle cx="12" cy="12" r="10"/></svg></span><span class="nav-copy"><span class="nav-title">Kết quả</span><span class="nav-hint">Trực tiếp từng giải</span></span></button>
-        <button type="button" data-v="pred" aria-label="Chọn dàn — lấy dàn tham khảo"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M12 4v16"/><circle cx="12" cy="12" r="8"/></svg></span><span class="nav-copy"><span class="nav-title">Chọn dàn</span><span class="nav-hint">2 số & 3 số</span></span></button>
-        <button type="button" data-v="ana" aria-label="Thống kê — tần suất và gan"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 20V10M12 20V4M19 20v-7" stroke-linecap="round"/></svg></span><span class="nav-copy"><span class="nav-title">Thống kê</span><span class="nav-hint">Tần suất & gan</span></span></button>
+        <button type="button" data-v="live" class="on" aria-label="Kết quả — trực tiếp và kỳ mới nhất"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 5v14l11-7z" stroke-linejoin="round"/><circle cx="12" cy="12" r="10"/></svg></span><span class="nav-copy"><span class="nav-title">Kết quả</span><span class="nav-hint">Live & mới nhất</span></span></button>
+        <button type="button" data-v="history" aria-label="Lịch sử — xem lại các kỳ đã công bố"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 3v6m10-6v6M5 10h14v10H5z" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="nav-copy"><span class="nav-title">Lịch sử</span><span class="nav-hint">Xem theo ngày</span></span></button>
+        <button type="button" data-v="ana" aria-label="Thống kê — tần suất và lịch sử"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 20V10M12 20V4M19 20v-7" stroke-linecap="round"/></svg></span><span class="nav-copy"><span class="nav-title">Thống kê</span><span class="nav-hint">Tần suất & lịch sử</span></span></button>
         <button type="button" data-v="cross" aria-label="Hai miền — đối chiếu miền Bắc và miền Nam"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h11l-3-3M17 17H6l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="nav-copy"><span class="nav-title">Hai miền</span><span class="nav-hint">Đối chiếu MB/MN</span></span></button>
-        <button type="button" data-v="verify" aria-label="Kiểm chứng — chạy backtest"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 13 4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="nav-copy"><span class="nav-title">Kiểm chứng</span><span class="nav-hint">Backtest thật</span></span></button>
+        <button type="button" data-v="verify" aria-label="Nguồn — xem nguồn và cách cập nhật dữ liệu"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="nav-copy"><span class="nav-title">Nguồn</span><span class="nav-hint">Dữ liệu & cập nhật</span></span></button>
       </nav>
     </div>
   </div>
@@ -592,94 +811,94 @@ sup.info:hover{background:var(--acc);color:#04101f}
     <b>Chưa có dữ liệu.</b><br>Thử tải lại trang sau ít phút. Nếu vẫn trống, kiểm tra workflow cập nhật trên GitHub.
   </div>
 
-  <!-- ============ KẾT QUẢ TRỰC TIẾP ============ -->
+  <!-- ============ KẾT QUẢ HÔM NAY ============ -->
   <div class="view on" id="v-live">
     <section class="live-stage" aria-labelledby="liveTitle">
       <div class="live-stage-grid">
         <div>
           <div class="live-kicker"><span class="live-signal" id="liveSignal" aria-hidden="true"></span><span id="liveStatus">Đang kiểm tra lịch quay</span></div>
-          <h1 id="liveTitle">Kết quả xổ số trực tiếp</h1>
-          <p id="liveLead">Theo dõi từng giải ngay trên website. Chọn XSMN hoặc XSMB ở thanh phía trên để đổi bảng.</p>
+          <h1 id="liveTitle">Kết quả xổ số hôm nay</h1>
+          <p id="liveLead">Xem kết quả theo từng giải, sau đó tra lại các kỳ gần nhất ngay trên cùng một trang.</p>
         </div>
         <div class="live-clock"><span>Giờ Việt Nam</span><b id="liveClock">--:--</b><small id="liveSchedule">XSMN 16:15 · XSMB 18:15</small></div>
       </div>
     </section>
 
-    <section class="live-shell" aria-labelledby="liveBoardTitle">
-      <div class="live-shell-head">
-        <div>
-          <span class="eyebrow">Nguồn live được ghi rõ và giữ nguyên credit</span>
-          <h2 id="liveBoardTitle">Trực tiếp XSMN</h2>
-          <p id="liveBoardNote">Bảng tự cập nhật khi các đài bắt đầu quay; không cần tải lại cả website.</p>
+    <div class="home-stream">
+      <section class="result-shell" id="recentShell" aria-labelledby="latestTitle">
+        <div class="result-shell-head">
+          <div>
+            <span class="eyebrow">Kho kết quả tự động cập nhật</span>
+            <h2 id="latestTitle">Kết quả gần nhất</h2>
+            <p id="latestNote">Chọn ngày để xem lại đầy đủ từng giải.</p>
+          </div>
+          <button type="button" class="plain-link" id="homeToHistory">Xem toàn bộ lịch sử <span aria-hidden="true">→</span></button>
         </div>
-        <div class="source-lockup">
-          <span class="source-badge">Nguồn Minh Ngọc™</span>
-          <button type="button" class="live-tool" id="liveRefresh">Tải lại bảng</button>
-          <a class="source-link" id="liveSource" href="https://www.minhngoc.net.vn/xo-so-truc-tiep/mien-nam.html" target="_blank" rel="noopener noreferrer">Mở nguồn ↗</a>
-        </div>
-      </div>
-      <div class="live-frame-wrap">
-        <div class="frame-loading" id="liveLoading" role="status" aria-live="polite"><i aria-hidden="true"></i>Đang kết nối bảng kết quả…</div>
-        <iframe class="live-frame" id="liveFrame" name="iframe_xosominhngoc" title="Bảng kết quả xổ số trực tiếp từ Minh Ngọc" src="https://www.minhngoc.net.vn/free/xo-so-truc-tiep/mien-nam.html" loading="eager" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
-      </div>
-      <div class="live-credit">
-        <span><b>Nguồn & credit:</b> Bảng kết quả trực tiếp được nhúng nguyên trạng từ <a href="https://www.minhngoc.net.vn/tao-ma-nhung/ket-qua-xo-so.html" target="_blank" rel="noopener noreferrer">công cụ miễn phí của Minh Ngọc™</a>. Nội dung mang tính tham khảo.</span>
-        <span>Kết quả cuối cùng căn cứ biên bản mở thưởng niêm yết tại công ty xổ số kiến thiết. <a href="https://www.minhngoc.net.vn/thong-tin/dieu-khoan-su-dung.html" target="_blank" rel="noopener noreferrer">Điều khoản nguồn ↗</a></span>
-      </div>
-    </section>
+        <div class="date-strip" id="homeDates" role="group" aria-label="Chọn ngày kết quả gần đây"></div>
+        <div id="homeResult" aria-live="polite"></div>
+      </section>
 
-    <div class="live-next" aria-label="Tiếp tục sử dụng ứng dụng">
-      <button type="button" id="liveToPred"><span><b>Phân tích 2 số & 3 số đuôi</b><span>Mở dàn tham khảo cho kỳ tiếp theo</span></span><i aria-hidden="true">→</i></button>
-      <button type="button" id="liveToCross"><span><b>Đối chiếu hai miền</b><span>Xem XSMN và XSMB trong cùng ngày</span></span><i aria-hidden="true">→</i></button>
+      <section class="live-shell" id="liveShell" aria-labelledby="liveBoardTitle">
+        <div class="live-shell-head">
+          <div>
+            <span class="eyebrow">Tường thuật trực tiếp theo nguồn</span>
+            <h2 id="liveBoardTitle">Trực tiếp XSMN</h2>
+            <p id="liveBoardNote">Bảng tự cập nhật khi các đài bắt đầu quay; không cần tải lại cả website.</p>
+          </div>
+          <div class="source-lockup">
+            <span class="source-badge">Nguồn Minh Ngọc™</span>
+            <button type="button" class="live-tool" id="liveRefresh">Tải lại bảng</button>
+            <a class="source-link" id="liveSource" href="https://www.minhngoc.net.vn/xo-so-truc-tiep/mien-nam.html" target="_blank" rel="noopener noreferrer">Mở nguồn ↗</a>
+          </div>
+        </div>
+        <div class="live-frame-wrap">
+          <div class="frame-loading" id="liveLoading" role="status" aria-live="polite"><i aria-hidden="true"></i>Đang kết nối bảng kết quả…</div>
+          <iframe class="live-frame" id="liveFrame" name="iframe_xosominhngoc" title="Bảng kết quả xổ số trực tiếp từ Minh Ngọc" src="https://www.minhngoc.net.vn/free/xo-so-truc-tiep/mien-nam.html" loading="eager" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
+        <div class="live-credit">
+          <span><b>Nguồn trực tiếp:</b> bảng được nhúng nguyên trạng từ <a href="https://www.minhngoc.net.vn/tao-ma-nhung/ket-qua-xo-so.html" target="_blank" rel="noopener noreferrer">công cụ miễn phí của Minh Ngọc™</a>.</span>
+          <span>Kết quả chính thức căn cứ thông báo của công ty xổ số kiến thiết. <a href="https://www.minhngoc.net.vn/thong-tin/dieu-khoan-su-dung.html" target="_blank" rel="noopener noreferrer">Điều khoản nguồn ↗</a></span>
+        </div>
+      </section>
+    </div>
+
+    <div class="trust-note" role="note">
+      <span aria-hidden="true">i</span>
+      <p>Website tổng hợp kết quả và phân tích dữ liệu đã công bố. Các mẫu trong quá khứ không dự báo kết quả tương lai.</p>
+    </div>
+
+    <div class="live-next" aria-label="Xem thêm dữ liệu">
+      <button type="button" id="liveToHistory"><span><b>Xem các kỳ trước</b><span>Tra cứu kết quả đầy đủ theo ngày</span></span><i aria-hidden="true">→</i></button>
+      <button type="button" id="liveToStats"><span><b>Xem bản đồ số</b><span>Tần suất và khoảng cách trên dữ liệu cũ</span></span><i aria-hidden="true">→</i></button>
     </div>
   </div>
 
-  <!-- ============ DỰ ĐOÁN ============ -->
-  <div class="view" id="v-pred">
-    <div id="guideB"></div>
-    <div class="hero" id="hero"></div>
-    <div class="quick" id="quick"></div>
-    <details class="quick pinExcl" id="pinExclWrap">
-      <summary>🎯 Tùy chọn ghim / loại số</summary>
-      <div class="qhead"><span style="font-size:12px;color:var(--dim)">Áp dụng cho dàn ⚡ ở trên · không đổi cách xếp hạng</span></div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span class="flab">Luôn có (ghim)</span>
-        <input type="text" id="pinIn" name="ghim-so" aria-label="Các số muốn ghim" placeholder="Ví dụ: 79 25…" autocomplete="off" inputmode="numeric" spellcheck="false">
-        <button class="btn g" id="pinAddBtn">+ Ghim</button>
+  <!-- ============ LỊCH SỬ KẾT QUẢ ============ -->
+  <div class="view" id="v-history">
+    <div class="view-intro">
+      <div><span class="eyebrow">Dữ liệu đã công bố</span><h1>Lịch sử kết quả</h1><p>Chọn một ngày để xem lại đầy đủ các giải XSMN hoặc XSMB.</p></div>
+    </div>
+    <section class="result-shell" aria-labelledby="historyTitle">
+      <div class="result-shell-head">
+        <div><span class="eyebrow">Các kỳ gần nhất</span><h2 id="historyTitle">Chọn ngày muốn xem</h2></div>
       </div>
-      <div id="pinChips" style="margin:8px 0 2px;display:flex;gap:6px;flex-wrap:wrap"></div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px">
-        <span class="flab">Không lấy (loại)</span>
-        <input type="text" id="exclIn" name="loai-so" aria-label="Các số muốn loại" placeholder="Ví dụ: 13 44…" autocomplete="off" inputmode="numeric" spellcheck="false">
-        <button class="btn g" id="exclAddBtn">+ Loại</button>
-      </div>
-      <div id="exclChips" style="margin:8px 0 2px;display:flex;gap:6px;flex-wrap:wrap"></div>
-      <div style="font-size:11px;color:var(--dim2);margin-top:6px">
-        Ghim đứng đầu dàn — nếu ghim nhiều hơn số lượng "Lấy" ở trên, app vẫn hiện đủ số đã ghim.
-        Nhập đúng độ dài số đang chọn (2 hoặc 3 chữ số), cách nhau bằng dấu cách.
-      </div>
-    </details>
-    <details class="moreStats">
-      <summary>Xem bảng lịch sử và cách app kiểm chứng số liệu</summary>
-      <div class="grid2" style="margin:8px 0 20px">
-        <div class="card" id="pred2"></div>
-        <div class="card" id="pred3"></div>
-      </div>
-      <div class="honest" id="honest"></div>
-    </details>
+      <div class="date-strip history-dates" id="historyDates" role="group" aria-label="Chọn ngày trong lịch sử"></div>
+      <div id="historyResult" aria-live="polite"></div>
+      <div class="history-more"><button type="button" class="btn g" id="historyMore">Hiện thêm ngày</button></div>
+    </section>
   </div>
 
-  <!-- ============ PHÂN TÍCH SÂU (gộp Bảng số + Gan & Chu kỳ + Cầu & Mẫu) ============ -->
+  <!-- ============ THỐNG KÊ DỮ LIỆU ĐÃ CÔNG BỐ ============ -->
   <div class="view" id="v-ana">
     <div class="view-intro">
-      <div><span class="eyebrow">Đọc dữ liệu theo cách của bạn</span><h1>Thống kê số</h1><p>Từ tổng quan màu sắc đến gan, chu kỳ và các mẫu liên quan.</p></div>
+      <div><span class="eyebrow">Dễ nhìn, dễ tra cứu</span><h1>Thống kê số</h1><p>Màu sắc và bảng số giúp bạn nhìn lại tần suất trên dữ liệu đã công bố.</p></div>
       <div class="subnav" id="anaChips" aria-label="Màn thống kê"></div>
     </div>
 
     <div id="sub-board">
     <section>
-      <div class="stitle" id="hmTitle">🌡️ Bản đồ nhiệt</div>
-      <div class="ssub">Màu càng nóng = số ngày xuất hiện càng nhiều trong mẫu. Bấm ô bất kỳ để soi chi tiết.</div>
+      <div class="stitle" id="hmTitle">Bản đồ nhiệt</div>
+      <div class="ssub">Màu ấm hơn nghĩa là số đó xuất hiện nhiều hơn trong khoảng đang xem. Bấm vào ô để xem lịch sử.</div>
       <div class="card">
         <div class="frow" style="margin-bottom:12px">
           <span class="flab">Tô màu theo</span><span id="hmMode"></span>
@@ -690,18 +909,18 @@ sup.info:hover{background:var(--acc);color:#04101f}
     </section>
     <section class="grid2">
       <div class="card">
-        <div class="stitle">🔥 Nóng nhất</div>
-        <div class="ssub">Xuất hiện nhiều ngày nhất — kèm khoảng tin cậy 95%</div>
+        <div class="stitle">Xuất hiện nhiều</div>
+        <div class="ssub" id="hotSub">Các số xuất hiện trong nhiều kỳ nhất của khoảng đang xem</div>
         <div class="scrolly" style="max-height:400px"><table id="tHot"></table></div>
       </div>
       <div class="card">
-        <div class="stitle">❄️ Ra ít nhất</div>
-        <div class="ssub">Tổng số lần ra thấp nhất cả giai đoạn (khác "gan" = lâu chưa ra tính từ hôm nay)</div>
+        <div class="stitle">Xuất hiện ít</div>
+        <div class="ssub" id="coldSub">Các số xuất hiện trong ít kỳ nhất của khoảng đang xem</div>
         <div class="scrolly" style="max-height:400px"><table id="tCold"></table></div>
       </div>
     </section>
     <section id="secHT">
-      <div class="stitle">🔢 Phân bố Đầu – Đuôi</div>
+      <div class="stitle">Phân bố chữ số đầu – cuối</div>
       <div class="ssub">Tổng lần ra theo chữ số đầu và chữ số cuối</div>
       <div class="card bar2">
         <div><div style="color:var(--dim);font-size:12px;margin-bottom:8px">ĐẦU</div><div id="bHead"></div></div>
@@ -723,31 +942,31 @@ sup.info:hover{background:var(--acc);color:#04101f}
     <div id="sub-gap" style="display:none">
     <section class="grid2">
       <div class="card">
-        <div class="stitle">🧊 Đang gan lâu nhất</div>
-        <div class="ssub">Chưa ra bao nhiêu ngày tính tới kỳ gần nhất</div>
+        <div class="stitle">Lâu chưa xuất hiện</div>
+        <div class="ssub">Số kỳ chưa xuất hiện tính đến kết quả gần nhất</div>
         <div class="scrolly" style="max-height:420px"><table id="tGan"></table></div>
       </div>
       <div class="card">
-        <div class="stitle">🏆 Kỷ lục nhịn lâu nhất</div>
-        <div class="ssub">Khoảng nhịn dài nhất của từng số từng ghi nhận trong lịch sử</div>
+        <div class="stitle">Khoảng cách dài nhất</div>
+        <div class="ssub">Khoảng dài nhất giữa 2 lần xuất hiện trong dữ liệu</div>
         <div class="scrolly" style="max-height:420px"><table id="tMaxGap"></table></div>
       </div>
     </section>
     <section class="grid2">
       <div class="card">
-        <div class="stitle">⚡ Về sát nhau nhất / nhịp dày</div>
-        <div class="ssub">Bình quân ít kỳ nhất giữa 2 lần về — số "về dày" nhất</div>
+        <div class="stitle">Xuất hiện gần nhau</div>
+        <div class="ssub">Khoảng cách trung bình ngắn nhất giữa 2 lần xuất hiện</div>
         <div class="scrolly" style="max-height:420px"><table id="tMinGap"></table></div>
       </div>
       <div class="card">
-        <div class="stitle">🎯 Đều nhịp nhất</div>
-        <div class="ssub">Nhịp về đều đặn nhất — nhưng nhớ: đều trong quá khứ không hứa hẹn gì cho kỳ tới</div>
+        <div class="stitle">Khoảng cách ổn định</div>
+        <div class="ssub">Nhịp xuất hiện đều hơn trong quá khứ; không phải dấu hiệu cho kỳ sau</div>
         <div class="scrolly" style="max-height:420px"><table id="tRhythm"></table></div>
       </div>
     </section>
     <section>
-      <div class="stitle">📉 Tỉ lệ lịch sử sau từng mức gap <sup class="info" data-tip="hazard">!</sup></div>
-      <div class="ssub">Đo từ các khoảng chờ đã quan sát; chỉ dùng vùng g≤25 còn ít nhất 200 mẫu. Cột ngang nhau → chờ lâu không làm dễ ra hơn.</div>
+      <div class="stitle">Tỉ lệ lịch sử theo khoảng chờ <sup class="info" data-tip="hazard">!</sup></div>
+      <div class="ssub">Các cột gần ngang nhau cho thấy chờ lâu không làm một số dễ xuất hiện hơn.</div>
       <div class="card">
         <div id="hzChart"></div>
         <div id="hzNote" style="color:var(--dim);font-size:12px;margin-top:10px;line-height:1.6"></div>
@@ -758,30 +977,30 @@ sup.info:hover{background:var(--acc);color:#04101f}
     <div id="sub-pattern" style="display:none">
     <section class="grid2">
       <div class="card">
-        <div class="stitle">🪂 Lặp lại kỳ trước — số về kỳ trước <sup class="info" data-tip="carry">!</sup></div>
+        <div class="stitle">Lặp lại từ kỳ trước <sup class="info" data-tip="carry">!</sup></div>
         <div class="ssub" id="carrySub"></div>
         <div class="scrolly" style="max-height:400px"><table id="tCarry"></table></div>
       </div>
       <div class="card">
-        <div class="stitle">📅 Theo thứ trong tuần</div>
-        <div class="ssub" id="dowSub">Số nào hay về đúng thứ của kỳ tới</div>
+        <div class="stitle">Theo thứ trong tuần</div>
+        <div class="ssub" id="dowSub">Tần suất lịch sử theo từng thứ trong tuần</div>
         <div class="scrolly" style="max-height:400px"><table id="tDow"></table></div>
       </div>
     </section>
     <section class="grid2">
       <div class="card">
-        <div class="stitle">👥 Cặp số đi cùng nhau <sup class="info" data-tip="pair">!</sup></div>
-        <div class="ssub">Hai số hay xuất hiện chung một ngày nhiều hơn mức ngẫu nhiên</div>
+        <div class="stitle">Cặp số cùng xuất hiện <sup class="info" data-tip="pair">!</sup></div>
+        <div class="ssub">Hai số từng xuất hiện trong cùng một ngày</div>
         <div class="scrolly" style="max-height:400px"><table id="tPair"></table></div>
       </div>
       <div class="card">
-        <div class="stitle">🔁 So sánh nóng gần vs dài hạn <sup class="info" data-tip="momentum">!</sup></div>
-        <div class="ssub">Số đang tăng tốc mạnh nhất: tần suất 30 kỳ gần so với toàn mẫu</div>
+        <div class="stitle">30 kỳ gần và toàn bộ dữ liệu <sup class="info" data-tip="momentum">!</sup></div>
+        <div class="ssub">So sánh tần suất gần đây với khoảng dữ liệu dài hơn</div>
         <div class="scrolly" style="max-height:400px"><table id="tMomentum"></table></div>
       </div>
     </section>
     <section id="secKep">
-      <div class="stitle">🧩 Nhóm mẫu số</div>
+      <div class="stitle">Nhóm mẫu số</div>
       <div class="ssub">Tỉ lệ thực tế so với tỉ lệ lý thuyết của từng nhóm</div>
       <div class="card"><div class="tw"><table id="tGroup"></table></div></div>
     </section>
@@ -791,95 +1010,31 @@ sup.info:hover{background:var(--acc);color:#04101f}
   <!-- ============ 2 MIỀN ============ -->
   <div class="view" id="v-cross">
     <div class="view-intro">
-      <div><span class="eyebrow">So sánh trực tiếp</span><h1>Đối chiếu hai miền</h1><p>Xem kết quả cùng ngày và tự kiểm tra liệu hai miền có liên hệ hay không.</p></div>
+      <div><span class="eyebrow">Cùng ngày, cùng một màn hình</span><h1>Đối chiếu hai miền</h1><p>Xem kết quả XSMN và XSMB cạnh nhau, rồi kiểm tra mối liên hệ trên lịch sử.</p></div>
     </div>
     <section>
-      <div class="stitle">📡 Hôm nay — hai miền</div>
-      <div class="ssub">XSMN quay 16:15, XSMB quay 18:15. Sau 16:15 bạn đã biết trước kết quả miền Nam khi miền Bắc chưa quay.</div>
+      <div class="stitle">Kết quả hôm nay — hai miền</div>
+      <div class="ssub">XSMN bắt đầu khoảng 16:15; XSMB bắt đầu khoảng 18:15.</div>
       <div id="crossToday"></div>
     </section>
     <section>
-      <div class="stitle">🔬 Biết XSMN chiều có đoán được XSMB tối không?</div>
-      <div class="ssub">Đo trực tiếp trên mọi ngày có đủ cả hai miền để xem dữ liệu có hỗ trợ mối liên hệ này hay không.</div>
+      <div class="stitle">XSMN và XSMB có liên hệ trong cùng ngày không?</div>
+      <div class="ssub">Đo trên các ngày có đủ dữ liệu 2 miền; kết quả chỉ mô tả lịch sử đã xảy ra.</div>
       <div class="card" id="crossTest"></div>
     </section>
     <section>
-      <div class="stitle">📊 Thống kê gộp cả hai miền</div>
+      <div class="stitle">Thống kê gộp cả hai miền</div>
       <div class="ssub">Cộng dồn số đuôi của XSMN và XSMB trong cùng ngày</div>
       <div class="card" id="crossMerge"></div>
     </section>
   </div>
 
-  <!-- ============ KIỂM CHỨNG ============ -->
+  <!-- ============ NGUỒN VÀ PHƯƠNG PHÁP ============ -->
   <div class="view" id="v-verify">
     <div class="view-intro">
-      <div><span class="eyebrow">Không tin bằng cảm giác</span><h1>Kiểm chứng bằng dữ liệu</h1><p>Chạy lại lịch sử ngoài mẫu và so trực tiếp với chọn bừa.</p></div>
+      <div><span class="eyebrow">Minh bạch từ đầu</span><h1>Nguồn & cách cập nhật</h1><p>Biết bảng trực tiếp đến từ đâu, kho lịch sử sâu bao nhiêu và lần cập nhật gần nhất.</p></div>
     </div>
-    <section>
-      <div class="stitle">🧪 Backtest — công thức này có hơn chọn bừa không? <sup class="info" data-tip="bttest">!</sup></div>
-      <div class="ssub">Kiểm tra bảng xếp hạng thử nghiệm: mỗi ngày chỉ dùng dữ liệu có trước ngày đó, rồi đối chiếu kết quả thật.</div>
-      <div class="card">
-        <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
-          <span class="flab" style="min-width:auto">Số kỳ mô phỏng</span><span id="btDays"></span>
-        </div>
-        <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
-          <span class="flab" style="min-width:auto">Cửa sổ trượt</span><span id="btWin"></span>
-          <button class="btn" id="btRun" style="margin-left:auto">▶ Chạy backtest</button>
-        </div>
-        <div id="btOut" style="margin-top:12px"></div>
-      </div>
-    </section>
-    <section>
-      <div class="stitle">🎲 Kiểm định tính ngẫu nhiên <sup class="info" data-tip="chi2">!</sup></div>
-      <div class="ssub">Chi-square goodness-of-fit: dữ liệu thật có lệch khỏi phân phối đều không?</div>
-      <div class="card" id="chiOut"></div>
-    </section>
-  </div>
-
-  <!-- ============ TRỢ GIÚP (hướng dẫn + từ điển + dữ liệu) ============ -->
-  <div class="view" id="v-help">
-    <section>
-      <div class="stitle">🚀 Dùng app trong 2 phút</div>
-      <div class="card" id="howto"></div>
-    </section>
-    <section>
-      <div class="stitle">🔬 Sự thật đã kiểm chứng</div>
-      <div class="ssub">Các kết luận dưới đây được đo từ kho dữ liệu; cơ chế giám sát có link nguồn chính thức</div>
-      <div class="card" id="facts"></div>
-    </section>
-    <section>
-      <div class="stitle">📖 Từ điển chỉ số</div>
-      <div class="ssub">Mọi thuật ngữ trên app — bấm dấu <sup class="info" style="pointer-events:none">!</sup> ở bất kỳ đâu cũng ra giải thích này</div>
-      <div class="card" id="glossary"></div>
-    </section>
-    <section>
-      <div class="stitle">📚 Kho dữ liệu</div>
-      <div class="ssub">Nguồn, độ sâu và tình trạng cập nhật</div>
-      <div class="card" id="dataInfo"></div>
-    </section>
-    <section>
-      <div class="stitle">📜 Kết quả gần đây</div>
-      <div class="ssub">20 kỳ mới nhất của mẫu đang chọn</div>
-      <div class="card" style="padding:0"><div class="scrolly" style="max-height:520px"><table id="tRecent"></table></div></div>
-    </section>
-
-    <section>
-      <div class="stitle">💸 Máy tính kỳ vọng (EV) — nên chơi gì, tránh gì</div>
-      <div class="ssub">Nhập đúng luật của host bạn đang chơi. App tính bằng xác suất <b>đo được thật</b> từ dữ liệu, không phải ước lượng lý thuyết.</div>
-      <div class="card" id="evFormula"></div>
-      <div class="card" style="margin-top:12px">
-        <div class="frow" style="margin-bottom:0">
-          <span class="flab" style="min-width:auto">Đơn giá/con</span>
-          <input type="text" id="evUnit" value="10000" inputmode="numeric" style="width:90px">
-          <span class="flab" style="min-width:auto;margin-left:6px">tỉ lệ trả(2 số)</span>
-          <input type="text" id="evRatio2" value="80" inputmode="numeric" style="width:70px">
-          <span class="flab" style="min-width:auto;margin-left:6px">tỉ lệ trả(3 số)</span>
-          <input type="text" id="evRatio3" value="600" inputmode="numeric" style="width:70px">
-          <span class="flab" style="min-width:auto;margin-left:6px">Trả thưởng</span><span id="evMode"></span>
-        </div>
-      </div>
-      <div id="evTable" style="margin-top:12px"></div>
-    </section>
+    <div id="methodData"></div>
   </div>
 
   <div class="foot" id="foot"></div>

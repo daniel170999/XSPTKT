@@ -12,7 +12,7 @@ Trang **Kết quả** không chờ workflow: nó dùng iframe miễn phí chính
 
 ## Chỉ làm một lần
 
-1. Tạo repository mới trên GitHub, ví dụ `soi-cau-xs`. Có thể để Private nếu chỉ dùng một mình; nếu muốn người khác xem source thì để Public.
+1. Tạo repository mới trên GitHub, ví dụ `ket-so`. Có thể để Private nếu chỉ dùng một mình; nếu muốn người khác xem source thì để Public.
 2. Trong thư mục app, mở PowerShell và chạy:
 
    ```powershell
@@ -20,13 +20,13 @@ Trang **Kết quả** không chờ workflow: nó dùng iframe miễn phí chính
    git add .
    git commit -m "public app"
    git branch -M main
-   git remote add origin https://github.com/TEN_GITHUB/soi-cau-xs.git
+   git remote add origin https://github.com/TEN_GITHUB/ket-so.git
    git push -u origin main
    ```
 
 3. Vào [Vercel](https://vercel.com/new), đăng nhập bằng GitHub, chọn repository vừa tạo.
 4. Ở màn hình cấu hình chọn **Other** / không framework, giữ `Root Directory` là thư mục này, không điền Build Command, rồi bấm **Deploy**.
-5. Copy URL dạng `https://soi-cau-xs.vercel.app` để dùng trên điện thoại hoặc gửi cho bạn bè.
+5. Copy URL dạng `https://ket-so.vercel.app` để dùng trên điện thoại hoặc gửi cho bạn bè.
 
 Vercel tự deploy lại mỗi khi GitHub có commit mới. File `vercel.json` đã buộc trình duyệt lấy mới `data/*`, tránh mở lại mà thấy kết quả cũ.
 

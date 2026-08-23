@@ -140,7 +140,7 @@ Số đã pad 0 sẵn (`"08"` chứ không phải `"8"`). Đừng pad lại lầ
   ```js
   // dán vào console, phải in ra "ok" cho mọi tổ hợp public
   (()=>{const d=document.documentElement;const s=()=>{const o=[];
-   for(const v of ["live","pred","cross","verify"]){showView(v);
+   for(const v of ["live","history","cross","verify"]){showView(v);
    if(d.scrollWidth>d.clientWidth)o.push(v+":"+(d.scrollWidth-d.clientWidth)+"px")}
    for(const x of ["board","gap","pattern"]){ST.anaSub=x;showView("ana");
    if(d.scrollWidth>d.clientWidth)o.push("ana/"+x+":"+(d.scrollWidth-d.clientWidth)+"px")}
@@ -172,7 +172,7 @@ Rồi mở app và kiểm tra đủ **5 tab public (+3 màn con của Thống k�
 - [ ] Cả 5 tab public + 3 màn con Thống kê render được ở XSMB và XSMN
 - [ ] Tab Kết quả tải được iframe XSMN/XSMB, đúng link nguồn/credit; lỗi bên thứ ba không được làm lỗi origin app
 - [ ] Đổi 2 số ↔ 3 số không vỡ
-- [ ] Dàn nhanh, bảng lịch sử và modal soi số thống nhất cùng `actionable`/nền đúng thứ
+- [ ] Bảng thống kê, ô tìm kiếm và modal lịch sử thống nhất cùng bộ lọc; tần suất luôn có mức nền/mức chung
 - [ ] Backtest 300 kỳ chạy xong dưới 10 giây
 - [ ] `py update.py` chạy được, không mất dữ liệu cũ
 - [ ] Nếu đổi công thức → đã chạy lại backtest và cập nhật bảng số liệu trong ROADMAP

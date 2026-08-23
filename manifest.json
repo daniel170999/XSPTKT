@@ -1,15 +1,15 @@
 {
-  "name": "Soi XS — Kết quả & thống kê XSMN, XSMB",
-  "short_name": "Soi XS",
-  "description": "Xem kết quả XSMN, XSMB trực tiếp từ Minh Ngọc và thống kê minh bạch 2 số, 3 số đuôi.",
-  "start_url": ".",
-  "scope": ".",
+  "name": "Kết Số — Kết quả xổ số XSMN, XSMB",
+  "short_name": "Kết Số",
+  "description": "Xem kết quả XSMN, XSMB trực tiếp, tra cứu lịch sử và thống kê dữ liệu đã công bố.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#070b12",
-  "theme_color": "#070b12",
+  "background_color": "#f4f7fb",
+  "theme_color": "#ffffff",
   "lang": "vi",
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+    { "src": "/icon.svg?v=2", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }

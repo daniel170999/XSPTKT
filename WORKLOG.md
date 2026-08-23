@@ -1,5 +1,41 @@
 # WORKLOG — Kết Số
 
+## 2026-08-23 — Chuyển thành Kết Số: kết quả/live đứng đầu, public mainstream
+
+### Phạm vi đã làm
+
+- Đổi thương hiệu public thành **Kết Số**; thêm logo SVG, favicon/app icon, social card 1200×630,
+  manifest, canonical, Open Graph/Twitter card, JSON-LD, `robots.txt` và `sitemap.xml`.
+- Xây lại trang đầu theo thứ tự **kết quả gần nhất → bảng đầy đủ từng giải → live Minh Ngọc**;
+  khi đúng giờ quay, bảng live tự được đưa lên trước. XSMN đứng trước XSMB.
+- Thêm tab **Lịch sử** theo ngày, giữ ô tìm kiếm lớn cho 2/3 số và thay modal cũ bằng lịch sử thuần mô tả.
+  Giao diện public có 5 tab: Kết quả, Lịch sử, Thống kê, Hai miền, Nguồn.
+- Loại cột “khả năng ra kỳ sau” và mọi nội dung chọn dàn/nhật ký dự đoán khỏi giao diện public. Bản đồ số,
+  khoảng cách và mẫu lịch sử dùng câu ngắn, luôn nêu mức chung và cảnh báo dữ liệu cũ không dự báo kỳ sau.
+- Thêm `privacy.html`, security headers trên Vercel và siết iframe còn `allow-scripts allow-same-origin`
+  với `referrerpolicy=no-referrer`. Thêm `.gitignore` cho `__pycache__` và settings local.
+- Thêm `MONETIZATION_PLAN.md`; thương mại hoá bị chặn cho đến khi có quyền nguồn rõ ràng, rà soát pháp lý
+  và cập nhật privacy/consent cho dịch vụ quảng cáo hoặc analytics thực tế.
+- Không sửa `app.js`, công thức, scoring hay dữ liệu lịch sử.
+
+### Kiểm chứng có số liệu
+
+| Hạng mục | Kết quả |
+|---|---|
+| Cú pháp + regression | `node --check app.js`, `node --check ui.js`, `node test_model.cjs`: đạt; `test_update.py`: **4/4 đạt** |
+| Browser matrix | **56/56 lượt render**: 5 tab public + 3 màn Thống kê × XSMN/XSMB × 2/3 số tại **375px và 1280px**; **0px tràn ngang** |
+| Console | Sau toàn bộ matrix, tìm kiếm và đổi iframe MN/MB: **0 lỗi console** |
+| Kết quả theo ngày | Trang đầu có **7** ngày; XSMN render **9** dòng giải, XSMB **8** dòng; lịch sử mặc định **14** ngày và mở dần đến 120 |
+| Search/modal | `68` và `668` mở đúng modal lịch sử, **0px tràn**; input `6` bị chặn với thông báo rõ |
+| Backtest nội bộ | XSMB / tất cả giải / 3 số / W365 / 300 kỳ / dàn 10: **0,728 giây**, hit **67** vs kỳ vọng **68,37**, uplift **−2,00%**, top1 z **0,45** |
+| Crawler thật | `update.py --max-fetch 40`: **1 giây**; trước/sau XSMB **7.531→7.531**, XSMN **6.676→6.676**, cùng đến **23/08/2026**; không mất kỳ cũ |
+| Auto-update | Scheduled run GitHub Actions **#2**, ID `32635122337`: `success`, **17 giây**, ngày 23/08/2026; workflow vẫn có cron 16:42/18:42 ICT |
+| Copy public | Quét 5 view đang hiển thị: **0** từ/cụm liên quan trò chơi số ngoài luồng, bộ số, cược, đơn vị tổ chức hoặc dự đoán kỳ sau |
+| PII/secrets | Không có private key, credential, email riêng hay path người dùng trong source chuẩn bị commit; GitHub owner và email `users.noreply.github.com` trong lịch sử là metadata public sẵn có |
+
+Kết luận thống kê không đổi: dữ liệu chưa chứng minh lợi thế dự báo. Bản public chỉ phục vụ kết quả,
+lịch sử và phân tích những gì đã xảy ra.
+
 ## 2026-08-23 — Kết quả live Minh Ngọc + polish public lần cuối
 
 ### Phạm vi đã làm
@@ -32,7 +68,7 @@ Kết luận thống kê không đổi: chưa có predictive edge; tab Chọn d�
 
 ## 2026-08-23 — Redesign toàn bộ flow public, ưu tiên mobile
 
-- Phạm vi được Daniel mở lại sau bản khoá v1.0: chỉ thay kiến trúc thông tin, visual, responsive, animation và accessibility; **không sửa `app.js`, scoring, xác suất hay tín hiệu dự đoán**.
+- Phạm vi được chủ dự án mở lại sau bản khoá v1.0: chỉ thay kiến trúc thông tin, visual, responsive, animation và accessibility; **không sửa `app.js`, scoring, xác suất hay tín hiệu dự đoán**.
 - XSMN đứng trước và là miền mặc định; switch miền tách khỏi 4 tab chức năng. Tab có tên + mục đích trên desktop, icon + nhãn ngắn trên mobile.
 - Kỳ mẫu sắp tăng dần: **7 ngày → 1 tháng → 3 tháng → 6 tháng → 1 năm → 3 năm → 5 năm → 5000 ngày → Toàn bộ lịch sử**. Mobile có tóm tắt mẫu đang dùng và gợi ý vuốt.
 - Trang Hôm nay đổi thành flow 3 bước: phạm vi giải → 2/3 số → số lượng; kết quả, xác suất nền và CTA copy nằm trong một vùng riêng. Thêm màu nhận diện theo miền (MN cam, MB xanh), hierarchy mới, micro-interaction, view/modal/number entrance animation và `prefers-reduced-motion`.
@@ -80,7 +116,7 @@ Kết luận: bản polish không tạo hoặc diễn giải thành predictive e
 - Ô soi số ở header lớn hơn, dùng được `68`/`668`; phần giải thích dài và ghim/loại số được thu gọn mặc định.
 - Mobile: 4 tab luôn thấy trên một hàng, header/search xếp theo chiều dọc; không tràn trang.
 - Thêm `.github/workflows/update-lottery-data.yml`: GitHub Actions chạy `update.py` lúc 17:37 và 19:37 ICT, chỉ commit khi `data/` đổi. Thêm `vercel.json` không cache `data/*`; thêm `DEPLOY_VERCEL.md` và cập nhật README/ROADMAP.
-- Chưa deploy thật: cần Daniel push repo GitHub và kết nối Vercel theo `DEPLOY_VERCEL.md`.
+- Tại thời điểm ghi mục này chưa deploy thật; cần push repo GitHub và kết nối Vercel theo `DEPLOY_VERCEL.md`.
 
 ### Kiểm chứng có số liệu
 
@@ -94,7 +130,7 @@ Kết luận: bản polish không tạo hoặc diễn giải thành predictive e
 | Responsive | 320px: rộng nội dung 305px; 1280px: 1265px — **0px tràn ngang** |
 | Backtest UI | MN / tất cả giải / 3 số / 300 kỳ / W365 / dàn10: **1,6s**; uplift OOS **−0,1%**, top1 p=**0,752**; trong mẫu **+116,9%** |
 
-Kết luận: thay đổi phân phối/UI không làm phát sinh bằng chứng predictive edge. Website sẵn sàng để Daniel deploy; auto-update chỉ bắt đầu sau khi workflow có quyền ghi trong GitHub repo.
+Kết luận: thay đổi phân phối/UI không làm phát sinh bằng chứng predictive edge. Website sẵn sàng để deploy; auto-update chỉ bắt đầu sau khi workflow có quyền ghi trong GitHub repo.
 
 ## 2026-08-14 — Kiểm tra sức khoẻ sau 1 tuần chạy thật (không sửa code)
 
@@ -232,4 +268,4 @@ Kết luận: thay đổi phân phối/UI không làm phát sinh bằng chứng 
   không tràn ngang. Bộ chọn “Tại ngày” đã xóa hẳn khỏi UI/code.
 - Backtest UI 300 kỳ (MN all, 3 số, W=365, dàn 10) chạy 1,6 giây: OOS uplift +5,1% nhưng top1 p=0,752;
   trong mẫu +117,7% → minh họa overfit, app kết luận không có tín hiệu vượt trội.
-- `/api/status` trả `live:true`; desktop shortcut `C:\Users\MR DUOC\Desktop\XS.lnk` trỏ đúng `MoApp.bat`.
+- `/api/status` trả `live:true`; desktop shortcut local trỏ đúng `MoApp.bat`.

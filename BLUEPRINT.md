@@ -1,4 +1,4 @@
-# BLUEPRINT — Đặc tả chuẩn của app Kết Số
+# BLUEPRINT — Đặc tả chuẩn của Kết Số
 
 > Tài liệu thiết kế gốc. **Mọi model/người build tiếp phải đọc file này + [RULES.md](RULES.md) trước khi sửa.**
 > [ROADMAP.md](ROADMAP.md) cho biết *đang ở đâu, làm gì tiếp*; file này cho biết *app phải như thế nào và vì sao*.
@@ -7,14 +7,14 @@
 
 ## 1. Triết lý sản phẩm — 3 nguyên tắc không đổi
 
-1. **Một luồng xổ số rõ ràng:** cho người dùng xem kết quả đang quay, rồi tra cứu/chọn dàn **2 số đuôi
-   (00–99)** hoặc **3 số đuôi (000–999)** cho XSMN/XSMB kèm đầy đủ ngữ cảnh thống kê. Phần phân tích
-   không mở rộng sang loại số khác.
+1. **Một luồng kết quả rõ ràng:** người dùng xem kết quả đang quay và các kỳ gần nhất trước, rồi mới tra cứu
+   lịch sử **2 số đuôi (00–99)** hoặc **3 số đuôi (000–999)** cho XSMN/XSMB. Phần public không chọn dàn,
+   không công bố số cho kỳ tiếp theo và không mở rộng sang loại số khác.
 2. **Toán quyết định, không phải cảm xúc:** mọi con số trên UI đều truy được về một công thức trong `app.js`
    và đều so được với mức nền. Trọng số tín hiệu do **dữ liệu tự quyết** (mục 3.4), không ai đặt tay.
 3. **Trung thực là tính năng:** app đã tự đo và biết xổ số không có trí nhớ (mục 4).
-   Khi toán nói "không số nào hơn số nào", app **nói đúng như vậy** và chuyển sang chọn đều —
-   không bịa thứ hạng. Backtest, đối chứng in/out-sample, khoảng tin cậy là bộ phận cốt lõi, cấm gỡ.
+   Khi toán nói "không số nào hơn số nào", app **nói đúng như vậy**. Backtest, đối chứng in/out-sample và
+   khoảng tin cậy vẫn là lớp kiểm toán nội bộ; giao diện public chỉ trình bày lịch sử, không biến chúng thành dự báo.
 
 ---
 
@@ -35,7 +35,7 @@
 | File | Vai trò | Cấm |
 |---|---|---|
 | `app.js` | **Toán thuần**: parse, `analyze()`, EB shrinkage, hazard, Wilson, χ², `rankAll()`, `unbiasedPick()` | đụng DOM |
-| `ui.js` | **Vẽ**: 5 view public (`live/pred/ana/cross/verify`), modal, backtest UI, tooltip; nhật ký/trợ giúp là code legacy không public | tự chế công thức |
+| `ui.js` | **Vẽ**: 5 view public (`live/history/ana/cross/verify`), modal lịch sử, tooltip; model/backtest/nhật ký cũ là code legacy không public | tự chế công thức |
 | `index.html` | Khung + toàn bộ CSS (design tokens ở `:root`) | logic |
 | `update.py` | Crawler đa luồng, alias tên đài, lock, ghi nguyên tử | logic hiển thị |
 | `serve.py` | HTTP + vòng tự cập nhật 16:35/18:32 | logic thống kê |
@@ -218,16 +218,16 @@ Lỗ hổng dữ liệu hợp lệ (không phải lỗi crawler): COVID 4/2020 c
 | Tab | Mục đích | Thành phần chính |
 |---|---|---|
 | 🔴 **Kết quả** | Xem số đang quay | XSMN/XSMB switch · trạng thái theo giờ Việt Nam · iframe chính thức Minh Ngọc · credit/link nguồn · tải lại |
-| 🎯 **Chọn dàn** | Trả lời trong 10 giây | Flow 3 bước · **dàn máy chọn đều 2–10 số** khi chưa có OOS · xác suất nền · lịch sử nổi bật tách riêng |
-| 📊 **Thống kê** | Soi số | 3 màn con: Bản đồ nhiệt & bảng số · Gan & chu kỳ · Cầu & mẫu số |
+| 🗓️ **Lịch sử** | Xem lại theo ngày | 14 kỳ gần nhất mặc định · mở dần đến 120 kỳ · bảng đầy đủ từng giải |
+| 📊 **Thống kê** | Tra cứu dữ liệu cũ | 3 màn con: Bản đồ số · Khoảng cách · Mẫu lịch sử |
 | 🔗 **Hai miền** | Dò và kiểm tra liên miền | Kết quả hai miền cùng ngày · phép đo XSMN chiều vs XSMB tối · thống kê gộp |
-| 🧪 **Kiểm chứng** | Tự kiểm chứng | Backtest + đối chứng · χ² |
+| ℹ️ **Nguồn** | Minh bạch dữ liệu | Nguồn bảng live · độ sâu kho · lịch cập nhật tự động · giới hạn thống kê |
 
 **Quy tắc UI bắt buộc:**
 - Mọi thuật ngữ có dấu **!** (class `info`, `data-tip=key` → `GLOSSARY[key]` trong ui.js). Thêm chỉ số mới = thêm entry GLOSSARY + dấu !.
-- **Heatmap:** màu theo **thứ hạng phần trăm** (`percentileMap`) trên bảng 9 nấc navy→đỏ (`HEAT_STOPS`),
-  chữ tự đổi đen/trắng theo độ sáng (`heatColor`), viền trắng khi |z|≥2σ, chú giải luôn nói rõ
-  "màu theo hạng, chênh lệch thật rất nhỏ". Không bao giờ trải màu tuyến tính theo giá trị thô (bài học: 100 ô cùng màu).
+- **Bản đồ số:** màu theo **thứ hạng phần trăm** (`percentileMap`), chữ tự đổi đen/trắng theo độ sáng
+  (`heatColor`), viền nổi bật khi |z|≥2σ. Chú giải dùng lời đời thường và luôn nêu mức chung; không bao giờ
+  biến màu nổi bật thành lời dự báo.
 - Bấm số ở bất kỳ đâu → `openNum(tail, digits)`.
 - Bảng live bên thứ ba phải nằm trong iframe sandbox riêng, có nút mở nguồn trực tiếp và không được tuyên bố
   kho lịch sử của app là dữ liệu Minh Ngọc.
@@ -257,9 +257,9 @@ Lỗ hổng dữ liệu hợp lệ (không phải lỗi crawler): COVID 4/2020 c
 
 | # | Việc | Nghiệm thu |
 |---|---|---|
-| ✅ | ~~Thông báo trình duyệt khi có kết quả~~ | Xong — pill 🔔, báo kèm kết quả bộ số, mỗi bộ số 1 lần |
+| — | Nhật ký/dự báo kỳ sau | Không public; website chỉ công bố kết quả và dữ liệu quá khứ |
 | ✅ | ~~Cảnh báo dữ liệu cũ~~ | Xong — vàng khi trễ 1 kỳ, đỏ khi ≥2 kỳ, có nút cập nhật ngay |
-| ✅ | ~~Ghim/loại số trong dàn gợi ý~~ | Xong trong code; trạng thái local, không đổi scoring |
+| — | Ghim/loại số trong dàn gợi ý | Code legacy không public; không dùng cho định hướng Kết Số |
 | ✅ | ~~So sánh nhiều cửa sổ cạnh nhau cho 1 số~~ | Xong — 3 tháng/1 năm/3 năm/toàn bộ + KTC |
 | — | **Lọc theo giải cụ thể** (chỉ GĐB, chỉ G7…) | Hoãn vô thời hạn; xem ROADMAP §5 |
 | — | **PWA offline** | Chỉ có manifest; không thêm service worker để tránh cache dữ liệu cũ |

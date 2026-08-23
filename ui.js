@@ -8,7 +8,8 @@ const el = (tag, cls, html) => { const e=document.createElement(tag); if(cls)e.c
 
 const ST = {
   region:"MN", scope:"all", digits:2, win:"max", provs:null, view:"live",
-  danSize:10, btDays:300, btWin:365, hmMode:"freq", quickN:2, anaSub:"board"
+  danSize:10, btDays:300, btWin:365, hmMode:"freq", quickN:2, anaSub:"board",
+  homeIndex:0, historyIndex:0, historyCount:14
 };
 const WINS = [
   {n:7, label:"7 ngày"}, {n:30, label:"1 tháng"}, {n:90, label:"3 tháng"},
@@ -114,11 +115,11 @@ function toast(msg){
 const GLOSSARY={
   nen:{t:"Xác suất nền",b:"Khả năng một số BẤT KỲ xuất hiện ít nhất 1 lần trong kỳ, nếu xổ số hoàn toàn ngẫu nhiên. Ví dụ XSMB quay 27 bộ số mỗi kỳ trên 100 khả năng → nền ≈ 23,8%. Đây là mốc để so: số nào cũng quanh mốc này thì không số nào đáng gọi là 'dễ ra'."},
   lift:{t:"×N nền (lift)",b:"Điểm của số này gấp bao nhiêu lần mức nền. ×1.00 = y hệt chọn bừa. ×1.05 = nhỉnh hơn 5%. Dưới ×1.10 gần như chắc chắn chỉ là nhiễu."},
-  ganht:{t:"Gan hiện tại",b:"Số kỳ liên tiếp CHƯA ra, tính đến kỳ mới nhất. Gan 7 = đã 7 kỳ chưa thấy mặt. Lưu ý: gan lâu KHÔNG làm số dễ ra hơn — app đã đo trên toàn bộ lịch sử, xác suất ra gần như không đổi theo độ gan."},
-  hazard:{t:"Tỉ lệ lịch sử sau gap",b:"Trong các khoảng chờ lịch sử đang ở đúng gap g, bao nhiêu khoảng kết thúc ở kỳ kế. App chỉ hiện tỉ lệ riêng khi g≤25 và còn ít nhất 200 quan sát; ngoài vùng đó nó trả về mức nền. Đây là mô tả lịch sử, không phải lời hứa số gan sẽ nổ."},
-  longest:{t:"Longest gap",b:"Kỷ lục nhịn lâu nhất của số đó trong mẫu — khoảng dài nhất giữa 2 lần ra (tính cả khoảng đang chờ hiện tại)."},
-  shortest:{t:"Shortest gap",b:"Khoảng chờ ngắn nhất giữa 2 lần ra. Bằng 0 = từng ra 2 kỳ liên tiếp."},
-  tbgap:{t:"TB gap / chu kỳ",b:"Trung bình bao nhiêu kỳ thì số đó ra một lần. TB gap 3,2 = trung bình khoảng 3 kỳ ra 1 lần."},
+  ganht:{t:"Khoảng hiện tại",b:"Số kỳ liên tiếp chưa thấy số này, tính đến kết quả mới nhất. Đây chỉ là khoảng cách trong lịch sử; chờ lâu không làm xác suất ở kỳ sau tăng lên."},
+  hazard:{t:"Tỉ lệ lịch sử theo khoảng chờ",b:"Trong các khoảng chờ cũ có cùng độ dài, chỉ số này cho biết bao nhiêu khoảng đã kết thúc ở kỳ kế tiếp. Đây là thống kê quá khứ, không phải dự báo."},
+  longest:{t:"Khoảng dài nhất",b:"Số kỳ dài nhất giữa hai lần xuất hiện trong khoảng dữ liệu đang xem, tính cả khoảng hiện tại."},
+  shortest:{t:"Khoảng ngắn nhất",b:"Số kỳ ngắn nhất giữa hai lần xuất hiện. Bằng 0 nghĩa là số đó từng xuất hiện ở hai kỳ liên tiếp."},
+  tbgap:{t:"Khoảng trung bình",b:"Trung bình bao nhiêu kỳ giữa hai lần xuất hiện trong dữ liệu đang xem."},
   cv:{t:"Độ đều (CV)",b:"Nhịp ra có đều không. CV thấp = ra khá đều đặn; CV cao = lúc dồn dập lúc mất hút. Chỉ mang tính mô tả quá khứ."},
   ktc:{t:"Khoảng tin cậy đồng thời 95%",b:"App đang soi 100 hoặc 1.000 số cùng lúc, nên khoảng này đã hiệu chỉnh Bonferroni để cả bảng có độ tin cậy xấp xỉ 95%. Nó rộng hơn khoảng 95% của một số đơn lẻ. Cận dưới vượt nền mới là dấu hiệu đáng kiểm tra tiếp."},
   sigma:{t:"σ (độ lệch chuẩn) và z",b:"Thước đo 'lệch bao xa so với trung bình'. z=+2σ = cao hơn trung bình ở mức chỉ ~2% số ô đạt được do ngẫu nhiên. Trong 100 ô thì ngẫu nhiên thuần tuý cũng tạo ra ~5 ô vượt ±2σ — nên vài ô nổi bật là chuyện bình thường."},
@@ -127,20 +128,20 @@ const GLOSSARY={
   bttest:{t:"Trong mẫu vs ngoài mẫu",b:"'Ngoài mẫu' = đoán ngày mà công thức CHƯA từng thấy → thước đo thật. 'Trong mẫu' = chấm lại chính những ngày đã dùng để xây công thức → luôn đẹp hơn, vì công thức đã 'học thuộc' quá khứ. Chênh lệch giữa 2 cột chính là độ ảo (overfit)."},
   w:{t:"Độ tin cậy w (0…1)",b:"App tách chênh lệch quan sát được thành 2 phần: tín hiệu thật và nhiễu lấy mẫu. w = phần tín hiệu thật. w≈0 → chênh lệch toàn là nhiễu, tín hiệu đó bị bỏ qua khi chấm điểm. Đây là cơ chế chống ảo tưởng 'số nóng'."},
   dan:{t:"Kỳ vọng trúng ≥1 số",b:"Đánh cả dàn N số thì khả năng có ÍT NHẤT một số về là bao nhiêu. Ví dụ dàn 10 số XSMN ~99% — nghe cao nhưng nhớ: trúng 1 số chưa chắc đủ gỡ tiền vốn cả dàn. Đây là toán kỳ vọng, không phải cam kết."},
-  heatmap:{t:"Bản đồ nhiệt",b:"Mỗi ô một số. Màu đỏ = thứ hạng cao trong bảng, xanh = thấp. Bấm vào ô để soi chi tiết số đó. Đổi cách tô màu bằng các nút phía trên."},
-  hangvsthuc:{t:"Màu theo thứ hạng",b:"Màu được trải theo THỨ HẠNG để mắt dễ phân biệt. Nhưng chênh lệch THẬT giữa các ô thường rất nhỏ (xem con số trung bình ± bên cạnh) — ô đỏ nhất không có nghĩa 'sắp ra', nó chỉ đứng đầu bảng xếp hạng quá khứ."},
-  carry:{t:"Lặp lại kỳ trước",b:"Niềm tin dân gian: số vừa về hôm trước dễ về tiếp. App đã đo trên toàn bộ lịch sử: tỉ lệ 'rơi tiếp' ≈ đúng mức nền — tức lặp lại kỳ trước KHÔNG có thật. Bảng này để bạn tự kiểm chứng."},
-  momentum:{t:"Tăng tốc",b:"So tần suất 30 kỳ gần với tần suất toàn mẫu. ×1.5 = gần đây ra dày gấp rưỡi bình thường. Thường chỉ là dao động ngắn hạn."},
-  pair:{t:"Cặp số đi cùng",b:"Hai số hay xuất hiện chung một ngày nhiều hơn mức tình cờ (cột 'Vượt' ×1.3 = nhiều hơn kỳ vọng 30%). Mang tính mô tả — chưa có bằng chứng dùng để đoán được."},
+  heatmap:{t:"Bản đồ số",b:"Mỗi ô là một số. Màu giúp so sánh nhanh các số trong cùng khoảng dữ liệu. Bấm vào ô để xem lịch sử chi tiết."},
+  hangvsthuc:{t:"Màu theo thứ hạng",b:"Màu được trải theo thứ hạng để dễ nhìn. Màu đậm hơn chỉ cho biết vị trí tương đối trong dữ liệu cũ, không cho biết kết quả kỳ tiếp theo."},
+  carry:{t:"Lặp lại từ kỳ trước",b:"So sánh tần suất một số xuất hiện ở hai kỳ liên tiếp với mức chung trong dữ liệu. Kết quả chỉ mô tả quá khứ."},
+  momentum:{t:"So sánh gần và dài hạn",b:"So tần suất 30 kỳ gần nhất với toàn bộ khoảng đang xem. Chênh lệch thường là dao động ngắn hạn."},
+  pair:{t:"Cặp số cùng xuất hiện",b:"Hai số xuất hiện trong cùng một ngày nhiều hơn hoặc ít hơn mức kỳ vọng nếu độc lập. Đây chỉ là mô tả lịch sử."},
   score:{t:"Điểm xếp hạng thử nghiệm",b:"Điểm tổng hợp = nền đúng kỳ mục tiêu + các độ lệch lịch sử đã co ngót. Nó chỉ dùng để kiểm tra một mô hình xếp hạng; khi chưa có chứng nhận ngoài mẫu, app không dùng điểm này để chọn dàn kỳ tới."},
   edge:{t:"Ưu thế vs sai số",b:"Ưu thế = điểm số dẫn đầu trừ mức nền. Sai số = độ chính xác của chính phép đo. Ưu thế < sai số → bảng xếp hạng không phân biệt được với may rủi → app chuyển sang chế độ chọn đều."},
   nendow:{t:"Nền theo thứ",b:"XSMN ngày thường quay 3 đài, thứ Bảy 4 đài → số bộ số khác nhau → xác suất nền mỗi thứ mỗi khác (2 số: ~41,9% vs ~51%). App tự dùng nền đúng của thứ đó — đây là biến cấu trúc thật duy nhất đã tìm thấy trong dữ liệu."},
-  duehan:{t:"So nhịp cũ",b:"Gan hiện tại so với nhịp về quen thuộc của chính số đó. 120% = đang chờ lâu hơn nhịp cũ 20%. ⚠ Chỉ là mô tả — app đã đo: chờ lâu hơn nhịp KHÔNG làm số dễ ra hơn."},
+  duehan:{t:"So với khoảng trung bình",b:"Khoảng hiện tại so với khoảng xuất hiện trung bình của chính số đó. 120% nghĩa là khoảng hiện tại dài hơn mức trung bình 20%; đây chỉ là mô tả quá khứ."},
   doichung:{t:"Máy chọn (đối chứng)",b:"Bộ số tái lập được mà app tạo trước giờ quay. Nếu bạn nhập dàn riêng bằng tay, nhật ký sẽ so dàn của bạn với dàn máy cùng số lượng. Nếu bạn chốt trực tiếp bộ app thì hai dàn giống nhau và không còn phép so riêng."},
   evper:{t:"Trả theo số lần về",b:"Về mấy lần trong kỳ thì ăn mấy lần — cách trả phổ biến nhất của hình thức trả thưởng theo số lần ('trả theo số lần xuất hiện'). Ví dụ về 3 lần, mỗi lần 800k, thì nhận 2.400k."},
   evflat:{t:"Trả 1 lần cố định",b:"Về bao nhiêu lần trong kỳ cũng chỉ ăn đúng 1 lần tiền thưởng. Ít phổ biến hơn — hỏi kỹ host trước khi tin theo kiểu này."},
   evfair:{t:"Tỉ lệ công bằng",b:"Mức trả thưởng mà tại đó EV = 0, tức không ai lời ai lỗ về lâu dài. Host luôn trả THẤP HƠN mức này — chênh lệch chính là phần host ăn chắc (chênh lệch kỳ vọng)."},
-  klucpct:{t:"% so kỷ lục",b:"Gan hiện tại bằng bao nhiêu phần kỷ lục nhịn lâu nhất của chính số đó. 120% = đang nhịn lâu hơn kỷ lục cũ 20%. ⚠ Vượt kỷ lục không có nghĩa là sắp ra — xác suất mỗi kỳ vẫn như cũ."},
+  klucpct:{t:"% so khoảng dài nhất",b:"Khoảng hiện tại bằng bao nhiêu phần khoảng dài nhất từng ghi nhận của số đó. Chỉ số này không cho biết kết quả kỳ tiếp theo."},
 };
 const tip = k => GLOSSARY[k] ? `<sup class="info" data-tip="${k}">!</sup>` : "";
 document.addEventListener("click", e=>{
@@ -278,7 +279,7 @@ function updateLiveStatus(){
   $("#liveStatus").textContent=phase.label;
   $("#liveSignal").classList.toggle("on",phase.live);
   $("#liveTitle").textContent=`Kết quả xổ số ${src.name}`;
-  $("#liveLead").textContent=phase.detail+". Chọn miền ở thanh phía trên để đổi bảng.";
+  $("#liveLead").textContent=phase.detail+". Chọn Miền Nam hoặc Miền Bắc ở thanh phía trên.";
   $("#liveBoardTitle").textContent=`Trực tiếp ${src.code} · ${VN_DATE_FMT.format(new Date())}`;
   $("#liveBoardNote").textContent=ST.region==="MN"
     ? "Bảng tự cập nhật khi các đài bắt đầu quay. Trên điện thoại, vuốt ngang trong bảng để xem đủ đài."
@@ -286,13 +287,89 @@ function updateLiveStatus(){
   $("#liveSource").href=src.source;
   const p=$("#liveP");
   if(p){
-    p.innerHTML=`<span class="dot" aria-hidden="true"></span>${phase.live?"Đang quay":"Xem kết quả"}`;
+    p.innerHTML=`<span class="dot" aria-hidden="true"></span>${phase.live?"Đang quay":"Live hôm nay"}`;
     p.title=`Mở bảng ${src.code} trực tiếp từ Minh Ngọc`;
   }
 }
 function renderLive(){
   updateLiveStatus();
   setLiveFrame(ST.region);
+  renderHomeResults();
+  $("#v-live")?.classList.toggle("is-live",livePhase(ST.region).live);
+}
+
+/* ---------------- bảng kết quả của kho dữ liệu ---------------- */
+const RESULT_GROUPS={
+  MB:[
+    {n:"Đặc biệt",c:1,e:1},{n:"Giải nhất",c:1},{n:"Giải nhì",c:2},{n:"Giải ba",c:6},
+    {n:"Giải tư",c:4},{n:"Giải năm",c:6},{n:"Giải sáu",c:3},{n:"Giải bảy",c:4,e:1}
+  ],
+  MN:[
+    {n:"Giải tám",c:1,e:1},{n:"Giải bảy",c:1},{n:"Giải sáu",c:3},{n:"Giải năm",c:1},
+    {n:"Giải tư",c:7},{n:"Giải ba",c:2},{n:"Giải nhì",c:1},{n:"Giải nhất",c:1},{n:"Đặc biệt",c:1,e:1}
+  ]
+};
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+function resultDays(region){ return [...DB[region].days].reverse() }
+function drawNums(nums){
+  return `<div class="draw-values">${nums.map(n=>`<span class="draw-number">${esc(n)}</span>`).join("")}</div>`;
+}
+function renderResultSheet(region,day){
+  if(!day) return `<div class="result-empty">Chưa có kết quả để hiển thị.</div>`;
+  const groups=RESULT_GROUPS[region];
+  let table="";
+  if(region==="MB"){
+    let at=0;
+    table=`<table class="draw-table" aria-label="Kết quả XSMB ngày ${esc(fmtD(day.d))}"><tbody>`+
+      groups.map(g=>{
+        const nums=day.nums.slice(at,at+g.c); at+=g.c;
+        return `<tr class="draw-row${g.e?" edge":""}"><th scope="row" class="prize-name">${g.n}</th><td>${drawNums(nums)}</td></tr>`;
+      }).join("")+`</tbody></table>`;
+  }else{
+    table=`<table class="draw-table draw-table-mn" aria-label="Kết quả XSMN ngày ${esc(fmtD(day.d))}">
+      <thead><tr><th scope="col">Giải</th>${day.draws.map(d=>`<th scope="col">${esc(d.p)}</th>`).join("")}</tr></thead><tbody>`;
+    let at=0;
+    for(const g of groups){
+      const start=at; at+=g.c;
+      table+=`<tr class="draw-row${g.e?" edge":""}"><th scope="row" class="prize-name">${g.n}</th>`+
+        day.draws.map(d=>`<td>${drawNums(d.nums.slice(start,start+g.c))}</td>`).join("")+`</tr>`;
+    }
+    table+=`</tbody></table>`;
+  }
+  const area=region==="MN"?"Miền Nam":"Miền Bắc";
+  return `<div class="result-sheet">
+    <div class="result-meta"><h3>${area} · ${DOW_VN[day.w]}, ${fmtD(day.d)}</h3><span>${region==="MN"?`${day.draws.length} đài mở thưởng`:"Bảng kết quả đầy đủ"}</span></div>
+    <div class="result-scroll">${table}</div>
+  </div>`;
+}
+function renderDateStrip(node,days,selected,onPick){
+  node.innerHTML="";
+  days.forEach((d,i)=>{
+    const b=el("button","date-chip"+(i===selected?" on":""));
+    b.type="button"; b.setAttribute("aria-pressed",String(i===selected));
+    b.innerHTML=`<b>${DOW_S[d.w]} · ${fmtDS(d.d)}</b><span>${d.d.slice(0,4)}${ST.region==="MN"?` · ${d.draws.length} đài`:""}</span>`;
+    b.onclick=()=>onPick(i); node.append(b);
+  });
+}
+function renderHomeResults(){
+  const days=resultDays(ST.region), shown=days.slice(0,7);
+  ST.homeIndex=Math.min(ST.homeIndex,Math.max(0,shown.length-1));
+  renderDateStrip($("#homeDates"),shown,ST.homeIndex,i=>{ST.homeIndex=i;renderHomeResults()});
+  const d=shown[ST.homeIndex];
+  $("#latestTitle").textContent=`Kết quả ${ST.region} gần nhất`;
+  $("#latestNote").textContent=d?`Đã cập nhật đến ${fmtD(days[0].d)} · chọn ngày để xem đầy đủ từng giải.`:"Chưa có dữ liệu.";
+  $("#homeResult").innerHTML=renderResultSheet(ST.region,d);
+}
+function renderHistory(){
+  const days=resultDays(ST.region), shown=days.slice(0,ST.historyCount);
+  ST.historyIndex=Math.min(ST.historyIndex,Math.max(0,shown.length-1));
+  renderDateStrip($("#historyDates"),shown,ST.historyIndex,i=>{ST.historyIndex=i;renderHistory()});
+  const d=shown[ST.historyIndex];
+  $("#historyTitle").textContent=d?`Kết quả ${ST.region} ngày ${fmtD(d.d)}`:`Lịch sử ${ST.region}`;
+  $("#historyResult").innerHTML=renderResultSheet(ST.region,d);
+  const more=$("#historyMore");
+  more.hidden=shown.length>=Math.min(days.length,120);
+  more.textContent=`Hiện thêm ngày (${shown.length}/${Math.min(days.length,120)})`;
 }
 
 function predPanel(node, Ax, rank, kind){
@@ -524,9 +601,9 @@ window.copyDan = dg => {
    VIEW: BẢNG SỐ
    ========================================================================== */
 const HM_MODES=[
-  {k:"freq", n:"Tần suất", d:"số kỳ đã ra, quy về độ lệch chuẩn so với trung bình"},
-  {k:"gap",  n:"Gan hiện tại", d:"đang bao nhiêu kỳ chưa ra"},
-  {k:"rec",  n:"Phong độ gần", d:"số kỳ đã ra trong 30 kỳ gần nhất"},
+  {k:"freq", n:"Số kỳ xuất hiện", d:"số kỳ có xuất hiện trong khoảng đang xem"},
+  {k:"gap",  n:"Lâu chưa xuất hiện", d:"số kỳ tính từ lần xuất hiện gần nhất"},
+  {k:"rec",  n:"30 kỳ gần đây", d:"số kỳ có xuất hiện trong 30 kỳ gần nhất"},
 ];
 function renderBoard(){
   const hm=$("#hmMode"); hm.innerHTML="";
@@ -558,8 +635,8 @@ function renderBoard(){
   const pct01=percentileMap(vals);
 
   $("#hmTitle").innerHTML = (ST.digits===2
-    ? "🌡️ Bản đồ nhiệt 00 – 99"
-    : "🌡️ 120 bộ 3 số nổi bật nhất") + tip("heatmap");
+    ? "Bản đồ số 00 – 99"
+    : "120 bộ 3 số nổi bật trong dữ liệu") + tip("heatmap");
 
   const h=$("#heat");
   h.className = ST.digits===2 ? "hm" : "hm3";
@@ -572,51 +649,45 @@ function renderBoard(){
     const s=A.S.get(t);
     const c=el("button","cl"+(Math.abs(z)>=2?" mark":""),
       `<div class="n">${t}</div><div class="c">${label(t)}</div>`);
-    c.type="button"; c.setAttribute("aria-label",`Soi số ${t}`);
+    c.type="button"; c.setAttribute("aria-label",`Xem lịch sử số ${t}`);
     c.style.background=col.bg; c.style.color=col.fg;
-    c.title=`${t} — ra ${s?s.daysCnt:0}/${A.K} kỳ (${pctS(s?s.daysCnt/A.K:0)}) · ${s?s.occ:0} lần`+
-            ` · gan ${s?s.curGap:A.K} · 30 kỳ gần ${s?s.recCnt:0}`+
+    c.title=`${t} — xuất hiện ${s?s.daysCnt:0}/${A.K} kỳ (${pctS(s?s.daysCnt/A.K:0)}) · ${s?s.occ:0} lần`+
+            ` · khoảng hiện tại ${s?s.curGap:A.K} kỳ · 30 kỳ gần ${s?s.recCnt:0}`+
             `\n${mode.n}: ${v} · hạng ${(tt*100).toFixed(0)}/100 · lệch z=${z>=0?"+":""}${z.toFixed(2)}σ`;
     c.onclick=()=>openNum(t,ST.digits);
     h.append(c);
   }
 
   const nOut=vals.filter(v=>Math.abs((v-mean)/sd)>=2).length;
-  const expOut=Math.round(keys.length*0.0455);
   $("#hmLegend").innerHTML=`
     <div class="hmleg">
       <div class="hmbar" style="background:${heatGradientCss()}"></div>
-      <div class="hmtick"><span>${mode.k==="gap"?"gan lâu nhất":"thấp nhất"}</span><span>giữa bảng</span><span>${mode.k==="gap"?"vừa ra gần đây":"cao nhất"}</span></div>
+      <div class="hmtick"><span>${mode.k==="gap"?"lâu nhất":"ít nhất"}</span><span>giữa bảng</span><span>${mode.k==="gap"?"gần nhất":"nhiều nhất"}</span></div>
       <div class="hmnote">
-        Màu theo <b>${mode.n}</b> — ${mode.d}. Màu trải theo <b>thứ hạng</b> giữa ${keys.length} ô để dễ phân biệt bằng mắt${tip("hangvsthuc")}.
-        Chênh lệch thật: trung bình <b>${mean.toFixed(1)}</b> ± <b>${sd.toFixed(1)}</b>.
-        Ô có <b>viền trắng</b> = lệch quá ±2σ${tip("sigma")}: <b>${nOut}</b> ô — ngẫu nhiên thuần tuý cũng tạo ra ~<b>${expOut}</b> ô như vậy.
-        ${nOut<=expOut*1.6
-          ? `<span style="color:var(--ok)">→ Mức bình thường, không có số nào "nóng thật".</span>`
-          : `<span style="color:var(--warn)">→ Nhiều hơn kỳ vọng — xem thêm tab Kiểm chứng.</span>`}
+        Màu thể hiện <b>${mode.n.toLowerCase()}</b>: ${mode.d}. Các ô được trải màu theo thứ hạng để dễ so sánh${tip("hangvsthuc")}.
+        Mức xuất hiện chung của một số bất kỳ trong mỗi kỳ là <b>${pctS(A.pBase,2)}</b> với bộ lọc hiện tại.
+        ${nOut ? `<span>${nOut} ô có viền nổi bật vì lệch nhiều hơn mức chung; dao động như vậy vẫn có thể xuất hiện ngẫu nhiên.</span>` : ""}
       </div>
     </div>`;
 
-  const z=zBonf(A.U,0.05);
   const rows=[...A.S.entries()];
   const hot=rows.slice().sort((a,b)=>b[1].daysCnt-a[1].daysCnt).slice(0,20);
+  $("#hotSub").textContent=`Mức chung của một số bất kỳ: ${pctS(A.pBase,2)} mỗi kỳ.`;
+  $("#coldSub").textContent=`Mức chung của một số bất kỳ: ${pctS(A.pBase,2)} mỗi kỳ.`;
   $("#tHot").innerHTML=
-    `<thead><tr><th>Số</th><th>Kỳ ra</th><th>Tỉ lệ</th><th>KTC đồng thời${tip("ktc")}</th><th>Cuối</th></tr></thead><tbody>`+
+    `<thead><tr><th>Số</th><th>Kỳ xuất hiện</th><th>Tỉ lệ</th><th>So mức chung</th><th>Lần gần nhất</th></tr></thead><tbody>`+
     hot.map(([t,s])=>{
-      const[lo,hi]=wilson(s.daysCnt,A.K,z);
-      const sigp = lo>A.pBase;
       return `<tr onclick="openNum('${t}',${A.digits})"><td class="n">${t}</td><td class="warm">${s.daysCnt}</td>
-        <td>${pctS(s.daysCnt/A.K)}</td><td style="color:${sigp?"var(--ok)":"var(--dim)"}">${pctS(lo)}–${pctS(hi)}</td>
-        <td>${fmtDS(s.last)}</td></tr>`;
+        <td>${pctS(s.daysCnt/A.K)}</td><td>×${A.pBase?(s.daysCnt/A.K/A.pBase).toFixed(2):"—"}</td><td>${fmtDS(s.last)}</td></tr>`;
     }).join("")+`</tbody>`;
 
   const all=[];
   for(let n=0;n<A.U;n++){ const t=pad(n,A.digits), s=A.S.get(t); all.push([t,s?s.daysCnt:0,s]) }
   const cold=all.slice().sort((a,b)=>a[1]-b[1]).slice(0,20);
   $("#tCold").innerHTML=
-    `<thead><tr><th>Số</th><th>Kỳ ra</th><th>Tỉ lệ</th><th>Gan h.tại</th><th>Cuối</th></tr></thead><tbody>`+
+    `<thead><tr><th>Số</th><th>Kỳ xuất hiện</th><th>Tỉ lệ</th><th>So mức chung</th><th>Kỳ chưa xuất hiện</th><th>Lần gần nhất</th></tr></thead><tbody>`+
     cold.map(([t,c,s])=>`<tr onclick="openNum('${t}',${A.digits})"><td class="n">${t}</td><td class="cold">${c}</td>
-      <td>${pctS(c/A.K)}</td><td>${s?s.curGap:A.K}</td><td>${s&&s.last?fmtDS(s.last):"—"}</td></tr>`).join("")+`</tbody>`;
+      <td>${pctS(c/A.K)}</td><td>×${A.pBase?(c/A.K/A.pBase).toFixed(2):"—"}</td><td>${s?s.curGap:A.K}</td><td>${s&&s.last?fmtDS(s.last):"—"}</td></tr>`).join("")+`</tbody>`;
 
   // đầu / đuôi
   const sec=$("#secHT");
@@ -645,7 +716,8 @@ function renderFullTable(){
     if(q && !t.includes(q)) continue;
     const s=A.S.get(t);
     const[lo,hi]=wilson(s?s.daysCnt:0, A.K, z);
-    rows.push({t, occ:s?s.occ:0, daysCnt:s?s.daysCnt:0, p:s?s.daysCnt/A.K:0,
+    const p=s?s.daysCnt/A.K:0;
+    rows.push({t, occ:s?s.occ:0, daysCnt:s?s.daysCnt:0, p, lift:A.pBase?p/A.pBase:0,
       curGap:s?s.curGap:A.K, maxGap:s?s.maxGap:A.K, minGap:s&&s.minGap!=null?s.minGap:null,
       avgGap:s&&s.avgGap!=null?s.avgGap:null, lo, hi, last:s?s.last:""});
   }
@@ -656,13 +728,12 @@ function renderFullTable(){
     if(va===vb) return a.t<b.t?-1:1;
     return SORT.dir*(va<vb?-1:1);
   });
-  const cols=[["t","Số"],["occ","Lần"],["daysCnt","Kỳ ra"],["p","Tỉ lệ"],["lo","Tối thiểu chắc chắn"],
-              ["curGap","Gan"],["maxGap","Nhịn lâu nhất"],["minGap","Về sát nhất"],["avgGap","Nhịp TB"],["last","Cuối"]];
+  const cols=[["t","Số"],["occ","Số lần"],["daysCnt","Số kỳ"],["p","Tỉ lệ"],["lift","So mức chung"],
+              ["curGap","Khoảng hiện tại"],["maxGap","Dài nhất"],["minGap","Ngắn nhất"],["avgGap","Trung bình"],["last","Lần gần nhất"]];
   $("#tFull").innerHTML=
     `<thead><tr>`+cols.map(([k,l])=>`<th onclick="setSort('${k}')">${l}${SORT.key===k?` <span style="font-size:9px">${SORT.dir<0?"▼":"▲"}</span>`:""}</th>`).join("")+`</tr></thead><tbody>`+
     rows.map(r=>`<tr onclick="openNum('${r.t}',${A.digits})"><td class="n">${r.t}</td><td>${r.occ}</td><td>${r.daysCnt}</td>
-      <td>${pctS(r.p)}</td><td style="color:${r.lo>A.pBase?"var(--ok)":"var(--dim)"}">${pctS(r.lo)}</td>
-      <td>${r.curGap}</td><td>${r.maxGap}</td><td>${r.minGap==null?"—":r.minGap}</td>
+      <td>${pctS(r.p)}</td><td>×${A.pBase?(r.p/A.pBase).toFixed(2):"—"}</td><td>${r.curGap}</td><td>${r.maxGap}</td><td>${r.minGap==null?"—":r.minGap}</td>
       <td>${r.avgGap==null?"—":r.avgGap.toFixed(1)}</td><td>${r.last?fmtDS(r.last):"—"}</td></tr>`).join("")+
     `</tbody>`;
 }
@@ -680,34 +751,31 @@ function renderGap(){
   for(let n=0;n<A.U;n++){ const t=pad(n,A.digits), s=A.S.get(t); all.push({t,s,cur:s?s.curGap:A.K}) }
 
   $("#tGan").innerHTML=
-    `<thead><tr><th>Số</th><th>Gan h.tại${tip("ganht")}</th><th>Kỷ lục nhịn${tip("longest")}</th><th>% kỷ lục${tip("klucpct")}</th><th>Khả năng ra kỳ sau${tip("hazard")}</th><th>Cuối</th></tr></thead><tbody>`+
+    `<thead><tr><th>Số</th><th>Kỳ chưa xuất hiện${tip("ganht")}</th><th>Dài nhất từng có${tip("longest")}</th><th>% so dài nhất${tip("klucpct")}</th><th>Lần gần nhất</th></tr></thead><tbody>`+
     all.slice().sort((a,b)=>b.cur-a.cur).slice(0,25).map(({t,s,cur})=>{
       const mg=s?s.maxGap:A.K;
       const rel=mg?cur/mg:1;
-      const ok=A.hazard.predictiveReliable(cur);
       return `<tr onclick="openNum('${t}',${A.digits})"><td class="n">${t}</td><td class="cold">${cur}</td>
         <td>${mg}</td><td style="color:${rel>=1?"var(--gold)":"var(--dim)"}">${(rel*100).toFixed(0)}%</td>
-        <td>${ok?pctS(A.hazard.predictiveAt(cur)):`<span style="color:var(--dim2)">≈${pctS(A.pBase)} ¹</span>`}</td>
         <td>${s&&s.last?fmtDS(s.last):"—"}</td></tr>`;
-    }).join("")+
-    `</tbody><tfoot><tr><td colspan="6" style="color:var(--dim2);font-size:10.5px;border:0">¹ gap &gt;25 hoặc còn &lt;200 quan sát → không ngoại suy, dùng mức nền</td></tr></tfoot>`;
+    }).join("")+`</tbody>`;
 
   const withGaps=[...A.S.entries()].filter(([,s])=>s.gaps.length>=2);
   $("#tMaxGap").innerHTML=
-    `<thead><tr><th>Số</th><th>Nhịn lâu nhất${tip("longest")}</th><th>Gan h.tại</th><th>Kỳ ra</th><th>Mấy kỳ về 1 lần${tip("tbgap")}</th></tr></thead><tbody>`+
+    `<thead><tr><th>Số</th><th>Khoảng dài nhất${tip("longest")}</th><th>Khoảng hiện tại</th><th>Kỳ xuất hiện</th><th>Khoảng trung bình${tip("tbgap")}</th></tr></thead><tbody>`+
     withGaps.slice().sort((a,b)=>b[1].maxGap-a[1].maxGap).slice(0,25).map(([t,s])=>
       `<tr onclick="openNum('${t}',${A.digits})"><td class="n">${t}</td><td class="cold">${s.maxGap}</td>
        <td>${s.curGap}</td><td>${s.daysCnt}</td><td>${s.avgGap!=null?s.avgGap.toFixed(1):"—"}</td></tr>`).join("")+`</tbody>`;
 
   $("#tMinGap").innerHTML=
-    `<thead><tr><th>Số</th><th>TB gap</th><th>Về sát nhau nhất${tip("shortest")}</th><th>Nhịn lâu nhất</th><th>Kỳ ra</th></tr></thead><tbody>`+
+    `<thead><tr><th>Số</th><th>Khoảng trung bình</th><th>Ngắn nhất${tip("shortest")}</th><th>Dài nhất</th><th>Kỳ xuất hiện</th></tr></thead><tbody>`+
     withGaps.slice().sort((a,b)=>a[1].avgGap-b[1].avgGap).slice(0,25).map(([t,s])=>
       `<tr onclick="openNum('${t}',${A.digits})"><td class="n">${t}</td><td class="good">${s.avgGap.toFixed(2)}</td>
        <td>${s.minGap}</td><td>${s.maxGap}</td><td>${s.daysCnt}</td></tr>`).join("")+`</tbody>`;
 
   const rhythm=withGaps.filter(([,s])=>s.cv!=null && s.gaps.length>=5);
   $("#tRhythm").innerHTML=
-    `<thead><tr><th>Số</th><th>Độ đều (CV)${tip("cv")}</th><th>TB gap</th><th>Gan h.tại</th><th>So nhịp cũ${tip("duehan")}</th></tr></thead><tbody>`+
+    `<thead><tr><th>Số</th><th>Độ đều${tip("cv")}</th><th>Khoảng trung bình</th><th>Khoảng hiện tại</th><th>So mức trung bình${tip("duehan")}</th></tr></thead><tbody>`+
     (rhythm.length
       ? rhythm.sort((a,b)=>a[1].cv-b[1].cv).slice(0,25).map(([t,s])=>{
           const due=s.avgGap>0 ? s.curGap/s.avgGap : 0;
@@ -715,7 +783,7 @@ function renderGap(){
             <td>${s.avgGap.toFixed(1)}</td><td>${s.curGap}</td>
             <td style="color:${due>=1?"var(--gold)":"var(--dim)"}">${(due*100).toFixed(0)}%</td></tr>`;
         }).join("")
-      : `<tr><td colspan="5" class="empty">Cần mẫu lớn hơn (≥5 lần ra/số)</td></tr>`)+`</tbody>`;
+      : `<tr><td colspan="5" class="empty">Cần ít nhất 5 lần xuất hiện cho mỗi số</td></tr>`)+`</tbody>`;
 
   // đường hazard
   const N=Math.min(30, A.hazard.reach.length-1);
@@ -728,14 +796,13 @@ function renderGap(){
   }
   $("#hzChart").innerHTML=
     `<div class="hz">`+vals.map(({g,v,r,ok})=>
-      `<div class="b ${ok?"":"dim"}" title="gan ${g}: ${ok?pctS(v)+" ("+r+" quan sát)":"chỉ "+r+" quan sát — không đủ tin cậy"}">
+      `<div class="b ${ok?"":"dim"}" title="khoảng ${g} kỳ: ${ok?pctS(v)+" ("+r+" quan sát)":"chỉ "+r+" quan sát — chưa đủ dữ liệu"}">
         <i style="height:${v==null?4:Math.max(3,v/mx*100)}%"></i></div>`).join("")+`</div>`+
     `<div class="hzx">`+vals.map(({g})=>`<span>${g%5===0?g:""}</span>`).join("")+`</div>`;
   $("#hzNote").innerHTML=
     `Đường ngang tại <b>${pctS(A.pBase,2)}</b> là mức nền nếu xổ số hoàn toàn ngẫu nhiên (không có trí nhớ).
      Cột xám = chưa đủ 40 quan sát nên không đáng tin.
-     <br><b>Cách đọc đúng:</b> nếu các cột dao động quanh mức nền mà không có xu hướng tăng theo độ gan, thì
-     <b>"gan lâu sắp nổ" là niềm tin sai</b> — xác suất không tăng theo thời gian chờ.`;
+     <br><b>Cách đọc:</b> các cột dao động quanh mức nền cho thấy thời gian chờ dài hơn không làm xác suất của kỳ sau tăng lên.`;
 }
 
 /* ============================================================================
@@ -1265,9 +1332,7 @@ function renderCross(){
     }
   } else if(mnToday){
     html+=`<div style="background:var(--card2);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--dim);line-height:1.75">
-      ⏳ <b style="color:var(--txt)">XSMB chưa quay.</b> Bạn đang biết trước toàn bộ kết quả XSMN chiều nay.
-      Câu hỏi tự nhiên: có nên đánh lại chính những số đó ở XSMB không?
-      <br>→ Xem phép đo ngay bên dưới.</div>`;
+      <b style="color:var(--txt)">XSMB chưa có kết quả hôm nay.</b> Kết quả XSMN đã được ghi nhận và sẽ được đối chiếu khi đủ dữ liệu 2 miền.</div>`;
   } else html+=`<div class="empty" style="padding:14px">Chưa có kết quả hôm nay</div>`;
   html+=`</div></div>`;
   $("#crossToday").innerHTML=html;
@@ -1308,8 +1373,7 @@ function renderCross(){
       }).join("")}
     </tbody></table></div>
     <div style="font-size:11.5px;color:var(--dim2);margin-top:10px">
-      Gộp hai miền chỉ làm mẫu to hơn, <b>không</b> tạo ra tín hiệu mới — vì hai miền đã được đo là độc lập (bảng trên).
-      Cột cận dưới xanh mới đáng gọi là "cao hơn nền thật".</div>`;
+      Bảng gộp chỉ mô tả mức xuất hiện trên dữ liệu 2 miền; không cho biết kết quả của kỳ tiếp theo.</div>`;
 }
 
 function paintCrossTest(C){
@@ -1324,22 +1388,22 @@ function paintCrossTest(C){
       (${fmtD(C.from)} → ${fmtD(C.to)}) · ${C.digits} số đuôi</div>
     <div class="tw"><table>
       <thead><tr><th style="text-align:left">Giả thuyết</th><th style="text-align:left">Kết quả đo</th><th>Kết luận</th></tr></thead><tbody>
-      <tr style="cursor:default"><td>Số đã ra ở XSMN chiều → dễ ra ở XSMB tối hơn?</td>
+      <tr style="cursor:default"><td>Tỉ lệ XSMB khi số đó đã có mặt ở XSMN</td>
         <td style="text-align:left">Có ra ở MN: <b>${pctS(C.t1.pIn,3)}</b> · không ra ở MN: <b>${pctS(C.t1.pOut,3)}</b><br>
           <span style="color:var(--dim2)">chênh ${((C.t1.pIn-C.t1.pOut)*100).toFixed(3)}pp · z=${C.t1.z.toFixed(2)} · ${C.t1.n.toLocaleString("vi")} quan sát</span></td>
         <td class="${sig1?"warm":"good"}">${sig1?"CÓ":"KHÔNG"}</td></tr>
       <tr style="cursor:default"><td>Số trùng nhau mỗi ngày nhiều hơn mức tình cờ?</td>
         <td style="text-align:left">Thực tế <b>${C.overlap.avg.toFixed(2)}</b> số/ngày · nếu độc lập <b>${C.overlap.exp.toFixed(2)}</b></td>
         <td class="${Math.abs(C.overlap.avg-C.overlap.exp)>0.15?"warm":"good"}">${Math.abs(C.overlap.avg-C.overlap.exp)>0.15?"CÓ":"KHÔNG"}</td></tr>
-      <tr style="cursor:default"><td>Có phép biến đổi nào (GĐB miền Nam + k) trúng XSMB?</td>
+      <tr style="cursor:default"><td>Phép dịch số GĐB Miền Nam và kết quả XSMB</td>
         <td style="text-align:left">Quét cả ${C.U} phép dịch — mạnh nhất k=${C.shift.k}: <b>${pctS(C.shift.p)}</b> (nền ${pctS(C.shift.base)})<br>
           <span style="color:var(--dim2)">z=${C.shift.z.toFixed(2)} · ngưỡng sau hiệu chỉnh ${C.U} phép thử: ${C.shift.zCrit.toFixed(2)}</span></td>
         <td class="${sigShift?"warm":"good"}">${sigShift?"CÓ":"KHÔNG"}</td></tr>
     </tbody></table></div>
 
-    <div class="mh">Backtest: mỗi ngày đánh lại chính số của XSMN sang XSMB</div>
+    <div class="mh">Đối chiếu hồi cứu các số XSMN với XSMB cùng ngày</div>
     <div class="tw"><table>
-      <thead><tr><th>Đánh N số</th><th>Trúng TB/kỳ</th><th>Chọn bừa N số</th><th>Hơn/kém</th></tr></thead><tbody>
+      <thead><tr><th>N số từ XSMN</th><th>Trùng TB/kỳ</th><th>N số ngẫu nhiên</th><th>Chênh lệch</th></tr></thead><tbody>
       ${C.bt.map(b=>`<tr style="cursor:default"><td>${b.N} số</td><td class="good">${b.avg.toFixed(3)}</td>
         <td style="color:var(--dim)">${b.exp.toFixed(3)}</td>
         <td class="${b.lift>0.03?"up":b.lift<-0.03?"dn":""}">${b.lift>=0?"+":""}${(b.lift*100).toFixed(1)}%</td></tr>`).join("")}
@@ -1349,13 +1413,12 @@ function paintCrossTest(C){
       ${anySig
         ? `<b style="color:var(--warn)">Có dấu hiệu liên hệ.</b> Hãy kiểm tra lại bằng dữ liệu mới trước khi tin — và nhớ rằng
            app đã thử rất nhiều giả thuyết, nên một kết quả "có" đơn lẻ vẫn có thể là trùng hợp.`
-        : `<b style="color:var(--ok)">Kết luận: XSMN không nói gì về XSMB.</b>
-           Cả ba phép đo đều cho kết quả trùng khớp mức ngẫu nhiên, và backtest "đánh lại số miền Nam" chênh dưới 1% so với chọn bừa
+        : `<b style="color:var(--ok)">Kết luận: dữ liệu 2 miền không cho thấy mối liên hệ đáng kể.</b>
+           Cả ba phép đo đều gần mức ngẫu nhiên, và đối chiếu hồi cứu chênh dưới 1% so với mẫu ngẫu nhiên
            trên ${C.K.toLocaleString("vi")} ngày.
            <br>Điều này hợp lý về cơ chế: hai miền dùng <b>hai bộ lồng cầu khác nhau, ở hai thành phố khác nhau,
            hai hội đồng giám sát khác nhau</b> — không có đường nào để kết quả bên này chạm vào bên kia.
-           <br><span style="color:var(--dim2)">Việc XSMB quay sau chỉ có nghĩa bạn <i>biết thêm thông tin</i>, chứ thông tin đó
-           không mang giá trị dự đoán. Giống như biết kết quả xúc xắc của bàn bên cạnh.</span>`}
+           <br><span style="color:var(--dim2)">Việc XSMB công bố sau không làm kết quả XSMN trở thành thông tin về kỳ XSMB.</span>`}
     </div>`;
 }
 
@@ -1666,17 +1729,125 @@ window.openNum = (tail, digits) => {
   $("#mbg").classList.add("show");
   $("#modal .x")?.focus();
 };
-window.closeM = () => $("#mbg").classList.remove("show");
+/* Bản public chỉ trình bày lịch sử đã xảy ra; không hiển thị điểm cho kỳ sau. */
+window.openNum = (tail,digits) => {
+  const Ax=digits===2?A2:A3, s=Ax.S.get(tail), hits=[];
+  Ax.days.forEach(d=>{
+    for(const[t,prize,prov] of tailsOfDay(d,ST.region,ST.scope,digits,true))
+      if(t===tail) hits.push({d:d.d,w:d.w,prize,prov});
+  });
+  const dowCnt=[0,0,0,0,0,0,0], seen=new Set();
+  for(const h of hits) if(!seen.has(h.d)){seen.add(h.d);dowCnt[h.w]++}
+
+  const cmpF=baseDays();
+  const cmpRows=[90,365,1000,"max"].map(w=>{
+    const days=w==="max"?cmpF:cmpF.slice(-w);
+    if(days.length<30) return null;
+    const Ax2=w==="max"&&ST.win==="max"?Ax:analyze(days,ST.region,ST.scope,digits);
+    const s2=Ax2.S.get(tail);
+    return {label:w==="max"?"Toàn bộ":w===90?"3 tháng":w===365?"1 năm":"3 năm",K:Ax2.K,count:s2?s2.daysCnt:0,rate:s2?s2.daysCnt/Ax2.K:0};
+  }).filter(Boolean);
+  const cmpHtml=cmpRows.length<2?"":`
+    <div class="mh">Qua các khoảng thời gian</div>
+    <table class="sig"><tbody>
+      <tr style="color:var(--dim2);font-size:11px"><td>Khoảng</td><td>Số kỳ</td><td>Số kỳ có ${esc(tail)}</td><td>Tỉ lệ</td></tr>
+      ${cmpRows.map(r=>`<tr><td>${r.label}</td><td>${r.K.toLocaleString("vi-VN")}</td><td>${r.count}</td><td>${pctS(r.rate)}</td></tr>`).join("")}
+    </tbody></table>`;
+
+  let gapHtml="";
+  if(s&&s.gaps.length){
+    const bmax=Math.min(Math.max(...s.gaps,s.curGap)+1,40),cnt=new Array(bmax).fill(0);
+    for(const g of s.gaps) cnt[Math.min(g,bmax-1)]++;
+    const cmx=Math.max(...cnt,1);
+    gapHtml=`<div class="mh">Khoảng cách giữa 2 lần xuất hiện</div><div class="gp">${cnt.map((v,i)=>`<i class="${Math.min(s.curGap,bmax-1)===i?"hl":""}" style="height:${Math.max(4,v/cmx*100)}%" title="${i}${i===bmax-1?"+":""} kỳ: ${v} lần"></i>`).join("")}</div>
+      <div style="font-size:11px;color:var(--dim2);margin-top:5px">Cột vàng là khoảng hiện tại: ${s.curGap} kỳ.</div>`;
+  }
+
+  let coHtml="";
+  if(s){
+    const co=new Map();
+    for(const di of s.hits) for(const x of Ax.daySets[di]) if(x!==tail) co.set(x,(co.get(x)||0)+1);
+    const top=[...co.entries()].sort((a,b)=>b[1]-a[1]).slice(0,10);
+    if(top.length) coHtml=`<div class="mh">Thường cùng xuất hiện trong một kỳ</div><div class="tags">${top.map(([x,c])=>`<button type="button" class="tag clk" onclick="openNum('${x}',${digits})">${x} <b>${c}</b> kỳ</button>`).join("")}</div>`;
+  }
+
+  window._modalReturn=document.activeElement;
+  $("#modal").innerHTML=`
+    <div class="mhead">
+      <div><div class="big" id="modalTitle">${esc(tail)}</div><div class="meta">${ST.region} · ${scopeLabel(ST.region,ST.scope)} · ${digits} số cuối<br>${Ax.K.toLocaleString("vi-VN")} kỳ · ${Ax.K?fmtD(Ax.from)+" → "+fmtD(Ax.to):"—"}</div></div>
+      <button type="button" class="x" onclick="closeM()" aria-label="Đóng">✕</button>
+    </div>
+    <div class="ms">
+      <div>Tổng số lần<b>${s?s.occ:0}</b></div>
+      <div>Số kỳ xuất hiện<b>${s?s.daysCnt:0}/${Ax.K}</b></div>
+      <div>Tỉ lệ lịch sử<b>${pctS(s?s.daysCnt/Ax.K:0)}</b></div>
+      <div>Lần gần nhất<b style="font-size:13px">${s&&s.last?fmtD(s.last):"Chưa có"}</b></div>
+      <div>Lâu chưa xuất hiện<b>${s?s.curGap:Ax.K} kỳ</b></div>
+      <div>Khoảng dài nhất<b>${s?s.maxGap:Ax.K} kỳ</b></div>
+      <div>Khoảng trung bình<b>${s&&s.avgGap!=null?s.avgGap.toFixed(1)+" kỳ":"—"}</b></div>
+      <div>Khoảng ngắn nhất<b>${s&&s.minGap!=null?s.minGap+" kỳ":"—"}</b></div>
+    </div>
+    ${cmpHtml}${gapHtml}
+    <div class="mh">Theo thứ trong tuần</div>
+    <div class="dw">${[0,1,2,3,4,5,6].map(w=>{const mx=Math.max(...dowCnt,1);return `<div class="d"><div class="t"><i style="height:${dowCnt[w]/mx*100}%"></i></div>${DOW_S[w]}<br><b>${dowCnt[w]}</b></div>`}).join("")}</div>
+    ${coHtml}
+    <div class="mh">Các lần xuất hiện gần nhất</div>
+    <div class="tags">${hits.length?hits.slice(-60).reverse().map(h=>`<span class="tag"><b>${fmtD(h.d)}</b> · ${esc(h.prize)}${h.prov?" · "+esc(h.prov):""}</span>`).join(""):`<span class="tag">Chưa xuất hiện trong khoảng này</span>`}</div>
+    <div class="method-note" style="margin-top:16px">Thông tin trên chỉ mô tả kết quả đã công bố; không cho biết số nào sẽ xuất hiện ở kỳ tiếp theo.</div>`;
+  $("#modal").setAttribute("aria-labelledby","modalTitle");
+  $("#mbg").classList.add("show");
+  $("#modal .x")?.focus();
+};
+window.closeM = () => {
+  $("#mbg").classList.remove("show");
+  if(window._modalReturn?.focus) window._modalReturn.focus();
+};
 
 /* ============================================================================
    ĐIỀU PHỐI
    ========================================================================== */
 /* Tab "Phân tích sâu" gộp 3 màn cũ; chọn màn con bằng chip. */
 const ANA_SUBS=[
-  {k:"board",   n:"🌡️ Bảng số",       fn:()=>renderBoard()},
-  {k:"gap",     n:"⏳ Gan & chu kỳ",   fn:()=>renderGap()},
-  {k:"pattern", n:"🧩 Mẫu & liên quan",fn:()=>renderPattern()},
+  {k:"board",   n:"Bản đồ số",       fn:()=>renderBoard()},
+  {k:"gap",     n:"Khoảng cách",      fn:()=>renderGap()},
+  {k:"pattern", n:"Mẫu lịch sử",      fn:()=>renderPattern()},
 ];
+function renderMethod(){
+  const meta=window.XS_META||{}, mb=DB.MB.days, mn=DB.MN.days;
+  const range=a=>a.length?`${fmtD(a[0].d)} → ${fmtD(a[a.length-1].d)}`:"Chưa có dữ liệu";
+  $("#methodData").innerHTML=`
+    <section class="source-grid" aria-label="Nguồn dữ liệu">
+      <article class="source-card">
+        <span class="source-card-icon" aria-hidden="true">LIVE</span>
+        <h2>Bảng trực tiếp</h2>
+        <p>Nhúng nguyên trạng từ công cụ miễn phí của Minh Ngọc; có liên kết mở nguồn ở ngay trên bảng.</p>
+        <a href="https://www.minhngoc.net.vn/tao-ma-nhung/ket-qua-xo-so.html" target="_blank" rel="noopener noreferrer">Xem nguồn Minh Ngọc ↗</a>
+      </article>
+      <article class="source-card">
+        <span class="source-card-icon archive" aria-hidden="true">KHO</span>
+        <h2>Lịch sử kết quả</h2>
+        <p>Kho riêng được tổng hợp tự động từ các nguồn công khai đã khai báo trong bộ cập nhật dữ liệu.</p>
+        <span class="source-detail">Không gắn nhãn Minh Ngọc cho phần lịch sử nếu dữ liệu không lấy từ nguồn này.</span>
+      </article>
+      <article class="source-card">
+        <span class="source-card-icon update" aria-hidden="true">AUTO</span>
+        <h2>Cập nhật hằng ngày</h2>
+        <p>Hệ thống kiểm tra dữ liệu sau giờ quay XSMN và XSMB, rồi chỉ phát hành phiên bản mới khi có kết quả mới.</p>
+        <span class="source-detail">Lần cập nhật kho: ${esc(meta.updated||"chưa xác định")}</span>
+      </article>
+    </section>
+    <section class="data-overview" aria-labelledby="dataOverviewTitle">
+      <div class="result-shell-head"><div><span class="eyebrow">Độ sâu dữ liệu</span><h2 id="dataOverviewTitle">Kho đang có</h2></div></div>
+      <div class="data-kpis">
+        <div><span>XSMN</span><b>${mn.length.toLocaleString("vi-VN")}</b><small>kỳ · ${range(mn)}</small></div>
+        <div><span>XSMB</span><b>${mb.length.toLocaleString("vi-VN")}</b><small>kỳ · ${range(mb)}</small></div>
+        <div><span>Đài Miền Nam</span><b>${DB.MN.provs.length}</b><small>đài có dữ liệu thường xuyên</small></div>
+      </div>
+    </section>
+    <div class="method-note" role="note">
+      <b>Cách đọc an toàn:</b> số liệu tần suất và bản đồ nhiệt chỉ mô tả những kỳ đã xảy ra. Mọi kết quả tiếp theo vẫn có tính ngẫu nhiên; website không cung cấp giao dịch hay cam kết kết quả.
+    </div>`;
+}
 function renderAna(){
   const ac=$("#anaChips"); ac.innerHTML="";
   for(const s of ANA_SUBS)
@@ -1686,18 +1857,20 @@ function renderAna(){
   ANA_SUBS.find(s=>s.k===ST.anaSub).fn();
 }
 
-const RENDER = { live:renderLive, pred:renderPred, ana:renderAna, cross:renderCross, verify:renderVerify };
+const RENDER = { live:renderLive, history:renderHistory, ana:renderAna, cross:renderCross, verify:renderMethod };
 let dirty = {};
+const VIEW_HASH={live:"ket-qua",history:"lich-su",ana:"thong-ke",cross:"hai-mien",verify:"nguon"};
 
 function refresh(){
   const sl=recompute();
   renderFilters(sl);
-  dirty = {live:1,pred:1,ana:1,cross:1,verify:1};
+  dirty = {live:1,history:1,ana:1,cross:1,verify:1};
   showView(ST.view);
 }
 function showView(v){
+  if(!RENDER[v]) v="live";
   ST.view=v;
-  $("#filtersBar").hidden = v==="live" || v==="pred";
+  $("#filtersBar").hidden = v==="live" || v==="history" || v==="verify";
   $$("#nav button").forEach(b=>{
     const on=b.dataset.v===v;
     b.classList.toggle("on",on);
@@ -1707,6 +1880,8 @@ function showView(v){
   const stale=$("#staleBar");
   if(stale) stale.style.display=v==="live"||!stale.innerHTML?"none":"";
   if(dirty[v]){ RENDER[v](); dirty[v]=0 }
+  const hash=VIEW_HASH[v];
+  if(hash && location.hash!==`#${hash}`) history.replaceState(null,"",`#${hash}`);
   window.scrollTo({top:0,behavior:"instant"});
 }
 
@@ -1714,24 +1889,25 @@ function showView(v){
 $("#nav").addEventListener("click", e=>{
   const b=e.target.closest("button"); if(b) showView(b.dataset.v);
 });
+window.addEventListener("hashchange",()=>{
+  const v=Object.entries(VIEW_HASH).find(([,h])=>location.hash===`#${h}`)?.[0];
+  if(v && v!==ST.view) showView(v);
+});
 $("#liveP").addEventListener("click",()=>showView("live"));
 $("#liveRefresh").addEventListener("click",()=>setLiveFrame(ST.region,true));
-$("#liveToPred").addEventListener("click",()=>showView("pred"));
-$("#liveToCross").addEventListener("click",()=>showView("cross"));
+$("#homeToHistory").addEventListener("click",()=>showView("history"));
+$("#liveToHistory").addEventListener("click",()=>showView("history"));
+$("#liveToStats").addEventListener("click",()=>showView("ana"));
+$("#historyMore").addEventListener("click",()=>{ST.historyCount=Math.min(ST.historyCount+14,120);renderHistory()});
 $("#liveFrame").addEventListener("load",()=>{
   const loading=$("#liveLoading");
   if(loading){ loading.lastChild.textContent="Đã kết nối nguồn Minh Ngọc"; setTimeout(()=>loading.classList.add("done"),350) }
 });
 $("#regSeg").addEventListener("click", e=>{
   const b=e.target.closest("button"); if(!b) return;
-  ST.region=b.dataset.r; ST.provs=null; ST.win="max"; refresh();
+  ST.region=b.dataset.r; ST.provs=null; ST.win="max"; ST.homeIndex=0; ST.historyIndex=0; refresh();
 });
 $("#tf").addEventListener("input", renderFullTable);
-$("#btRun").onclick=runBacktest;
-$("#pinAddBtn").onclick=()=>pxAdd("pin");
-$("#exclAddBtn").onclick=()=>pxAdd("excl");
-$("#pinIn").addEventListener("keydown", e=>{ if(e.key==="Enter") pxAdd("pin") });
-$("#exclIn").addEventListener("keydown", e=>{ if(e.key==="Enter") pxAdd("excl") });
 $("#gs").addEventListener("keydown", e=>{
   if(e.key!=="Enter") return;
   e.preventDefault();
@@ -1806,8 +1982,7 @@ function checkStale(){
     ? `Mở kết quả trực tiếp. Kho thống kê cập nhật lần cuối: ${updated}.`
     : "Mở kết quả xổ số trực tiếp.";
 })();
-setInterval(()=>{ if(ST.view==="pred") renderHero() }, 30000);
-setInterval(()=>{ if(ST.view==="live") updateLiveStatus() }, 30000);
+setInterval(()=>{ if(ST.view==="live"){updateLiveStatus();$("#v-live")?.classList.toggle("is-live",livePhase(ST.region).live)} }, 30000);
 setInterval(checkStale, 5*60000);
 
 /* --------- khởi động --------- */
@@ -1820,15 +1995,17 @@ setInterval(checkStale, 5*60000);
     return;
   }
   if(!DB.MB.days.length) ST.region="MN";
+  const wanted=Object.entries(VIEW_HASH).find(([,h])=>location.hash===`#${h}`)?.[0];
+  if(wanted) ST.view=wanted;
   checkStale();
   $("#foot").innerHTML=`
     <div class="foot-grid">
-      <div class="foot-brand"><span class="foot-brand-mark" aria-hidden="true">◎</span><span><b>Soi XS</b><span>Kết quả trực tiếp & thống kê xổ số minh bạch.</span></span></div>
+      <div class="foot-brand"><span class="foot-brand-mark" aria-hidden="true"><img src="/icon.svg?v=2" width="30" height="30" alt=""></span><span><b>Kết Số</b><span>Kết quả rõ ràng, mỗi ngày.</span></span></div>
       <div class="foot-trust">
-        <span><b style="color:var(--dim)">Kết quả trực tiếp</b><br>Nhúng nguyên trạng từ <a href="https://www.minhngoc.net.vn/tao-ma-nhung/ket-qua-xo-so.html" target="_blank" rel="noopener noreferrer">Minh Ngọc™</a>; dữ liệu mang tính tham khảo.</span>
-        <span><b style="color:var(--dim)">Kho thống kê</b><br>Cập nhật tự động sau kỳ quay · lần cuối ${window.XS_META?.updated||"chưa xác định"}.</span>
+        <span><b style="color:var(--txt)">Kết quả trực tiếp</b><br>Nhúng nguyên trạng từ <a href="https://www.minhngoc.net.vn/tao-ma-nhung/ket-qua-xo-so.html" target="_blank" rel="noopener noreferrer">Minh Ngọc™</a>.</span>
+        <span><b style="color:var(--txt)">Kho dữ liệu</b><br>Cập nhật tự động sau kỳ quay · lần cuối ${window.XS_META?.updated||"chưa xác định"}.</span>
       </div>
     </div>
-    <div class="foot-legal"><b style="color:var(--dim)">Miễn trừ trách nhiệm:</b> xổ số là trò chơi ngẫu nhiên. Phân tích dữ liệu quá khứ không dự báo được tương lai và không đảm bảo kết quả. Chơi có trách nhiệm — chỉ dùng số tiền bạn sẵn sàng mất.</div>`;
+    <div class="foot-legal"><b style="color:var(--txt)">Lưu ý:</b> website chỉ tổng hợp kết quả và phân tích dữ liệu đã công bố. Mọi kết quả có tính ngẫu nhiên; dữ liệu quá khứ không dự báo tương lai. Website không yêu cầu tài khoản và không cung cấp giao dịch. <a href="/privacy.html">Quyền riêng tư</a>.</div>`;
   refresh();
 })();

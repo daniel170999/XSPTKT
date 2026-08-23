@@ -15,11 +15,12 @@ Toàn bộ checklist RULES §R5 đã chạy sạch (xem mục 4 dưới). Chỉ 
 BLUEPRINT §4 đã chỉ ra hướng đó không có kết quả, tốn công mà không đổi được kết luận cốt lõi.
 
 > Cập nhật triển khai 23/08/2026: theo yêu cầu chuyển sang website public, v1.0 được giữ nguyên phần
-> thống kê/scoring. Chỉ thay lớp phân phối và giao diện: 5 tab công khai, bỏ Nhật ký cá nhân/nhắc local;
+> thống kê/scoring để kiểm toán nội bộ. Lớp public có 5 tab `Kết quả/Lịch sử/Thống kê/Hai miền/Nguồn`,
+> không công bố dàn số, dự báo kỳ sau hay nhật ký dự đoán;
 > GitHub Actions cập nhật `data/` hằng ngày và Vercel deploy commit mới. Không dùng database, không có
 > service worker và không thêm tín hiệu dự đoán. Lượt redesign cùng ngày đặt XSMN làm miền mặc định,
-> sắp kỳ mẫu tăng dần với Toàn bộ lịch sử ở cuối, tách switch miền khỏi tab chức năng và xây lại flow
-> dàn 3 bước responsive. Tab Kết quả nhúng bảng live chính thức Minh Ngọc (credit/link nguồn rõ ràng),
+> sắp kỳ mẫu tăng dần với Toàn bộ lịch sử ở cuối và tách switch miền khỏi tab chức năng. Tab Kết quả
+> hiển thị kho kết quả gần nhất trước, đồng thời nhúng bảng live Minh Ngọc (credit/link nguồn rõ ràng),
 > độc lập với kho lịch sử; Actions chạy 16:42/18:42 giờ Việt Nam. Vẫn không đổi `app.js` hay công thức.
 > Xem `DEPLOY_VERCEL.md`.
 
@@ -27,8 +28,8 @@ BLUEPRINT §4 đã chỉ ra hướng đó không có kết quả, tốn công m�
 
 ## 1. Mục tiêu tối thượng
 
-Giúp người dùng chọn dàn **2 số đuôi (00–99)** / **3 số đuôi (000–999)** cho kỳ XSMB/XSMN sắp tới,
-trên **toàn bộ lịch sử** crawl được, và **nói thật** về giới hạn thống kê.
+Giúp người dùng xem kết quả XSMN/XSMB trực tiếp, tra cứu các kỳ đã công bố và khám phá lịch sử
+**2 số đuôi (00–99)** / **3 số đuôi (000–999)** một cách dễ hiểu, đồng thời **nói thật** về giới hạn thống kê.
 App **chỉ** làm 2 số đuôi và 3 số đuôi.
 
 ## 2. Sự thật đã đo — tóm tắt (đầy đủ 25 phép đo ở BLUEPRINT §4)
@@ -62,7 +63,7 @@ XS/
 ├── index.html      Khung 5 tab public + toàn bộ CSS (tokens ở :root). Không chứa logic.
 ├── app.js          BỘ NÃO: analyze(), ebWeight (co ngót Bayes), hazard KM, Wilson, χ²,
 │                   buildModel/scoreOf/rankAll (flat theo zCrit), unbiasedPick, percentile
-├── ui.js           LỚP VẼ: 5 view public (live/pred/ana/cross/verify) + 3 màn con của ana; code legacy
+├── ui.js           LỚP VẼ: 5 view public (live/history/ana/cross/verify) + 3 màn con của ana; code legacy
 │                   journal/help còn trong source nhưng không public; GLOSSARY, tooltip và backtest UI
 ├── update.py       Crawler đa luồng 8 workers, PROV_ALIAS (21 đài), lock, ghi nguyên tử
 ├── serve.py        LIVE server 127.0.0.1:8368, tự crawl 16:35/18:32, /api/status
@@ -80,7 +81,7 @@ XS/
 - [x] Kho public hiện có (23/08/2026): XSMB **7.531 kỳ** (10/2005→23/08/2026) · XSMN **6.676 kỳ** (01/2008→23/08/2026)
       · **21 tên đài** chuẩn hoá alias
 - [x] LIVE tự cập nhật + tự reload; đã chạy thật ngày 04/08 (crawl 2s sau giờ quay)
-- [x] 5 tab public tên đời thường; Kết quả live đứng đầu; Thống kê gộp 3 màn con; flow Chọn dàn 3 bước
+- [x] 5 tab public tên đời thường; Kết quả/live và kỳ gần nhất đứng đầu; Lịch sử theo ngày; Thống kê gộp 3 màn con
 - [x] Nút ⚡ chọn 2–10 số: khi chưa có chứng nhận OOS → chọn đều seed theo ngày, không reroll; lịch sử nổi bật tách khỏi dàn kỳ tới
 - [x] Chấm điểm co ngót Bayes thực nghiệm; tâm riêng từng tín hiệu, nền đúng thứ, sai số đúng cỡ mẫu; cổng `actionable` bắt buộc OOS
 - [x] Nền theo thứ `pBaseFor(w)` dùng ở mọi chỗ hiển thị kỳ vọng
