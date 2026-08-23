@@ -1,5 +1,26 @@
 # WORKLOG — Kết Số
 
+## 2026-08-23 — Redesign toàn bộ flow public, ưu tiên mobile
+
+- Phạm vi được Daniel mở lại sau bản khoá v1.0: chỉ thay kiến trúc thông tin, visual, responsive, animation và accessibility; **không sửa `app.js`, scoring, xác suất hay tín hiệu dự đoán**.
+- XSMN đứng trước và là miền mặc định; switch miền tách khỏi 4 tab chức năng. Tab có tên + mục đích trên desktop, icon + nhãn ngắn trên mobile.
+- Kỳ mẫu sắp tăng dần: **7 ngày → 1 tháng → 3 tháng → 6 tháng → 1 năm → 3 năm → 5 năm → 5000 ngày → Toàn bộ lịch sử**. Mobile có tóm tắt mẫu đang dùng và gợi ý vuốt.
+- Trang Hôm nay đổi thành flow 3 bước: phạm vi giải → 2/3 số → số lượng; kết quả, xác suất nền và CTA copy nằm trong một vùng riêng. Thêm màu nhận diện theo miền (MN cam, MB xanh), hierarchy mới, micro-interaction, view/modal/number entrance animation và `prefers-reduced-motion`.
+- Thống kê có tiêu đề trang, subnav rõ, bộ lọc chia nhóm; favicon + manifest đồng bộ visual mới. Các control chính dùng button semantic, có focus-visible/ARIA.
+
+### Kiểm chứng có số liệu
+
+| Hạng mục | Kết quả |
+|---|---|
+| Cú pháp + regression | `node --check app.js`, `node --check ui.js`, `node test_model.cjs`: đạt (`test_model: OK`) |
+| Browser matrix | 4 tab công khai + 3 màn Thống kê × XSMN/XSMB × 2/3 số tại 320px: **0 lỗi console, 0px tràn ngang** |
+| Responsive | 320, 375, 768, 1024, 1440px: **0px tràn ngang**; search invalid/valid, modal `668`, focus nút đóng đều đạt |
+| Backtest UI | XSMB / tất cả giải / 3 số / 300 kỳ / W365 / dàn 10: **1,1 giây**; OOS **−2,0%**, top1 **p=0,325**, trong mẫu **+100,3%** |
+| Crawler | `update.py --max-fetch 40`: **3 giây**; trước/sau XSMB **7.530**, XSMN **6.675** kỳ, cùng mới nhất **22/08/2026**; thêm/sửa/mất **0** kỳ |
+| Test crawler | `test_update.py`: **4/4** đạt |
+
+Kết luận thống kê không đổi: chưa có predictive edge; dàn kỳ tới tiếp tục chọn đều, tái lập theo ngày.
+
 ## 2026-08-23 — Polish luồng public trước khi tái deploy
 
 - Phạm vi chỉ là UI, trải nghiệm và workflow cập nhật: không sửa `app.js`, scoring, thống kê hay tín hiệu dự đoán.

@@ -17,7 +17,9 @@ BLUEPRINT §4 đã chỉ ra hướng đó không có kết quả, tốn công m�
 > Cập nhật triển khai 23/08/2026: theo yêu cầu chuyển sang website public, v1.0 được giữ nguyên phần
 > thống kê/scoring. Chỉ thay lớp phân phối và giao diện: 4 tab công khai, bỏ Nhật ký cá nhân/nhắc local;
 > GitHub Actions cập nhật `data/` hằng ngày và Vercel deploy commit mới. Không dùng database, không có
-> service worker và không thêm tín hiệu dự đoán. Xem `DEPLOY_VERCEL.md`.
+> service worker và không thêm tín hiệu dự đoán. Lượt redesign cùng ngày đặt XSMN làm miền mặc định,
+> sắp kỳ mẫu tăng dần với Toàn bộ lịch sử ở cuối, tách switch miền khỏi tab chức năng và xây lại flow
+> dàn 3 bước responsive; vẫn không đổi `app.js` hay công thức. Xem `DEPLOY_VERCEL.md`.
 
 ---
 
@@ -55,11 +57,11 @@ App **chỉ** làm 2 số đuôi và 3 số đuôi.
 
 ```
 XS/
-├── index.html      Khung 6 tab + toàn bộ CSS (tokens ở :root). Không chứa logic.
+├── index.html      Khung 4 tab public + toàn bộ CSS (tokens ở :root). Không chứa logic.
 ├── app.js          BỘ NÃO: analyze(), ebWeight (co ngót Bayes), hazard KM, Wilson, χ²,
 │                   buildModel/scoreOf/rankAll (flat theo zCrit), unbiasedPick, percentile
-├── ui.js           LỚP VẼ: ST, 6 view (pred/ana/cross/journal/verify/help) + 3 màn con của ana,
-│                   GLOSSARY + tooltip dấu !, backtest UI, nhật ký (xs_journal_v1)
+├── ui.js           LỚP VẼ: 4 view public (pred/ana/cross/verify) + 3 màn con của ana; code legacy
+│                   journal/help còn trong source nhưng không public; GLOSSARY, tooltip và backtest UI
 ├── update.py       Crawler đa luồng 8 workers, PROV_ALIAS (21 đài), lock, ghi nguyên tử
 ├── serve.py        LIVE server 127.0.0.1:8368, tự crawl 16:35/18:32, /api/status
 ├── TaiDuLieu.bat   MỘT LẦN: tải toàn bộ lịch sử   ├── MoApp.bat  Hằng ngày: mở app LIVE

@@ -7,7 +7,7 @@ const $$ = s => [...document.querySelectorAll(s)];
 const el = (tag, cls, html) => { const e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e };
 
 const ST = {
-  region:"MB", scope:"all", digits:2, win:"max", provs:null, view:"pred",
+  region:"MN", scope:"all", digits:2, win:"max", provs:null, view:"pred",
   danSize:10, btDays:300, btWin:365, hmMode:"freq", quickN:2, anaSub:"board"
 };
 const WINS = [
@@ -162,6 +162,7 @@ document.addEventListener("click", e=>{
    BỘ LỌC
    ========================================================================== */
 function renderFilters(sl){
+  document.documentElement.dataset.region=ST.region;
   $$("#regSeg button").forEach(b=>{
     const on=b.dataset.r===ST.region;
     b.classList.toggle("on",on); b.setAttribute("aria-pressed",String(on));
@@ -180,8 +181,11 @@ function renderFilters(sl){
   );
 
   const wc=$("#fWin"); wc.innerHTML="";
-  wc.append(mkChip("TẤT CẢ", ST.win==="max", ()=>{ST.win="max";refresh()}, false, `${sl.avail} kỳ`));
   for(const w of WINS) wc.append(mkChip(w.label, ST.win===w.n, ()=>{ST.win=w.n;refresh()}, w.n>sl.avail));
+  wc.append(mkChip("Toàn bộ lịch sử", ST.win==="max", ()=>{ST.win="max";refresh()}, false, `${sl.avail} kỳ`));
+
+  const winLabel=ST.win==="max"?`Toàn bộ ${sl.avail.toLocaleString("vi-VN")} kỳ`:(WINS.find(w=>w.n===ST.win)?.label||`${ST.win} ngày`);
+  $("#filterSummary").textContent=`${ST.region} · ${ST.digits} số đuôi · ${winLabel}`;
 
   const pr=$("#fProvRow");
   if(ST.region==="MN" && DB.MN.provs.length){
@@ -212,15 +216,16 @@ function renderHero(){
     const r=dt-mins;
     cdT=`${Math.floor(r/60)}:${pad(r%60,2)}`; cdL="còn tới giờ quay";
   } else { cdT="✓"; cdL="đã quay xong hôm nay" }
-  const meta=window.XS_META||{};
   $("#hero").innerHTML=`
-    <div>
-      <div class="big">${ST.region==="MB"?"Xổ số Miền Bắc":"Xổ số Miền Nam"} · ${NEXT.label||"—"}</div>
-      <div class="sm">Quay lúc ${Math.floor(DRAW_TIME[ST.region]/60)}:${pad(DRAW_TIME[ST.region]%60,2)}
-        · mẫu phân tích <b style="color:var(--txt)">${A2.K}</b> kỳ (${A2.K?fmtD(A2.from)+" → "+fmtD(A2.to):"—"})
-        ${ST.region==="MN"?` · ${ST.provs&&ST.provs.size?[...ST.provs].join(", "):"tất cả đài"}`:""}</div>
+    <div class="hero-copy">
+      <div class="eyebrow">Kỳ quay tiếp theo · ${ST.region}</div>
+      <h1>${ST.region==="MB"?"Xổ số Miền Bắc":"Xổ số Miền Nam"}</h1>
+      <div class="hero-date">${NEXT.label||"—"}</div>
+      <div class="sm"><span>Quay lúc <b>${Math.floor(DRAW_TIME[ST.region]/60)}:${pad(DRAW_TIME[ST.region]%60,2)}</b></span>
+        <span>Mẫu <b>${A2.K.toLocaleString("vi-VN")}</b> kỳ · ${A2.K?fmtD(A2.from)+" → "+fmtD(A2.to):"—"}</span>
+        ${ST.region==="MN"?`<span>${ST.provs&&ST.provs.size?[...ST.provs].join(", "):"Tất cả đài"}</span>`:""}</div>
     </div>
-    <div class="cd"><div class="t">${cdT}</div><div class="l">${cdL}</div></div>`;
+    <div class="cd"><div class="l">${cdL}</div><div class="t">${cdT}</div><div class="cd-foot">Giờ Việt Nam</div></div>`;
 }
 
 function predPanel(node, Ax, rank, kind){
@@ -298,7 +303,7 @@ window.pxDel = (kind, t) => {
 function renderPinExcl(){
   const box=$("#pinChips"); if(!box) return; // chưa render view pred lần nào
   const o=pxLoad();
-  const chip=(kind,t)=>`<span class="tag">${t} <span class="jdel" onclick="pxDel('${kind}','${t}')" title="Bỏ">✕</span></span>`;
+  const chip=(kind,t)=>`<span class="tag">${t} <button type="button" class="jdel" onclick="pxDel('${kind}','${t}')" aria-label="Bỏ số ${t}">✕</button></span>`;
   const pin=o.pin.filter(t=>t.length===ST.digits), excl=o.excl.filter(t=>t.length===ST.digits);
   $("#pinChips").innerHTML = pin.length ? pin.map(t=>chip("pin",t)).join(" ")
     : `<span style="color:var(--dim2);font-size:11.5px">Chưa ghim số nào</span>`;
@@ -332,34 +337,44 @@ function renderQuick(){
     `${SIGNAL_INFO[k]} <b style="color:${w>0.05?"var(--ok)":"var(--dim2)"}">${w.toFixed(3)}</b>`).join(" · ");
 
   $("#quick").innerHTML=`
-    <div class="qhead">
-      <span class="t">⚡ Dàn tham khảo · ${NEXT.label}</span>
-      ${!M.actionable?`<span class="badge b2">MÁY CHỌN ĐỀU</span>`:""}
-      <span style="font-size:12px;color:var(--dim)">${ST.region} · ${scopeLabel(ST.region,ST.scope)} · ${Ax.digits} số đuôi</span>
+    <div class="quick-head">
+      <div>
+        <div class="eyebrow">Dàn tham khảo hôm nay</div>
+        <h2>Chọn dàn trong 3 bước</h2>
+        <p>${NEXT.label} · ${ST.region} · ${scopeLabel(ST.region,ST.scope)} · ${Ax.digits} số đuôi</p>
+      </div>
+      ${!M.actionable?`<div class="mode-badge"><b>Máy chọn đều</b><span>Tái lập theo ngày</span></div>`:""}
     </div>
     <div class="qcfg">
-      <span class="flab">Đánh giải</span>
-      ${["all","dd"].map(sc=>`<button type="button" class="chip ${ST.scope===sc?"on":""}" onclick="setQScope('${sc}')" aria-pressed="${ST.scope===sc}">${scopeLabel(ST.region,sc)}</button>`).join("")}
-      <span class="flab" style="margin-left:6px">Đuôi</span>
-      ${[2,3].map(dg=>`<button type="button" class="chip ${ST.digits===dg?"on":""}" onclick="setQDigits(${dg})" aria-pressed="${ST.digits===dg}">${dg} số</button>`).join("")}
-      <span class="flab" style="margin-left:6px">Số lượng</span>
-      ${[2,3,4,5,6,8,10].map(k=>`<button type="button" class="chip ${n===k?"on":""}" onclick="setQuickN(${k})" aria-pressed="${n===k}">${k}</button>`).join("")}
-    </div>
-    <div class="qout">
-      <div class="qnums">${q.picks.map(t=>
-        `<button type="button" class="qn" onclick="openNum('${t}',${Ax.digits})" aria-label="Soi chi tiết số ${t}">${t}</button>`
-      ).join("")}</div>
-      <div class="qmeta">
-        Nền mỗi số: <b>${pctS(pB,2)}</b>${tip("nen")} ở kỳ ${DOW_S[NEXT.w]}${ST.region==="MN"?tip("nendow"):""}.<br>
-        Dàn <b>${nEff} số</b>${q.pinned>n?` <span style="color:var(--dim2)">(ghim ${q.pinned})</span>`:""} → có ≥1 số: <b style="color:var(--ok);font-size:15px">${pctS(pAny)}</b>${tip("dan")}
+      <div class="qstep">
+        <div class="qstep-head"><span>1</span><b>Phạm vi giải</b></div>
+        <div class="qstep-options">${["all","dd"].map(sc=>`<button type="button" class="chip ${ST.scope===sc?"on":""}" onclick="setQScope('${sc}')" aria-pressed="${ST.scope===sc}">${scopeLabel(ST.region,sc)}</button>`).join("")}</div>
+      </div>
+      <div class="qstep">
+        <div class="qstep-head"><span>2</span><b>Loại số đuôi</b></div>
+        <div class="qstep-options">${[2,3].map(dg=>`<button type="button" class="chip ${ST.digits===dg?"on":""}" onclick="setQDigits(${dg})" aria-pressed="${ST.digits===dg}">${dg} số</button>`).join("")}</div>
+      </div>
+      <div class="qstep">
+        <div class="qstep-head"><span>3</span><b>Số lượng trong dàn</b></div>
+        <div class="qstep-options">${[2,3,4,5,6,8,10].map(k=>`<button type="button" class="chip ${n===k?"on":""}" onclick="setQuickN(${k})" aria-pressed="${n===k}">${k}</button>`).join("")}</div>
       </div>
     </div>
-    <div class="qacts">
-      <button class="qbtn" onclick="copyQuick()">📋 Copy ${nEff} số</button>
-      <button class="btn g" onclick="goToStats()">Xem thống kê</button>
-    </div>
-    <div style="font-size:11.5px;color:var(--dim2);margin-top:9px">
-      Bấm số để soi lịch sử. Bộ số cố định theo ngày, không có nút quay lại để đổi số.
+    <div class="qresult">
+      <div class="qresult-head"><span>Dàn đã chọn</span><b>${nEff} số · ${Ax.digits} chữ số</b></div>
+      <div class="qout">
+        <div class="qnums">${q.picks.map(t=>
+          `<button type="button" class="qn" onclick="openNum('${t}',${Ax.digits})" aria-label="Soi chi tiết số ${t}">${t}</button>`
+        ).join("")}</div>
+        <div class="qmeta">
+          <span>Nền mỗi số <b>${pctS(pB,2)}</b>${tip("nen")} ở kỳ ${DOW_S[NEXT.w]}${ST.region==="MN"?tip("nendow"):""}</span>
+          <span>Dàn <b>${nEff} số</b>${q.pinned>n?` <em>(ghim ${q.pinned})</em>`:""} → có ≥1 số <b class="prob">${pctS(pAny)}</b>${tip("dan")}</span>
+        </div>
+      </div>
+      <div class="qacts">
+        <button class="qbtn" onclick="copyQuick()"><span aria-hidden="true">⧉</span> Copy dàn ${nEff} số</button>
+        <button class="btn g" onclick="goToStats()">Xem thống kê chi tiết</button>
+      </div>
+      <div class="qnote">Bấm vào từng số để soi lịch sử. Dàn cố định theo ngày và không có nút quay lại để đổi số.</div>
     </div>
     <details class="qwhy">
       <summary>${!M.actionable?"Vì sao app chọn đều?":"Vì sao app chọn các số này?"}</summary>
@@ -403,11 +418,11 @@ function renderPred(){
   const gb=$("#guideB");
   if(!localStorage.getItem("xs_guide_v1")){
     gb.innerHTML=`<div class="guide">
-      <b>Chọn dàn trong 3 bước:</b>
-      <span class="num">1</span>Chọn phạm vi, 2/3 số & số lượng
-      <span class="num">2</span>Copy dàn hoặc bấm số để soi kỹ
-      <span class="num">3</span>Mở <b>Thống kê</b> khi cần xem lịch sử.
-      <button class="btn g" style="margin-left:10px;padding:4px 12px" onclick="localStorage.setItem('xs_guide_v1','1');this.parentElement.parentElement.innerHTML=''">Đã hiểu ✓</button>
+      <div class="guide-title"><span>Mới dùng lần đầu?</span><b>Đi từ dàn số đến dữ liệu trong 30 giây.</b></div>
+      <div class="guide-steps">
+        <span><b>1</b> Chọn dàn</span><i>→</i><span><b>2</b> Bấm số để soi</span><i>→</i><span><b>3</b> Kiểm chứng bằng backtest</span>
+      </div>
+      <button class="btn g" onclick="localStorage.setItem('xs_guide_v1','1');this.closest('.guide').remove()">Đã hiểu</button>
     </div>`;
   } else gb.innerHTML="";
   renderHero();
@@ -1045,7 +1060,7 @@ function runBacktest(){
     $("#btOut").innerHTML=
       `<div style="color:var(--dim);font-size:12.5px;margin-bottom:8px">Đang mô phỏng ${B} kỳ · cửa sổ trượt ${W} kỳ…</div>
        <div style="height:8px;background:var(--card2);border-radius:5px;overflow:hidden">
-         <i style="display:block;height:100%;width:${(frac*100).toFixed(1)}%;background:var(--acc);border-radius:5px;transition:.2s"></i></div>
+         <i style="display:block;height:100%;width:${(frac*100).toFixed(1)}%;background:var(--acc);border-radius:5px;transition:width .2s"></i></div>
        <div style="color:var(--dim2);font-size:11.5px;margin-top:6px">${acc.days}/${B} kỳ</div>`;
   };
   paint(0);
@@ -1162,7 +1177,7 @@ function renderCross(){
     const ts=[...new Set(tailsOfDay(mnToday,"MN","all",dg,false))].sort();
     html+=`<div style="font-size:12px;color:var(--dim);margin-bottom:8px">
       ${mnToday.draws.map(x=>x.p).join(" · ")} — <b style="color:var(--txt)">${ts.length}</b> số ${dg} chữ số riêng biệt:</div>
-      <div class="tags">${ts.map(t=>`<span class="tag clk" onclick="openNum('${t}',${dg})">${t}</span>`).join("")}</div>`;
+      <div class="tags">${ts.map(t=>`<button type="button" class="tag clk" onclick="openNum('${t}',${dg})">${t}</button>`).join("")}</div>`;
   } else html+=`<div class="empty" style="padding:14px">Chưa có kết quả hôm nay</div>`;
   html+=`</div>`;
   // XSMB
@@ -1176,7 +1191,7 @@ function renderCross(){
     const mnSet = mnToday ? new Set(tailsOfDay(mnToday,"MN","all",dg,false)) : null;
     html+=`<div style="font-size:12px;color:var(--dim);margin-bottom:8px">
       <b style="color:var(--txt)">${ts.length}</b> số riêng biệt${mnSet?` — <span style="color:var(--ok)">xanh</span> = trùng với XSMN chiều`:""}:</div>
-      <div class="tags">${ts.map(t=>`<span class="tag clk" ${mnSet&&mnSet.has(t)?'style="color:var(--ok);border-color:rgba(56,217,150,.4)"':""} onclick="openNum('${t}',${dg})">${t}</span>`).join("")}</div>`;
+      <div class="tags">${ts.map(t=>`<button type="button" class="tag clk" ${mnSet&&mnSet.has(t)?'style="color:var(--ok);border-color:rgba(56,217,150,.4)"':""} onclick="openNum('${t}',${dg})">${t}</button>`).join("")}</div>`;
     if(mnSet){
       let ov=0; for(const t of ts) if(mnSet.has(t)) ov++;
       html+=`<div style="font-size:12px;color:var(--dim);margin-top:10px">Trùng <b style="color:var(--txt)">${ov}</b> số với XSMN chiều nay.</div>`;
@@ -1442,7 +1457,7 @@ function renderHelp(){
       const uniq=[...new Set(ts)].sort();
       return `<tr style="cursor:default"><td style="white-space:nowrap">${fmtD(d.d)} <span style="color:var(--dim2)">${DOW_S[d.w]}</span></td>
         <td style="text-align:left;white-space:normal;line-height:2">
-        ${uniq.map(t=>`<span class="tag clk" onclick="openNum('${t}',${A.digits})">${t}</span>`).join(" ")}</td></tr>`;
+        ${uniq.map(t=>`<button type="button" class="tag clk" onclick="openNum('${t}',${A.digits})">${t}</button>`).join(" ")}</td></tr>`;
     }).join("")+`</tbody>`;
 
   renderEvCalc();
@@ -1486,7 +1501,7 @@ window.openNum = (tail, digits) => {
     for(const di of s.hits) for(const x of Ax.daySets[di]) if(x!==tail) co.set(x,(co.get(x)||0)+1);
     const top=[...co.entries()].sort((a,b)=>b[1]-a[1]).slice(0,10);
     if(top.length) coHtml=`<div class="mh">Hay về cùng ngày với ${tail}</div><div class="tags">`+
-      top.map(([x,c])=>`<span class="tag clk" onclick="openNum('${x}',${digits})">${x} <b>${c}</b> kỳ</span>`).join("")+`</div>`;
+      top.map(([x,c])=>`<button type="button" class="tag clk" onclick="openNum('${x}',${digits})">${x} <b>${c}</b> kỳ</button>`).join("")+`</div>`;
   }
 
   // So sánh nhanh qua nhiều cỡ mẫu — số ổn định phải giữ tỉ lệ gần nền ở MỌI cột;
