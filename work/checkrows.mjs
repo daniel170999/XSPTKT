@@ -1,0 +1,2 @@
+const h=await(await fetch('https://xs.com.vn/xsmb-ngay-3-8-2026.html')).text();console.log(h.length,h.match(/<title>(.*?)<\/title>/i)?.[1],h.indexOf('xsmb_'));const t=h.match(/<table\b[^>]*id=xsmb_[^>]*>([\s\S]*?)<\/table>/i)?.[1];const rows=[...t.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)].map(m=>m[1]);console.log(rows.length,rows.map((r,i)=>[i,(r.match(/data-value=/g)||[]).length,r.slice(0,80)]));
+console.log(h.match(/<table[^>]*id=xsmb_/i)?.[0]);

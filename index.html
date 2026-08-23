@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kết Số — XSMB / XSMN — Thống kê 2 số & 3 số đuôi</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0f1a">
+<style>
+:root{
+  --bg:#0b0f1a; --bg2:#0e1422; --card:#151d2f; --card2:#1b2438; --line:#26314a;
+  --txt:#e9edf5; --dim:#8e9bb5; --dim2:#68758f;
+  --acc:#4d9dff; --acc2:#2d7ae0; --hot:#ff5f6d; --gold:#ffc857; --ok:#38d996; --warn:#ffa94d;
+  --r:14px; --sh:0 2px 12px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--txt);font:14px/1.55 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;padding-bottom:80px;overflow-x:hidden}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+button,input,select{font-family:inherit}
+
+/* ---------- header ---------- */
+header{position:sticky;top:0;z-index:60;background:rgba(11,15,26,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.hbar{display:flex;align-items:center;gap:12px;padding:10px 0;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;letter-spacing:-.2px;white-space:nowrap}
+.brand .lg{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--acc),#9b6dff);display:grid;place-items:center;font-size:15px}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;color:var(--dim);padding:6px 16px;border-radius:8px;font-size:13.5px;font-weight:700;cursor:pointer;transition:.15s}
+.seg button.on{background:var(--acc);color:#04101f}
+.seg button:not(.on):hover{color:var(--txt)}
+.hspace{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;font-size:12px;font-weight:700;border:1px solid var(--line);background:var(--card);color:var(--dim);cursor:pointer;white-space:nowrap}
+.pill.live{background:rgba(56,217,150,.1);color:var(--ok);border-color:rgba(56,217,150,.35)}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.searchbox{position:relative;flex:1 1 360px;max-width:520px;min-width:230px}
+.searchbox input{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 14px 10px 42px;font-size:16px;outline:none;width:100%;height:44px;transition:.15s}
+.searchbox input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(77,157,255,.14)}
+.searchbox .ic{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--dim2);font-size:16px;pointer-events:none}
+
+/* ---------- nav ---------- */
+nav{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--line);scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--dim);padding:11px 16px;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s}
+nav button.on{color:var(--txt);border-bottom-color:var(--acc)}
+nav button:hover{color:var(--txt)}
+
+/* ---------- filter bar ---------- */
+.filters{background:var(--bg2);border-bottom:1px solid var(--line);padding:10px 0}
+.frow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:7px}
+.frow:last-child{margin-bottom:0}
+.flab{font-size:10.5px;color:var(--dim2);font-weight:800;letter-spacing:.7px;text-transform:uppercase;min-width:62px}
+/* Nhóm chip phải tự xuống dòng, nếu không thanh 21 đài sẽ kéo tràn ngang cả trang */
+#fScope,#fDigit,#fWin,#fProv,#btDays,#btWin{display:flex;flex-wrap:wrap;gap:7px;flex:1 1 auto;min-width:0}
+.chip{padding:5px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:12.5px;user-select:none;white-space:nowrap;transition:.12s;color:var(--dim)}
+.chip:hover{color:var(--txt);border-color:#36436a}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#04101f;font-weight:700}
+.chip.dis{opacity:.3;pointer-events:none}
+.chip small{opacity:.65;font-size:10.5px}
+input[type=date]{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:5px 9px;font-size:12.5px;outline:none;color-scheme:dark}
+input[type=date]:focus{border-color:var(--acc)}
+input[type=text]{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:5px 9px;font-size:12.5px;outline:none}
+input[type=text]:focus{border-color:var(--acc)}
+
+/* ---------- layout ---------- */
+.view{display:none;padding-top:20px}
+.view.on{display:block}
+section{margin-bottom:24px}
+.stitle{font-size:15.5px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ssub{font-size:12.5px;color:var(--dim);margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+/* Ô grid mặc định min-width:auto nên bị bảng bên trong kéo rộng ra, đẩy tràn cả trang.
+   min-width:0 cho phép ô co lại, bảng tự cuộn ngang trong .scrolly của nó. */
+.grid2>*,.grid3>*{min-width:0}
+@media(max-width:880px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* ---------- hero dự đoán ---------- */
+.hero{background:linear-gradient(135deg,#16203a,#141a2c);border:1px solid var(--line);border-radius:var(--r);padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.hero .big{font-size:21px;font-weight:800;letter-spacing:-.3px}
+.hero .sm{font-size:12.5px;color:var(--dim)}
+.cd{margin-left:auto;text-align:right}
+.cd .t{font-size:24px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.cd .l{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px}
+
+/* ---------- nút chọn nhanh ---------- */
+.quick{background:linear-gradient(135deg,#1a2440,#171c2e);border:1px solid var(--line);
+  border-radius:var(--r);padding:18px 20px;margin-bottom:18px}
+.qhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.qhead .t{font-size:15.5px;font-weight:800}
+.qbtn{background:linear-gradient(135deg,var(--acc),#7b6dff);color:#04101f;border:0;border-radius:11px;
+  padding:11px 22px;font-size:14.5px;font-weight:800;cursor:pointer;transition:.15s;white-space:nowrap}
+.qbtn:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.qout{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.qn{background:var(--card2);border:2px solid var(--acc);border-radius:14px;padding:10px 20px;
+  font-size:38px;font-weight:900;letter-spacing:3px;color:var(--gold);line-height:1.05;
+  font-variant-numeric:tabular-nums;cursor:pointer;transition:.13s}
+.qn:hover{border-color:var(--gold);transform:translateY(-2px)}
+.qmeta{font-size:12.5px;color:var(--dim);line-height:1.65;flex:1;min-width:210px}
+.qmeta b{color:var(--txt)}
+.qcfg{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:14px;
+  padding-bottom:12px;border-bottom:1px solid var(--line)}
+.qcfg .flab{min-width:auto;font-size:10px}
+.qacts{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.qbtn:disabled{background:rgba(56,217,150,.16);color:var(--ok);cursor:default;filter:none;transform:none}
+.qwhy{margin-top:12px;padding:11px 14px;border-radius:10px;background:rgba(0,0,0,.22);
+  font-size:12px;color:var(--dim);line-height:1.7}
+.qwhy summary{cursor:pointer;color:var(--txt);font-weight:750;list-style:none}
+.qwhy summary::-webkit-details-marker{display:none}
+.qwhy summary::before{content:"＋";display:inline-block;width:18px;color:var(--acc)}
+.qwhy[open] summary::before{content:"−"}
+.qwhybody{padding-top:9px;margin-top:9px;border-top:1px solid var(--line)}
+.qwhy b{color:var(--txt)}
+.qwhy .ok{color:var(--ok);font-weight:700}
+.qwhy .wn{color:var(--warn);font-weight:700}
+
+/* ---------- panel dự đoán ---------- */
+.predhead{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.predlabel{font-size:12px;color:var(--dim);font-weight:700}
+.badge{padding:3px 10px;border-radius:7px;font-size:11px;font-weight:800;letter-spacing:.4px}
+.badge.b2{background:rgba(77,157,255,.15);color:var(--acc)}
+.badge.b3{background:rgba(155,109,255,.16);color:#b08cff}
+.kpi{margin-left:auto;text-align:right;font-size:11.5px;color:var(--dim);line-height:1.35}
+.kpi b{display:block;font-size:17px;color:var(--ok);font-weight:800}
+
+.nums{display:grid;gap:9px}
+.nums.n2{grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}
+.nums.n3{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.nb{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:11px 12px;cursor:pointer;position:relative;transition:.13s;overflow:hidden}
+.nb:hover{border-color:var(--acc);transform:translateY(-1px)}
+.nb .rk{position:absolute;top:7px;right:9px;font-size:10px;color:var(--dim2);font-weight:700}
+.nb .v{font-size:27px;font-weight:800;letter-spacing:1.5px;line-height:1.1;color:var(--gold);font-variant-numeric:tabular-nums}
+.nb.p1 .v{color:var(--hot)}
+.nb .mt{font-size:10.5px;color:var(--dim);margin-top:3px;line-height:1.4}
+.nb .mt b{color:var(--txt)}
+.nb .lift{display:inline-block;padding:1px 6px;border-radius:5px;font-size:10px;font-weight:800;margin-top:5px}
+.lift.up{background:rgba(56,217,150,.14);color:var(--ok)}
+.lift.flat{background:rgba(142,155,181,.13);color:var(--dim)}
+.lift.dn{background:rgba(255,95,109,.13);color:var(--hot)}
+
+.dan{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:14px;padding-top:13px;border-top:1px solid var(--line);font-size:12.5px;color:var(--dim)}
+.dan .chip{font-size:12px}
+.histonly{margin-left:auto;color:var(--dim2);font-size:11.5px}
+.copy{margin-left:auto;background:var(--card2);border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:600}
+.copy:hover{color:var(--txt);border-color:var(--acc)}
+
+/* ---------- honesty ---------- */
+.honest{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--warn);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--dim);line-height:1.6}
+.honest b{color:var(--txt)}
+.honest .tag{color:var(--warn);font-weight:800}
+.moreStats{margin-top:18px}
+.moreStats summary{cursor:pointer;color:var(--dim);font-weight:750;font-size:13px;list-style:none;padding:9px 2px}
+.moreStats summary::before{content:"＋";display:inline-block;width:20px;color:var(--acc)}
+.moreStats[open] summary::before{content:"−"}
+.moreStats[open] summary{color:var(--txt)}
+.pinExcl{margin-top:0}
+.pinExcl summary{cursor:pointer;list-style:none;font-size:13px;font-weight:800;color:var(--dim)}
+.pinExcl summary::-webkit-details-marker{display:none}
+.pinExcl summary::before{content:"＋";display:inline-block;width:20px;color:var(--acc)}
+.pinExcl[open] summary::before{content:"−"}
+.pinExcl[open] summary{color:var(--txt);margin-bottom:14px}
+
+/* ---------- heat map ---------- */
+.hm{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+@media(max-width:620px){.hm{grid-template-columns:repeat(5,1fr)}}
+.hm3{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:5px}
+.cl{border-radius:8px;text-align:center;padding:8px 2px 6px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.07);transition:transform .09s,box-shadow .09s;position:relative}
+.cl:hover{transform:scale(1.16);box-shadow:0 4px 16px rgba(0,0,0,.55);z-index:3;
+  border-color:rgba(255,255,255,.7)}
+.cl .n{font-weight:900;font-size:16px;font-variant-numeric:tabular-nums;letter-spacing:.5px;line-height:1.1}
+.cl .c{font-size:10px;font-weight:700;opacity:.85;margin-top:1px}
+/* ô lệch mạnh khỏi trung bình được viền nổi bật */
+.cl.mark::after{content:"";position:absolute;inset:-1px;border-radius:8px;
+  border:2px solid rgba(255,255,255,.85);pointer-events:none}
+.hmleg{margin-top:14px}
+.hmbar{display:flex;height:14px;border-radius:5px;overflow:hidden}
+.hmbar i{flex:1}
+.hmtick{display:flex;justify-content:space-between;font-size:10.5px;color:var(--dim2);margin-top:4px}
+.hmnote{font-size:11.5px;color:var(--dim);margin-top:9px;line-height:1.6}
+.hmnote b{color:var(--txt)}
+
+/* ---------- table ---------- */
+.tw{overflow-x:auto;border-radius:10px}
+/* Bảng dài phải tự cuộn ngang trong khung của nó — không được đẩy tràn cả trang */
+.scrolly{max-height:520px;overflow-y:auto;overflow-x:auto;border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--dim);font-weight:700;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--card);z-index:2;font-size:11.5px}
+th:hover{color:var(--txt)}
+tbody tr{cursor:pointer;transition:.1s}
+tbody tr:hover{background:var(--card2)}
+td.n{font-weight:800;color:var(--gold);font-size:14px;letter-spacing:1px;font-variant-numeric:tabular-nums}
+.cold{color:#7fb3ff}.warm{color:var(--hot)}.good{color:var(--ok)}
+
+/* ---------- bars ---------- */
+.bar2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:700px){.bar2{grid-template-columns:1fr}}
+.br{display:flex;align-items:center;gap:8px;margin:3px 0}
+.br .l{width:20px;color:var(--dim);font-weight:800;text-align:center;font-size:12px}
+.br .t{flex:1;height:15px;background:var(--card2);border-radius:4px;overflow:hidden}
+.br .t i{display:block;height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc));border-radius:4px}
+.br .v{width:52px;font-size:10.5px;color:var(--dim);text-align:right}
+.hz{display:flex;gap:2px;align-items:flex-end;height:92px;padding:8px 4px 0;background:var(--card2);border-radius:10px}
+.hz .b{flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;height:100%;cursor:default}
+.hz .b i{display:block;background:var(--acc);border-radius:2px 2px 0 0;min-height:2px}
+.hz .b.dim i{background:#2f3a55}
+.hzx{display:flex;gap:2px;font-size:9px;color:var(--dim2);padding:3px 4px 0}
+/* min-width:0 để 31 nhãn không đẩy tràn trang trên màn hình hẹp */
+.hzx span{flex:1 1 0;min-width:0;text-align:center;overflow:hidden}
+
+/* ---------- modal ---------- */
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:32px 12px;overflow-y:auto;backdrop-filter:blur(3px)}
+.mbg.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:16px;max-width:700px;width:100%;padding:22px;box-shadow:var(--sh)}
+.mhead{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
+.mhead .big{font-size:38px;font-weight:900;letter-spacing:3px;color:var(--gold);line-height:1;font-variant-numeric:tabular-nums}
+.mhead .meta{font-size:12px;color:var(--dim);padding-top:5px}
+.x{margin-left:auto;cursor:pointer;color:var(--dim);font-size:19px;padding:2px 8px;border-radius:7px;line-height:1}
+.x:hover{color:var(--txt);background:var(--card2)}
+.ms{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin-bottom:16px}
+.ms div{background:var(--card2);border-radius:10px;padding:9px 11px;font-size:10.5px;color:var(--dim);line-height:1.3}
+.ms b{display:block;font-size:16px;color:var(--txt);font-weight:800;margin-top:1px}
+.mh{font-size:11px;color:var(--dim2);font-weight:800;letter-spacing:.7px;text-transform:uppercase;margin:16px 0 8px}
+.sig{width:100%;font-size:12.5px;table-layout:fixed}
+/* Bảng giải nghĩa chứa câu dài — phải xuống dòng, không dùng nowrap chung của table */
+.sig td{padding:4px 8px;border-bottom:1px solid var(--line);white-space:normal;word-break:break-word}
+.sig td:first-child{text-align:left;color:var(--dim)}
+.sig tr.tot td{border-bottom:0;padding-top:8px}
+.sig tr.tot td:first-child{color:var(--txt);font-weight:800}
+.dw{display:flex;gap:5px}
+.dw .d{flex:1;text-align:center;font-size:10px;color:var(--dim)}
+.dw .d .t{height:42px;display:flex;align-items:flex-end;background:var(--card2);border-radius:5px;overflow:hidden;margin-bottom:3px}
+.dw .d .t i{display:block;width:100%;background:var(--acc)}
+.dw .d.hl .t i{background:var(--gold)}
+.dw .d b{color:var(--txt)}
+.gp{display:flex;gap:2px;align-items:flex-end;height:52px;background:var(--card2);border-radius:8px;padding:5px 6px 2px}
+.gp i{flex:1;background:var(--acc);border-radius:2px 2px 0 0;min-width:2px;min-height:2px}
+.gp i.hl{background:var(--gold)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;max-height:160px;overflow-y:auto}
+.tag{background:var(--card2);border-radius:7px;padding:3px 9px;font-size:11px;color:var(--dim)}
+.tag b{color:var(--txt)}
+.tag.clk{cursor:pointer;border:1px solid var(--line)}
+.tag.clk:hover{border-color:var(--acc);color:var(--txt)}
+
+/* ---------- misc ---------- */
+.btn{background:var(--acc);color:#04101f;border:0;border-radius:9px;padding:8px 18px;font-size:13px;font-weight:800;cursor:pointer;transition:.15s}
+.btn:hover{background:var(--acc2)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.g{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
+.stats3{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:11px;margin-top:12px}
+.stats3 .b{background:var(--card2);border-radius:11px;padding:12px 14px;font-size:11.5px;color:var(--dim)}
+.stats3 .b b{display:block;font-size:22px;color:var(--txt);font-weight:800;margin:2px 0}
+.up{color:var(--ok)}.dn{color:var(--hot)}
+.err{background:rgba(255,95,109,.1);border:1px solid rgba(255,95,109,.35);color:#ffbcc1;padding:18px;border-radius:12px;line-height:1.8}
+code{background:var(--card2);padding:2px 7px;border-radius:5px;font-size:12px;color:var(--gold)}
+.empty{color:var(--dim2);font-size:13px;padding:24px;text-align:center;white-space:normal}
+.foot{color:var(--dim2);font-size:11.5px;line-height:1.7;border-top:1px solid var(--line);padding-top:16px;margin-top:34px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:10px 20px;border-radius:10px;font-size:13px;z-index:200;transition:.25s;opacity:0;box-shadow:var(--sh)}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.jdel{color:var(--dim2);cursor:pointer;padding:0 5px;border-radius:5px}
+.jdel:hover{color:var(--hot);background:var(--card2)}
+
+/* ---------- tooltip dấu ! ---------- */
+sup.info{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;
+  border-radius:50%;background:rgba(77,157,255,.16);border:1px solid rgba(77,157,255,.5);
+  color:var(--acc);font-size:10.5px;font-weight:900;cursor:help;margin-left:4px;
+  vertical-align:middle;line-height:1;user-select:none;font-style:normal}
+sup.info:hover{background:var(--acc);color:#04101f}
+#tipPop{display:none;position:absolute;z-index:300;background:#1e2740;border:1px solid #3a4a75;
+  border-radius:12px;padding:13px 15px;font-size:12.5px;color:var(--dim);line-height:1.65;
+  box-shadow:0 8px 28px rgba(0,0,0,.55)}
+#tipPop b{color:var(--gold);font-size:13px}
+
+/* ---------- banner cảnh báo dữ liệu cũ ---------- */
+.stale{border-radius:var(--r);padding:14px 18px;margin:16px 0 0;font-size:13px;line-height:1.75;
+  display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.stale.warn{background:rgba(255,169,77,.12);border:1px solid rgba(255,169,77,.45);color:#ffd9a8}
+.stale.bad{background:rgba(255,95,109,.12);border:1px solid rgba(255,95,109,.5);color:#ffbcc1}
+.stale b{color:#fff}
+.stale .ico{font-size:19px;line-height:1.3}
+.stale .act{margin-left:auto;display:flex;gap:7px;flex-wrap:wrap}
+.pill.on{background:rgba(56,217,150,.14);color:var(--ok);border-color:rgba(56,217,150,.45)}
+
+/* ---------- banner hướng dẫn lần đầu ---------- */
+.guide{background:linear-gradient(135deg,rgba(77,157,255,.12),rgba(155,109,255,.08));
+  border:1px solid rgba(77,157,255,.35);border-radius:var(--r);padding:15px 18px;margin-bottom:16px;
+  font-size:13px;color:var(--dim);line-height:1.8}
+.guide b{color:var(--txt)}
+.guide .num{display:inline-flex;width:20px;height:20px;border-radius:50%;background:var(--acc);
+  color:#04101f;font-weight:800;font-size:11.5px;align-items:center;justify-content:center;margin-right:6px}
+@media(max-width:620px){
+  .wrap{padding:0 12px}
+  .hbar{gap:8px;padding:8px 0}
+  .brand{font-size:14px}
+  .brand .lg{width:26px;height:26px}
+  .seg button{padding:6px 12px}
+  .searchbox{order:3;flex-basis:100%;min-width:0;max-width:none}
+  .searchbox input{height:48px;font-size:16px}
+  .hspace{display:none}
+  #liveP{font-size:10.5px;padding:4px 8px}
+  nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+  nav button{min-width:0;padding:9px 3px;font-size:10.5px;white-space:normal;line-height:1.25}
+  .filters{padding:7px 0}
+  .filters .frow{gap:5px;margin-bottom:5px}
+  .filters .flab{min-width:46px}
+  #fWin,#fProv{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+  #fWin::-webkit-scrollbar,#fProv::-webkit-scrollbar{display:none}
+  #fWin .chip,#fProv .chip{flex:0 0 auto}
+  .view{padding-top:12px}
+  .guide{padding:10px 12px;margin-bottom:12px;line-height:1.65}
+  .hero{padding:12px 14px;margin-bottom:12px;gap:8px}
+  .hero .big{font-size:18px}
+  .hero .sm{font-size:11.5px}
+  .cd .t{font-size:19px}
+  .quick{padding:14px;margin-bottom:14px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="hbar">
+      <div class="brand"><span class="lg">🎯</span>Soi XS</div>
+      <div class="seg" id="regSeg">
+        <button data-r="MB">XSMB</button>
+        <button data-r="MN">XSMN</button>
+      </div>
+      <div class="searchbox"><span class="ic">🔍</span><input id="gs" type="search" aria-label="Soi số 2 hoặc 3 chữ số" placeholder="Nhập số cần soi — ví dụ 68 hoặc 668" maxlength="3" inputmode="numeric"></div>
+      <div class="hspace"></div>
+      <span class="pill live" id="liveP" title="Dữ liệu được cập nhật tự động mỗi ngày">● Cập nhật hằng ngày</span>
+    </div>
+    <nav id="nav">
+      <button data-v="pred" class="on">🎯 Hôm nay</button>
+      <button data-v="ana">📊 Thống kê</button>
+      <button data-v="cross">🔗 2 Miền</button>
+      <button data-v="verify">🧪 Kiểm chứng</button>
+    </nav>
+  </div>
+</header>
+
+<div class="filters"><div class="wrap">
+  <div class="frow"><span class="flab">Giải</span><span id="fScope"></span>
+    <span class="flab" style="margin-left:8px">Số đuôi</span><span id="fDigit"></span></div>
+  <div class="frow"><span class="flab">Mẫu</span><span id="fWin"></span></div>
+  <div class="frow" id="fProvRow" style="display:none"><span class="flab">Đài</span><span id="fProv"></span></div>
+</div></div>
+
+<div class="wrap">
+  <div id="staleBar" style="display:none"></div>
+  <div id="noData" style="display:none" class="err">
+    <b>Chưa có dữ liệu.</b><br>Bấm đúp <code>TaiDuLieu.bat</code> trong thư mục app để tải toàn bộ lịch sử, sau đó mở lại trang này.
+  </div>
+
+  <!-- ============ DỰ ĐOÁN ============ -->
+  <div class="view on" id="v-pred">
+    <div id="guideB"></div>
+    <div class="hero" id="hero"></div>
+    <div class="quick" id="quick"></div>
+    <details class="quick pinExcl" id="pinExclWrap">
+      <summary>🎯 Tùy chọn ghim / loại số</summary>
+      <div class="qhead"><span style="font-size:12px;color:var(--dim)">Áp dụng cho dàn ⚡ ở trên · không đổi cách xếp hạng</span></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="flab">Luôn có (ghim)</span>
+        <input type="text" id="pinIn" placeholder="vd: 79 25">
+        <button class="btn g" id="pinAddBtn">+ Ghim</button>
+      </div>
+      <div id="pinChips" style="margin:8px 0 2px;display:flex;gap:6px;flex-wrap:wrap"></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <span class="flab">Không lấy (loại)</span>
+        <input type="text" id="exclIn" placeholder="vd: 13 44">
+        <button class="btn g" id="exclAddBtn">+ Loại</button>
+      </div>
+      <div id="exclChips" style="margin:8px 0 2px;display:flex;gap:6px;flex-wrap:wrap"></div>
+      <div style="font-size:11px;color:var(--dim2);margin-top:6px">
+        Ghim đứng đầu dàn — nếu ghim nhiều hơn số lượng "Lấy" ở trên, app vẫn hiện đủ số đã ghim.
+        Nhập đúng độ dài số đang chọn (2 hoặc 3 chữ số), cách nhau bằng dấu cách.
+      </div>
+    </details>
+    <details class="moreStats">
+      <summary>Xem bảng lịch sử và cách app kiểm chứng số liệu</summary>
+      <div class="grid2" style="margin:8px 0 20px">
+        <div class="card" id="pred2"></div>
+        <div class="card" id="pred3"></div>
+      </div>
+      <div class="honest" id="honest"></div>
+    </details>
+  </div>
+
+  <!-- ============ PHÂN TÍCH SÂU (gộp Bảng số + Gan & Chu kỳ + Cầu & Mẫu) ============ -->
+  <div class="view" id="v-ana">
+    <div class="frow" style="margin-bottom:16px"><span class="flab">Xem gì</span><span id="anaChips"></span></div>
+
+    <div id="sub-board">
+    <section>
+      <div class="stitle" id="hmTitle">🌡️ Bản đồ nhiệt</div>
+      <div class="ssub">Màu càng nóng = số ngày xuất hiện càng nhiều trong mẫu. Bấm ô bất kỳ để soi chi tiết.</div>
+      <div class="card">
+        <div class="frow" style="margin-bottom:12px">
+          <span class="flab">Tô màu theo</span><span id="hmMode"></span>
+        </div>
+        <div id="heat"></div>
+        <div id="hmLegend"></div>
+      </div>
+    </section>
+    <section class="grid2">
+      <div class="card">
+        <div class="stitle">🔥 Nóng nhất</div>
+        <div class="ssub">Xuất hiện nhiều ngày nhất — kèm khoảng tin cậy 95%</div>
+        <div class="scrolly" style="max-height:400px"><table id="tHot"></table></div>
+      </div>
+      <div class="card">
+        <div class="stitle">❄️ Ra ít nhất</div>
+        <div class="ssub">Tổng số lần ra thấp nhất cả giai đoạn (khác "gan" = lâu chưa ra tính từ hôm nay)</div>
+        <div class="scrolly" style="max-height:400px"><table id="tCold"></table></div>
+      </div>
+    </section>
+    <section id="secHT">
+      <div class="stitle">🔢 Phân bố Đầu – Đuôi</div>
+      <div class="ssub">Tổng lần ra theo chữ số đầu và chữ số cuối</div>
+      <div class="card bar2">
+        <div><div style="color:var(--dim);font-size:12px;margin-bottom:8px">ĐẦU</div><div id="bHead"></div></div>
+        <div><div style="color:var(--dim);font-size:12px;margin-bottom:8px">ĐUÔI</div><div id="bTail"></div></div>
+      </div>
+    </section>
+    <section>
+      <div class="stitle">📋 Bảng đầy đủ
+        <input id="tf" class="chip" style="margin-left:auto;padding:6px 12px;background:var(--card2);color:var(--txt);width:130px" placeholder="Lọc số…">
+      </div>
+      <div class="ssub">Bấm tiêu đề cột để sắp xếp · bấm dòng để soi chi tiết</div>
+      <div class="card" style="padding:0"><div class="scrolly" style="max-height:560px"><table id="tFull"></table></div></div>
+    </section>
+    </div>
+
+    <div id="sub-gap" style="display:none">
+    <section class="grid2">
+      <div class="card">
+        <div class="stitle">🧊 Đang gan lâu nhất</div>
+        <div class="ssub">Chưa ra bao nhiêu ngày tính tới kỳ gần nhất</div>
+        <div class="scrolly" style="max-height:420px"><table id="tGan"></table></div>
+      </div>
+      <div class="card">
+        <div class="stitle">🏆 Kỷ lục nhịn lâu nhất</div>
+        <div class="ssub">Khoảng nhịn dài nhất của từng số từng ghi nhận trong lịch sử</div>
+        <div class="scrolly" style="max-height:420px"><table id="tMaxGap"></table></div>
+      </div>
+    </section>
+    <section class="grid2">
+      <div class="card">
+        <div class="stitle">⚡ Về sát nhau nhất / nhịp dày</div>
+        <div class="ssub">Bình quân ít kỳ nhất giữa 2 lần về — số "về dày" nhất</div>
+        <div class="scrolly" style="max-height:420px"><table id="tMinGap"></table></div>
+      </div>
+      <div class="card">
+        <div class="stitle">🎯 Đều nhịp nhất</div>
+        <div class="ssub">Nhịp về đều đặn nhất — nhưng nhớ: đều trong quá khứ không hứa hẹn gì cho kỳ tới</div>
+        <div class="scrolly" style="max-height:420px"><table id="tRhythm"></table></div>
+      </div>
+    </section>
+    <section>
+      <div class="stitle">📉 Tỉ lệ lịch sử sau từng mức gap <sup class="info" data-tip="hazard">!</sup></div>
+      <div class="ssub">Đo từ các khoảng chờ đã quan sát; chỉ dùng vùng g≤25 còn ít nhất 200 mẫu. Cột ngang nhau → chờ lâu không làm dễ ra hơn.</div>
+      <div class="card">
+        <div id="hzChart"></div>
+        <div id="hzNote" style="color:var(--dim);font-size:12px;margin-top:10px;line-height:1.6"></div>
+      </div>
+    </section>
+    </div>
+
+    <div id="sub-pattern" style="display:none">
+    <section class="grid2">
+      <div class="card">
+        <div class="stitle">🪂 Lặp lại kỳ trước — số về kỳ trước <sup class="info" data-tip="carry">!</sup></div>
+        <div class="ssub" id="carrySub"></div>
+        <div class="scrolly" style="max-height:400px"><table id="tCarry"></table></div>
+      </div>
+      <div class="card">
+        <div class="stitle">📅 Theo thứ trong tuần</div>
+        <div class="ssub" id="dowSub">Số nào hay về đúng thứ của kỳ tới</div>
+        <div class="scrolly" style="max-height:400px"><table id="tDow"></table></div>
+      </div>
+    </section>
+    <section class="grid2">
+      <div class="card">
+        <div class="stitle">👥 Cặp số đi cùng nhau <sup class="info" data-tip="pair">!</sup></div>
+        <div class="ssub">Hai số hay xuất hiện chung một ngày nhiều hơn mức ngẫu nhiên</div>
+        <div class="scrolly" style="max-height:400px"><table id="tPair"></table></div>
+      </div>
+      <div class="card">
+        <div class="stitle">🔁 So sánh nóng gần vs dài hạn <sup class="info" data-tip="momentum">!</sup></div>
+        <div class="ssub">Số đang tăng tốc mạnh nhất: tần suất 30 kỳ gần so với toàn mẫu</div>
+        <div class="scrolly" style="max-height:400px"><table id="tMomentum"></table></div>
+      </div>
+    </section>
+    <section id="secKep">
+      <div class="stitle">🧩 Nhóm mẫu số</div>
+      <div class="ssub">Tỉ lệ thực tế so với tỉ lệ lý thuyết của từng nhóm</div>
+      <div class="card"><div class="tw"><table id="tGroup"></table></div></div>
+    </section>
+    </div>
+  </div>
+
+  <!-- ============ 2 MIỀN ============ -->
+  <div class="view" id="v-cross">
+    <section>
+      <div class="stitle">📡 Hôm nay — hai miền</div>
+      <div class="ssub">XSMN quay 16:15, XSMB quay 18:15. Sau 16:15 bạn đã biết trước kết quả miền Nam khi miền Bắc chưa quay.</div>
+      <div id="crossToday"></div>
+    </section>
+    <section>
+      <div class="stitle">🔬 Biết XSMN chiều có đoán được XSMB tối không?</div>
+      <div class="ssub">Đo trực tiếp trên mọi ngày có đủ cả hai miền — đây là câu hỏi đáng tiền nhất của app</div>
+      <div class="card" id="crossTest"></div>
+    </section>
+    <section>
+      <div class="stitle">📊 Thống kê gộp cả hai miền</div>
+      <div class="ssub">Cộng dồn số đuôi của XSMN và XSMB trong cùng ngày</div>
+      <div class="card" id="crossMerge"></div>
+    </section>
+  </div>
+
+  <!-- ============ KIỂM CHỨNG ============ -->
+  <div class="view" id="v-verify">
+    <section>
+      <div class="stitle">🧪 Backtest — công thức này có hơn chọn bừa không? <sup class="info" data-tip="bttest">!</sup></div>
+      <div class="ssub">Kiểm tra bảng xếp hạng thử nghiệm: mỗi ngày chỉ dùng dữ liệu có trước ngày đó, rồi đối chiếu kết quả thật.</div>
+      <div class="card">
+        <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+          <span class="flab" style="min-width:auto">Số kỳ mô phỏng</span><span id="btDays"></span>
+        </div>
+        <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+          <span class="flab" style="min-width:auto">Cửa sổ trượt</span><span id="btWin"></span>
+          <button class="btn" id="btRun" style="margin-left:auto">▶ Chạy backtest</button>
+        </div>
+        <div id="btOut" style="margin-top:12px"></div>
+      </div>
+    </section>
+    <section>
+      <div class="stitle">🎲 Kiểm định tính ngẫu nhiên <sup class="info" data-tip="chi2">!</sup></div>
+      <div class="ssub">Chi-square goodness-of-fit: dữ liệu thật có lệch khỏi phân phối đều không?</div>
+      <div class="card" id="chiOut"></div>
+    </section>
+  </div>
+
+  <!-- ============ TRỢ GIÚP (hướng dẫn + từ điển + dữ liệu) ============ -->
+  <div class="view" id="v-help">
+    <section>
+      <div class="stitle">🚀 Dùng app trong 2 phút</div>
+      <div class="card" id="howto"></div>
+    </section>
+    <section>
+      <div class="stitle">🔬 Sự thật đã kiểm chứng</div>
+      <div class="ssub">Các kết luận dưới đây được đo từ kho dữ liệu; cơ chế giám sát có link nguồn chính thức</div>
+      <div class="card" id="facts"></div>
+    </section>
+    <section>
+      <div class="stitle">📖 Từ điển chỉ số</div>
+      <div class="ssub">Mọi thuật ngữ trên app — bấm dấu <sup class="info" style="pointer-events:none">!</sup> ở bất kỳ đâu cũng ra giải thích này</div>
+      <div class="card" id="glossary"></div>
+    </section>
+    <section>
+      <div class="stitle">📚 Kho dữ liệu</div>
+      <div class="ssub">Nguồn, độ sâu và tình trạng cập nhật</div>
+      <div class="card" id="dataInfo"></div>
+    </section>
+    <section>
+      <div class="stitle">📜 Kết quả gần đây</div>
+      <div class="ssub">20 kỳ mới nhất của mẫu đang chọn</div>
+      <div class="card" style="padding:0"><div class="scrolly" style="max-height:520px"><table id="tRecent"></table></div></div>
+    </section>
+
+    <section>
+      <div class="stitle">💸 Máy tính kỳ vọng (EV) — nên chơi gì, tránh gì</div>
+      <div class="ssub">Nhập đúng luật của host bạn đang chơi. App tính bằng xác suất <b>đo được thật</b> từ dữ liệu, không phải ước lượng lý thuyết.</div>
+      <div class="card" id="evFormula"></div>
+      <div class="card" style="margin-top:12px">
+        <div class="frow" style="margin-bottom:0">
+          <span class="flab" style="min-width:auto">Đơn giá/con</span>
+          <input type="text" id="evUnit" value="10000" inputmode="numeric" style="width:90px">
+          <span class="flab" style="min-width:auto;margin-left:6px">tỉ lệ trả(2 số)</span>
+          <input type="text" id="evRatio2" value="80" inputmode="numeric" style="width:70px">
+          <span class="flab" style="min-width:auto;margin-left:6px">tỉ lệ trả(3 số)</span>
+          <input type="text" id="evRatio3" value="600" inputmode="numeric" style="width:70px">
+          <span class="flab" style="min-width:auto;margin-left:6px">Trả thưởng</span><span id="evMode"></span>
+        </div>
+      </div>
+      <div id="evTable" style="margin-top:12px"></div>
+    </section>
+  </div>
+
+  <div class="foot" id="foot"></div>
+</div>
+
+<div class="mbg" id="mbg"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+<div id="tipPop"></div>
+
+<script src="data/meta.js"></script>
+<script src="data/xsmb.js"></script>
+<script src="data/xsmn.js"></script>
+<script src="app.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "xs-live",
+      "runtimeExecutable": "py",
+      "runtimeArgs": ["serve.py"],
+      "port": 8368
+    }
+  ]
+}

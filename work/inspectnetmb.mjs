@@ -1,0 +1,1 @@
+const h=await(await fetch('https://xsmn.net/kqxs-ngay-3-8-2026')).text();console.log(h.length,h.match(/<title>(.*?)<\/title>/i)?.[1]);for(const k of ['XSMB','Giải bảy','G.Bảy','ĐB']){const i=h.indexOf(k);console.log(k,i,h.slice(Math.max(0,i-200),i+500))}

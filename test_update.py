@@ -1,0 +1,69 @@
+# -*- coding: utf-8 -*-
+import unittest
+
+from update import merge_xsmn_store, parse_xsmn_backup_page, parse_xsmn_page
+
+
+PRIMARY_HTML = """
+<table class="table table-bordered table-striped table-xsmn">
+<tr><th>Giải</th><th><a>Đồng Nai</a></th></tr>
+<tr><td>G.8</td><td><b>07</b></td></tr>
+<tr><td>G.7</td><td><b>123</b></td></tr>
+<tr><td>G.6</td><td><b>0001</b><b>0002</b><b>0003</b></td></tr>
+<tr><td>G.5</td><td><b>0004</b></td></tr>
+<tr><td>G.4</td><td><b>00005</b><b>00006</b><b>00007</b><b>00008</b><b>00009</b><b>00010</b><b>00011</b></td></tr>
+<tr><td>G.3</td><td><b>00012</b><b>00013</b></td></tr>
+<tr><td>G.2</td><td><b>00014</b></td></tr>
+<tr><td>G.1</td><td><b>00015</b></td></tr>
+<tr><td>G.ĐB</td><td><b>000016</b></td></tr>
+</table>
+"""
+
+BACKUP_HTML = """
+<table class="tbl-xsmn col3" id="MN0">
+<tr><th>Thứ 4<br>24/02</th><th><a href="/xsdn">Đồng Nai</a></th></tr>
+<tr><td>G.8</td><td><b>07</b></td></tr>
+<tr><td>G.7</td><td>123</td></tr>
+<tr><td>G.6</td><td>0001<br>0002<br>0003</td></tr>
+<tr><td>G.5</td><td>0004</td></tr>
+<tr><td>G.4</td><td>00005<br>00006<br>00007<br>00008<br>00009<br>00010<br>00011</td></tr>
+<tr><td>G.3</td><td>00012<br>00013</td></tr>
+<tr><td>G.2</td><td>00014</td></tr>
+<tr><td>G.1</td><td>00015</td></tr>
+<tr><td>ĐB</td><td><b>000016</b></td></tr>
+</table>
+"""
+
+
+class ParserTests(unittest.TestCase):
+    def assert_valid_draw(self, rows):
+        self.assertEqual(len(rows), 1)
+        province, nums = rows[0]
+        self.assertEqual(province, "Đồng Nai")
+        self.assertEqual(len(nums), 18)
+        self.assertEqual(nums[0], "07")
+        self.assertEqual(nums[-1], "000016")
+
+    def test_primary_xsmn_parser(self):
+        self.assert_valid_draw(parse_xsmn_page(PRIMARY_HTML))
+
+    def test_backup_xsmn_parser(self):
+        self.assert_valid_draw(parse_xsmn_backup_page(BACKUP_HTML))
+
+    def test_merge_never_downgrades_existing_draw(self):
+        old = {"2010-02-24": [["Dong Nai", ["1"]], ["Can Tho", ["2"]]]}
+        self.assertEqual(merge_xsmn_store(old, {"2010-02-24": []}), old)
+        same_size = {"2010-02-24": [["A", ["3"]], ["B", ["4"]]]}
+        self.assertEqual(merge_xsmn_store(old, same_size), old)
+
+        improved = {"2010-02-24": old["2010-02-24"] + [["Soc Trang", ["5"]]]}
+        self.assertEqual(len(merge_xsmn_store(old, improved)["2010-02-24"]), 3)
+
+    def test_merge_keeps_verified_empty_only_for_new_day(self):
+        merged = merge_xsmn_store({}, {"2008-01-02": []})
+        self.assertIn("2008-01-02", merged)
+        self.assertEqual(merged["2008-01-02"], [])
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,1 @@
+const t=await(await fetch('https://xoso.com.vn/xo-so-mien-bac/xsmb-p1.html')).text();console.log(t.length);console.log([...t.matchAll(/href=["']([^"']*xsmb[^"']*)["']/gi)].map(m=>m[1]).slice(0,50).join('\n'));
