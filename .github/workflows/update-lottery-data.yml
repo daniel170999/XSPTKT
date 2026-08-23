@@ -2,9 +2,10 @@ name: Cập nhật dữ liệu xổ số
 
 on:
   schedule:
-    # GitHub Actions dùng UTC. 17:37 và 19:37 giờ Việt Nam, sau hai kỳ quay.
-    - cron: "37 10 * * *"
-    - cron: "37 12 * * *"
+    # GitHub Actions dùng UTC. 16:42 và 18:42 giờ Việt Nam, sau hai kỳ quay.
+    # Chọn phút 42 để tránh cao điểm đầu giờ; lịch schedule vẫn có thể bị GitHub trì hoãn.
+    - cron: "42 9 * * *"
+    - cron: "42 11 * * *"
   workflow_dispatch:
 
 permissions:
