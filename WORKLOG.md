@@ -1,5 +1,29 @@
 # WORKLOG — Kết Số
 
+## 2026-08-25 — WP1: hệ thiết kế, font tiếng Việt và bảng kết quả tự dựng
+
+### Phạm vi đã làm
+
+- Dùng Be Vietnam Pro tự lưu trữ (400/600/700), có SIL OFL 1.1, `font-display: swap`, `unicode-range` và tổng WOFF2 dưới ngân sách.
+- Hợp nhất token sáng/tối theo ngữ nghĩa; thêm lựa chọn Sáng / Tối / Theo hệ thống, lưu cục bộ và chống nháy lúc tải trang.
+- Bỏ iframe cùng CSP `frame-src`; bảng kết quả mới nhất dựng từ kho dữ liệu của Kết Số, có polling `data/meta.js` trong giờ cập nhật và nút tải lại.
+- Thêm câu nguồn chuẩn dưới mỗi bảng kết quả, trang `/nguon-du-lieu/`, liên kết công bố của công ty xổ số kiến thiết, và cập nhật `privacy.html`.
+- Thêm `work/check_words.py` dùng ranh giới Unicode, chạy trong GitHub Actions trước crawler; dọn CSS iframe chết, emoji UI và các control <14px còn sót trên mobile/dark mode.
+- Không thay đổi `app.js`, công thức thống kê, scoring hoặc dữ liệu lịch sử.
+
+### Kiểm chứng có số liệu
+
+| Hạng mục | Kết quả |
+|---|---|
+| Font | Be Vietnam Pro 400/600/700 tải local, tổng **84.092 bytes** WOFF2 (ngân sách ≤92.160); `fonts/OFL.txt` có mặt |
+| Syntax + model | `node --check app.js`, `node --check ui.js`, `node test_model.cjs`: đạt |
+| Crawler unit | `py test_update.py`: **4/4 đạt** |
+| Liên kết UI | `node work/check-ui-ids.cjs`: **69** ID được gọi, **0** ID thiếu |
+| Quét source | `work/check_words.py`: đạt; `radial-gradient=0`, `backdrop-filter=0`, `iframe=0`, `minhngoc=0`, `prefers-color-scheme=4` |
+| Browser | 5 màn public × XSMN/XSMB tại **375px** và **1280px**: không tràn ngang; console **0 lỗi**. Đã chụp sáng/tối ở cả mobile và desktop; font load thành công |
+| Trang nguồn | `/nguon-du-lieu/` tải local, dùng font tự host và không có lỗi console |
+| Diff/config | `git diff --check` đạt; `vercel.json` parse JSON thành công |
+
 ## 2026-08-24 — WP0: làm sạch bản public và cô lập tệp nội bộ
 
 ### Phạm vi đã làm

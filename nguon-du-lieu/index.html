@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Nguồn dữ liệu | Kết Số</title>
+  <meta name="description" content="Nguồn kết quả, lịch cập nhật và cách Kết Số xử lý dữ liệu XSMN, XSMB.">
+  <meta name="robots" content="index,follow">
+  <link rel="icon" href="../icon.svg?v=2" type="image/svg+xml">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f8fb">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111821">
+  <script>try{const t=localStorage.getItem("xs_theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+  <style>
+    @font-face{font-family:"Be Vietnam Pro";font-style:normal;font-weight:400;font-display:swap;src:url("../fonts/be-vietnam-pro-400.woff2") format("woff2");unicode-range:U+0020-007E,U+00A0-00FF,U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+2000-206F,U+20AB,U+20AC,U+2122,U+2190-2193,U+2212,U+2215,U+FEFF,U+FFFD}
+    @font-face{font-family:"Be Vietnam Pro";font-style:normal;font-weight:600;font-display:swap;src:url("../fonts/be-vietnam-pro-600.woff2") format("woff2");unicode-range:U+0020-007E,U+00A0-00FF,U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+2000-206F,U+20AB,U+20AC,U+2122,U+2190-2193,U+2212,U+2215,U+FEFF,U+FFFD}
+    @font-face{font-family:"Be Vietnam Pro";font-style:normal;font-weight:700;font-display:swap;src:url("../fonts/be-vietnam-pro-700.woff2") format("woff2");unicode-range:U+0020-007E,U+00A0-00FF,U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+2000-206F,U+20AB,U+20AC,U+2122,U+2190-2193,U+2212,U+2215,U+FEFF,U+FFFD}
+    :root{color-scheme:light;--surface:#f6f8fb;--raised:#fff;--ink:#172234;--muted:#526278;--line:#d7e0ea;--accent:#0b6edc;--soft:#eef3f8}
+    @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--surface:#111821;--raised:#17212d;--ink:#f2f6fb;--muted:#bfccda;--line:#334354;--accent:#65a9ff;--soft:#202d3a}}
+    :root[data-theme="dark"]{color-scheme:dark;--surface:#111821;--raised:#17212d;--ink:#f2f6fb;--muted:#bfccda;--line:#334354;--accent:#65a9ff;--soft:#202d3a}
+    *{box-sizing:border-box}body{margin:0;background:var(--surface);color:var(--ink);font:16px/1.65 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{width:min(820px,calc(100% - 32px));margin:32px auto;background:var(--raised);border:1px solid var(--line);border-radius:16px;padding:clamp(24px,5vw,48px);box-shadow:0 12px 30px rgba(23,34,52,.10)}
+    a{color:var(--accent)}.brand{display:inline-flex;align-items:center;gap:10px;color:var(--ink);font-weight:700;text-decoration:none}.brand img{width:40px;height:40px}
+    h1{font-size:clamp(30px,6vw,44px);line-height:1.18;letter-spacing:-.01em;margin:28px 0 10px}h2{font-size:22px;margin:30px 0 8px}p{color:var(--muted);margin:8px 0}ul{padding-left:22px;color:var(--muted)}.note{background:var(--soft);border-left:4px solid var(--accent);padding:14px 16px;border-radius:8px;margin-top:24px}
+  </style>
+</head>
+<body>
+  <main>
+    <a class="brand" href="/"><img src="../icon.svg?v=2" alt=""><span>Kết Số</span></a>
+    <h1>Nguồn dữ liệu</h1>
+    <p>Kết Số tổng hợp các kết quả đã công bố để người xem tra cứu XSMN và XSMB theo ngày.</p>
+
+    <h2 id="thong-bao-chinh-thuc">Nguồn kết quả</h2>
+    <p>Kết quả do các công ty xổ số kiến thiết công bố, căn cứ biên bản của Hội đồng giám sát xổ số. Khi có khác biệt, kết quả chính thức lấy theo thông báo của công ty xổ số kiến thiết.</p>
+    <p><a href="https://www.xskthcm.com/" target="_blank" rel="noopener noreferrer">Mở website Công ty TNHH MTV Xổ số Kiến thiết TP.HCM</a></p>
+
+    <h2>Nhịp cập nhật</h2>
+    <p>Kho được kiểm tra sau giờ quay XSMN và XSMB. Trong thời gian cập nhật, trang Kết quả hiển thị trạng thái rõ ràng thay vì mô phỏng từng giải chưa có dữ liệu.</p>
+
+    <h2>Cách đọc dữ liệu</h2>
+    <p>Các bảng tần suất và khoảng cách chỉ mô tả kết quả đã xảy ra. Dữ liệu lịch sử không cho biết kết quả của kỳ tiếp theo.</p>
+
+    <h2>Phông chữ</h2>
+    <p>Website dùng Be Vietnam Pro, thiết kế cho tiếng Việt bởi BetterGUI, phát hành theo <a href="../fonts/OFL.txt">SIL Open Font License 1.1</a>. Các tệp font được tự lưu trữ cùng website.</p>
+
+    <div class="note">Bạn có thể quay lại <a href="/">trang Kết quả</a> bất cứ lúc nào.</div>
+  </main>
+</body>
+</html>

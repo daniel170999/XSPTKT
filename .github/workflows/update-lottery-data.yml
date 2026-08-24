@@ -23,6 +23,8 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+      - name: Kiểm tra ngôn ngữ công khai
+        run: python work/check_words.py
       - name: Tải kết quả mới
         run: python update.py --max-fetch 40
       - name: Chỉ commit khi dữ liệu thực sự đổi

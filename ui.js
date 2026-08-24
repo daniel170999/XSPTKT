@@ -172,19 +172,7 @@ function renderFilters(sl){
   } else pr.style.display="none";
 }
 
-/* ---------------- kết quả trực tiếp ---------------- */
-const LIVE_SOURCE={
-  MN:{
-    name:"Miền Nam", code:"XSMN",
-    embed:"https://www.minhngoc.net.vn/free/xo-so-truc-tiep/mien-nam.html",
-    source:"https://www.minhngoc.net.vn/xo-so-truc-tiep/mien-nam.html"
-  },
-  MB:{
-    name:"Miền Bắc", code:"XSMB",
-    embed:"https://www.minhngoc.net.vn/free/xo-so-truc-tiep/mien-bac.html",
-    source:"https://www.minhngoc.net.vn/xo-so-truc-tiep/mien-bac.html"
-  }
-};
+/* ---------------- kết quả mới nhất ---------------- */
 const VN_TIME_FMT=new Intl.DateTimeFormat("vi-VN",{
   timeZone:"Asia/Ho_Chi_Minh",hour:"2-digit",minute:"2-digit",hourCycle:"h23"
 });
@@ -195,48 +183,46 @@ function vnTime(){
   const parts=Object.fromEntries(VN_TIME_FMT.formatToParts(new Date()).map(p=>[p.type,p.value]));
   return {text:VN_TIME_FMT.format(new Date()), mins:Number(parts.hour)*60+Number(parts.minute)};
 }
+function vnIsoDate(){
+  const parts=Object.fromEntries(VN_DATE_FMT.formatToParts(new Date()).map(p=>[p.type,p.value]));
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
 function livePhase(region){
   const now=vnTime(), start=DRAW_TIME[region], open=start-10, close=start+55;
   if(now.mins>=open && now.mins<=close)
-    return {live:true,label:"Đang tường thuật trực tiếp",detail:"Bảng bên dưới tự nhận từng giải khi nguồn công bố"};
+    return {live:true,label:"Đang cập nhật dữ liệu",detail:"Kết quả hiển thị khi kho dữ liệu nhận được bản công bố."};
   if(now.mins<open){
     const left=open-now.mins;
     return left<=90
-      ? {live:false,label:`Sắp quay · còn khoảng ${left} phút`,detail:"Giữ trang này mở, bảng nguồn sẽ tự cập nhật"}
-      : {live:false,label:"Xem kết quả mới nhất",detail:`Kỳ ${region} thường bắt đầu lúc ${Math.floor(start/60)}:${pad(start%60,2)}`};
+      ? {live:false,label:`Sắp quay · còn khoảng ${left} phút`,detail:"Kết quả kỳ gần nhất vẫn đang hiển thị."}
+      : {live:false,label:"Xem kết quả mới nhất",detail:`Kỳ ${region} thường bắt đầu lúc ${Math.floor(start/60)}:${pad(start%60,2)}.`};
   }
-  return {live:false,label:"Kỳ hôm nay đã kết thúc",detail:"Bảng bên dưới đang hiển thị kết quả mới nhất"};
+  return {live:false,label:"Đang kiểm tra kết quả mới",detail:"Kết quả chính thức thường được cập nhật sau khi kỳ quay kết thúc."};
 }
-function setLiveFrame(region,force=false){
-  const frame=$("#liveFrame"), loading=$("#liveLoading"), src=LIVE_SOURCE[region];
-  if(!frame||(!force && frame.dataset.region===region)) return;
-  loading?.classList.remove("done");
-  if(loading) loading.lastChild.textContent="Đang kết nối bảng kết quả…";
-  frame.dataset.region=region;
-  frame.title=`Bảng kết quả ${src.code} trực tiếp từ Minh Ngọc`;
-  frame.src=src.embed;
-}
+const OFFICIAL_NOTICE={
+  MN:{href:"https://www.xskthcm.com/",label:"Mở trang công bố của Công ty Xổ số Kiến thiết TP.HCM"},
+  MB:{href:"https://xosohaiduong.vn/",label:"Mở trang công bố của Công ty Xổ số Kiến thiết Hải Dương"},
+};
 function updateLiveStatus(){
-  const src=LIVE_SOURCE[ST.region], phase=livePhase(ST.region), now=vnTime();
+  const phase=livePhase(ST.region), now=vnTime();
+  const latest=DB[ST.region].days.at(-1);
+  const waiting=now.mins>=DRAW_TIME[ST.region] && (!latest || latest.d<vnIsoDate());
   $("#liveClock").textContent=now.text;
-  $("#liveStatus").textContent=phase.label;
+  $("#liveStatus").textContent=waiting?"Kỳ hôm nay chưa có dữ liệu":phase.label;
   $("#liveSignal").classList.toggle("on",phase.live);
-  $("#liveTitle").textContent=`Kết quả xổ số ${src.name}`;
-  $("#liveLead").textContent=phase.detail+". Chọn Miền Nam hoặc Miền Bắc ở thanh phía trên.";
-  $("#liveBoardTitle").textContent=`Trực tiếp ${src.code} · ${VN_DATE_FMT.format(new Date())}`;
-  $("#liveBoardNote").textContent=ST.region==="MN"
-    ? "Bảng tự cập nhật khi các đài bắt đầu quay. Trên điện thoại, vuốt ngang trong bảng để xem đủ đài."
-    : "Bảng tự cập nhật từng giải khi miền Bắc bắt đầu quay; không cần tải lại cả website.";
-  $("#liveSource").href=src.source;
+  $("#liveTitle").textContent=`Kết quả xổ số ${ST.region==="MN"?"Miền Nam":"Miền Bắc"}`;
+  const source=OFFICIAL_NOTICE[ST.region];
+  $("#liveLead").innerHTML=waiting
+    ? `Kỳ hôm nay chưa có dữ liệu, thường cập nhật trong 15–30 phút sau giờ quay. <a href="${source.href}" target="_blank" rel="noopener noreferrer">${source.label}</a>.`
+    : `${phase.detail} Chọn Miền Nam hoặc Miền Bắc ở thanh phía trên.`;
   const p=$("#liveP");
   if(p){
-    p.innerHTML=`<span class="dot" aria-hidden="true"></span>${phase.live?"Đang quay":"Live hôm nay"}`;
-    p.title=`Mở bảng ${src.code} trực tiếp từ Minh Ngọc`;
+    p.innerHTML=`<span class="dot" aria-hidden="true"></span>${phase.live?"Đang cập nhật":"Kết quả hôm nay"}`;
+    p.title="Mở kết quả mới nhất";
   }
 }
 function renderLive(){
   updateLiveStatus();
-  setLiveFrame(ST.region);
   renderHomeResults();
   $("#v-live")?.classList.toggle("is-live",livePhase(ST.region).live);
 }
@@ -283,6 +269,7 @@ function renderResultSheet(region,day){
   return `<div class="result-sheet">
     <div class="result-meta"><h3>${area} · ${DOW_VN[day.w]}, ${fmtD(day.d)}</h3><span>${region==="MN"?`${day.draws.length} đài mở thưởng`:"Bảng kết quả đầy đủ"}</span></div>
     <div class="result-scroll">${table}</div>
+    <p class="result-source"><b>Nguồn:</b> kết quả do các công ty xổ số kiến thiết công bố, căn cứ biên bản của Hội đồng giám sát xổ số. Kết quả chính thức lấy theo thông báo của công ty xổ số kiến thiết.</p>
   </div>`;
 }
 function renderDateStrip(node,days,selected,onPick){
@@ -451,7 +438,7 @@ function renderFullTable(){
   const cols=[["t","Số"],["occ","Số lần"],["daysCnt","Số kỳ"],["p","Tỉ lệ"],["lift","So mức chung"],
               ["curGap","Khoảng hiện tại"],["maxGap","Dài nhất"],["minGap","Ngắn nhất"],["avgGap","Trung bình"],["last","Lần gần nhất"]];
   $("#tFull").innerHTML=
-    `<thead><tr>`+cols.map(([k,l])=>`<th onclick="setSort('${k}')">${l}${SORT.key===k?` <span style="font-size:9px">${SORT.dir<0?"▼":"▲"}</span>`:""}</th>`).join("")+`</tr></thead><tbody>`+
+    `<thead><tr>`+cols.map(([k,l])=>`<th onclick="setSort('${k}')">${l}${SORT.key===k?` <span style="font-size:14px">${SORT.dir<0?"▼":"▲"}</span>`:""}</th>`).join("")+`</tr></thead><tbody>`+
     rows.map(r=>`<tr onclick="openNum('${r.t}',${A.digits})"><td class="n">${r.t}</td><td>${r.occ}</td><td>${r.daysCnt}</td>
       <td>${pctS(r.p)}</td><td>×${A.pBase?(r.p/A.pBase).toFixed(2):"—"}</td><td>${r.curGap}</td><td>${r.maxGap}</td><td>${r.minGap==null?"—":r.minGap}</td>
       <td>${r.avgGap==null?"—":r.avgGap.toFixed(1)}</td><td>${r.last?fmtDS(r.last):"—"}</td></tr>`).join("")+
@@ -667,11 +654,11 @@ function renderCross(){
   // XSMN
   html+=`<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
       <span class="badge b2">XSMN</span><b>16:15</b>
-      <span style="margin-left:auto;font-size:12px;color:${mnToday?"var(--ok)":"var(--dim)"}">
+      <span style="margin-left:auto;font-size:14px;color:${mnToday?"var(--ok)":"var(--dim)"}">
         ${mnToday?"✓ đã có kết quả "+fmtD(today):"chưa quay / chưa có dữ liệu"}</span></div>`;
   if(mnToday){
     const ts=[...new Set(tailsOfDay(mnToday,"MN","all",dg,false))].sort();
-    html+=`<div style="font-size:12px;color:var(--dim);margin-bottom:8px">
+    html+=`<div style="font-size:14px;color:var(--dim);margin-bottom:8px">
       ${mnToday.draws.map(x=>x.p).join(" · ")} — <b style="color:var(--txt)">${ts.length}</b> số ${dg} chữ số riêng biệt:</div>
       <div class="tags">${ts.map(t=>`<button type="button" class="tag clk" onclick="openNum('${t}',${dg})">${t}</button>`).join("")}</div>`;
   } else html+=`<div class="empty" style="padding:14px">Chưa có kết quả hôm nay</div>`;
@@ -679,21 +666,21 @@ function renderCross(){
   // XSMB
   html+=`<div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
       <span class="badge b3">XSMB</span><b>18:15</b>
-      <span style="margin-left:auto;font-size:12px;color:${mbToday?"var(--ok)":"var(--gold)"}">
+      <span style="margin-left:auto;font-size:14px;color:${mbToday?"var(--ok)":"var(--gold)"}">
         ${mbToday?"✓ đã có kết quả "+fmtD(today)
           :(toMB>0?`còn ${Math.floor(toMB/60)}:${pad(toMB%60,2)} nữa quay`:"chưa có dữ liệu")}</span></div>`;
   if(mbToday){
     const ts=[...new Set(tailsOfDay(mbToday,"MB","all",dg,false))].sort();
     const mnSet = mnToday ? new Set(tailsOfDay(mnToday,"MN","all",dg,false)) : null;
-    html+=`<div style="font-size:12px;color:var(--dim);margin-bottom:8px">
+    html+=`<div style="font-size:14px;color:var(--dim);margin-bottom:8px">
       <b style="color:var(--txt)">${ts.length}</b> số riêng biệt${mnSet?` — <span style="color:var(--ok)">xanh</span> = trùng với XSMN chiều`:""}:</div>
       <div class="tags">${ts.map(t=>`<button type="button" class="tag clk" ${mnSet&&mnSet.has(t)?'style="color:var(--ok);border-color:rgba(56,217,150,.4)"':""} onclick="openNum('${t}',${dg})">${t}</button>`).join("")}</div>`;
     if(mnSet){
       let ov=0; for(const t of ts) if(mnSet.has(t)) ov++;
-      html+=`<div style="font-size:12px;color:var(--dim);margin-top:10px">Trùng <b style="color:var(--txt)">${ov}</b> số với XSMN chiều nay.</div>`;
+      html+=`<div style="font-size:14px;color:var(--dim);margin-top:10px">Trùng <b style="color:var(--txt)">${ov}</b> số với XSMN chiều nay.</div>`;
     }
   } else if(mnToday){
-    html+=`<div style="background:var(--card2);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--dim);line-height:1.75">
+    html+=`<div style="background:var(--card2);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--dim);line-height:1.75">
       <b style="color:var(--txt)">XSMB chưa có kết quả hôm nay.</b> Kết quả XSMN đã được ghi nhận và sẽ được đối chiếu khi đủ dữ liệu 2 miền.</div>`;
   } else html+=`<div class="empty" style="padding:14px">Chưa có kết quả hôm nay</div>`;
   html+=`</div></div>`;
@@ -721,7 +708,7 @@ function renderCross(){
   const z=zBonf(U,0.05);
   const pAvg=tot/nd/U;
   $("#crossMerge").innerHTML=`
-    <div style="font-size:12.5px;color:var(--dim);margin-bottom:12px">
+    <div style="font-size:14px;color:var(--dim);margin-bottom:12px">
       ${nd} ngày gần nhất có cả hai miền · trung bình <b style="color:var(--txt)">${(tot/nd).toFixed(1)}</b>
       số ${dg} chữ số riêng biệt mỗi ngày khi gộp · mỗi số có <b style="color:var(--txt)">${pctS(pAvg,2)}</b>
       khả năng xuất hiện ở ít nhất một trong hai miền${tip("nen")}</div>
@@ -734,7 +721,7 @@ function renderCross(){
           <td style="color:${lo>pAvg?"var(--ok)":"var(--dim)"}">${pctS(lo)}</td></tr>`;
       }).join("")}
     </tbody></table></div>
-    <div style="font-size:11.5px;color:var(--dim2);margin-top:10px">
+    <div style="font-size:14px;color:var(--dim2);margin-top:10px">
       Bảng gộp chỉ mô tả mức xuất hiện trên dữ liệu 2 miền; không cho biết kết quả của kỳ tiếp theo.</div>`;
 }
 
@@ -745,7 +732,7 @@ function paintCrossTest(C){
   const sigShift=Math.abs(C.shift.z)>C.shift.zCrit;
   const anySig=sig1||sigShift;
   box.innerHTML=`
-    <div style="font-size:12.5px;color:var(--dim);margin-bottom:12px">
+    <div style="font-size:14px;color:var(--dim);margin-bottom:12px">
       Đo trên <b style="color:var(--txt)">${C.K.toLocaleString("vi")}</b> ngày có đủ cả hai miền
       (${fmtD(C.from)} → ${fmtD(C.to)}) · ${C.digits} số đuôi</div>
     <div class="tw"><table>
@@ -771,7 +758,7 @@ function paintCrossTest(C){
         <td class="${b.lift>0.03?"up":b.lift<-0.03?"dn":""}">${b.lift>=0?"+":""}${(b.lift*100).toFixed(1)}%</td></tr>`).join("")}
     </tbody></table></div>
 
-    <div style="margin-top:14px;padding:12px 15px;border-radius:10px;background:var(--card2);font-size:12.5px;color:var(--dim);line-height:1.75">
+    <div style="margin-top:14px;padding:12px 15px;border-radius:10px;background:var(--card2);font-size:14px;color:var(--dim);line-height:1.75">
       ${anySig
         ? `<b style="color:var(--warn)">Có dấu hiệu liên hệ.</b> Hãy kiểm tra lại bằng dữ liệu mới trước khi tin — và nhớ rằng
            app đã thử rất nhiều giả thuyết, nên một kết quả "có" đơn lẻ vẫn có thể là trùng hợp.`
@@ -805,7 +792,7 @@ window.openNum = (tail,digits) => {
   const cmpHtml=cmpRows.length<2?"":`
     <div class="mh">Qua các khoảng thời gian</div>
     <table class="sig"><tbody>
-      <tr style="color:var(--dim2);font-size:11px"><td>Khoảng</td><td>Số kỳ</td><td>Số kỳ có ${esc(tail)}</td><td>Tỉ lệ</td></tr>
+      <tr style="color:var(--dim2);font-size:14px"><td>Khoảng</td><td>Số kỳ</td><td>Số kỳ có ${esc(tail)}</td><td>Tỉ lệ</td></tr>
       ${cmpRows.map(r=>`<tr><td>${r.label}</td><td>${r.K.toLocaleString("vi-VN")}</td><td>${r.count}</td><td>${pctS(r.rate)}</td></tr>`).join("")}
     </tbody></table>`;
 
@@ -815,7 +802,7 @@ window.openNum = (tail,digits) => {
     for(const g of s.gaps) cnt[Math.min(g,bmax-1)]++;
     const cmx=Math.max(...cnt,1);
     gapHtml=`<div class="mh">Khoảng cách giữa 2 lần xuất hiện</div><div class="gp">${cnt.map((v,i)=>`<i class="${Math.min(s.curGap,bmax-1)===i?"hl":""}" style="height:${Math.max(4,v/cmx*100)}%" title="${i}${i===bmax-1?"+":""} kỳ: ${v} lần"></i>`).join("")}</div>
-      <div style="font-size:11px;color:var(--dim2);margin-top:5px">Cột vàng là khoảng hiện tại: ${s.curGap} kỳ.</div>`;
+      <div style="font-size:14px;color:var(--dim2);margin-top:5px">Cột vàng là khoảng hiện tại: ${s.curGap} kỳ.</div>`;
   }
 
   let coHtml="";
@@ -836,7 +823,7 @@ window.openNum = (tail,digits) => {
       <div>Tổng số lần<b>${s?s.occ:0}</b></div>
       <div>Số kỳ xuất hiện<b>${s?s.daysCnt:0}/${Ax.K}</b></div>
       <div>Tỉ lệ lịch sử<b>${pctS(s?s.daysCnt/Ax.K:0)}</b></div>
-      <div>Lần gần nhất<b style="font-size:13px">${s&&s.last?fmtD(s.last):"Chưa có"}</b></div>
+      <div>Lần gần nhất<b style="font-size:14px">${s&&s.last?fmtD(s.last):"Chưa có"}</b></div>
       <div>Lâu chưa xuất hiện<b>${s?s.curGap:Ax.K} kỳ</b></div>
       <div>Khoảng dài nhất<b>${s?s.maxGap:Ax.K} kỳ</b></div>
       <div>Khoảng trung bình<b>${s&&s.avgGap!=null?s.avgGap.toFixed(1)+" kỳ":"—"}</b></div>
@@ -871,25 +858,22 @@ function renderMethod(){
   const meta=window.XS_META||{}, mb=DB.MB.days, mn=DB.MN.days;
   const range=a=>a.length?`${fmtD(a[0].d)} → ${fmtD(a[a.length-1].d)}`:"Chưa có dữ liệu";
   $("#methodData").innerHTML=`
-    <section class="source-grid" aria-label="Nguồn dữ liệu">
-      <article class="source-card">
-        <span class="source-card-icon" aria-hidden="true">LIVE</span>
-        <h2>Bảng trực tiếp</h2>
-        <p>Nhúng nguyên trạng từ công cụ miễn phí của Minh Ngọc; có liên kết mở nguồn ở ngay trên bảng.</p>
-        <a href="https://www.minhngoc.net.vn/tao-ma-nhung/ket-qua-xo-so.html" target="_blank" rel="noopener noreferrer">Xem nguồn Minh Ngọc ↗</a>
-      </article>
-      <article class="source-card">
+    <section class="source-list" aria-label="Nguồn dữ liệu">
+      <div class="source-row">
+        <span class="source-card-icon" aria-hidden="true">MỚI</span>
+        <div><h2>Kết quả mới nhất</h2><p>Bảng được dựng trực tiếp từ kho dữ liệu của Kết Số. Trong giờ quay, trang kiểm tra bản cập nhật mới mỗi 30 giây.</p></div>
+        <a href="/nguon-du-lieu/">Xem nguồn dữ liệu</a>
+      </div>
+      <div class="source-row">
         <span class="source-card-icon archive" aria-hidden="true">KHO</span>
-        <h2>Lịch sử kết quả</h2>
-        <p>Kho riêng được tổng hợp tự động từ các nguồn công khai đã khai báo trong bộ cập nhật dữ liệu.</p>
-        <span class="source-detail">Không gắn nhãn Minh Ngọc cho phần lịch sử nếu dữ liệu không lấy từ nguồn này.</span>
-      </article>
-      <article class="source-card">
+        <div><h2>Lịch sử kết quả</h2><p>Kho riêng được tổng hợp tự động từ thông báo công khai của các công ty xổ số kiến thiết và nguồn đối chiếu.</p></div>
+        <span class="source-detail">Mỗi bảng luôn ghi rõ đây là dữ liệu đã công bố.</span>
+      </div>
+      <div class="source-row">
         <span class="source-card-icon update" aria-hidden="true">AUTO</span>
-        <h2>Cập nhật hằng ngày</h2>
-        <p>Hệ thống kiểm tra dữ liệu sau giờ quay XSMN và XSMB, rồi chỉ phát hành phiên bản mới khi có kết quả mới.</p>
+        <div><h2>Cập nhật hằng ngày</h2><p>Hệ thống kiểm tra dữ liệu sau giờ quay XSMN và XSMB, rồi chỉ phát hành phiên bản mới khi có kết quả mới.</p></div>
         <span class="source-detail">Lần cập nhật kho: ${esc(meta.updated||"chưa xác định")}</span>
-      </article>
+      </div>
     </section>
     <section class="data-overview" aria-labelledby="dataOverviewTitle">
       <div class="result-shell-head"><div><span class="eyebrow">Độ sâu dữ liệu</span><h2 id="dataOverviewTitle">Kho đang có</h2></div></div>
@@ -949,14 +933,28 @@ window.addEventListener("hashchange",()=>{
   if(v && v!==ST.view) showView(v);
 });
 $("#liveP").addEventListener("click",()=>showView("live"));
-$("#liveRefresh").addEventListener("click",()=>setLiveFrame(ST.region,true));
+$("#liveRefresh").addEventListener("click",()=>location.reload());
 $("#homeToHistory").addEventListener("click",()=>showView("history"));
 $("#liveToHistory").addEventListener("click",()=>showView("history"));
 $("#liveToStats").addEventListener("click",()=>showView("ana"));
 $("#historyMore").addEventListener("click",()=>{ST.historyCount=Math.min(ST.historyCount+14,120);renderHistory()});
-$("#liveFrame").addEventListener("load",()=>{
-  const loading=$("#liveLoading");
-  if(loading){ loading.lastChild.textContent="Đã kết nối nguồn Minh Ngọc"; setTimeout(()=>loading.classList.add("done"),350) }
+function currentTheme(){ return document.documentElement.dataset.theme||"system" }
+function updateThemeToggle(){
+  const mode=currentTheme(), labels={system:"Theo hệ thống",light:"Sáng",dark:"Tối"};
+  const b=$("#themeToggle"), label=$("#themeToggleLabel");
+  if(!b||!label) return;
+  label.textContent=labels[mode];
+  b.setAttribute("aria-label",`Đổi giao diện, hiện ${labels[mode]}`);
+  b.title=`Giao diện: ${labels[mode]}. Bấm để đổi.`;
+}
+function setTheme(mode){
+  if(mode==="system") delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme=mode;
+  try{localStorage.setItem("xs_theme",mode)}catch(e){}
+  updateThemeToggle();
+}
+$("#themeToggle").addEventListener("click",()=>{
+  setTheme({system:"light",light:"dark",dark:"system"}[currentTheme()]);
 });
 $("#regSeg").addEventListener("click", e=>{
   const b=e.target.closest("button"); if(!b) return;
@@ -1014,7 +1012,6 @@ function checkStale(){
   const bad=worst>=2;
   bar.style.display=ST.view==="live"?"none":"";
   bar.innerHTML=`<div class="stale ${bad?"bad":"warn"}">
-    <span class="ico">${bad?"🚨":"⚠️"}</span>
     <div style="flex:1;min-width:210px">
       <b>${bad?"Dữ liệu đang cũ — có thể nguồn đã hỏng":"Chưa có kết quả kỳ gần nhất"}</b><br>
       ${rows.map(r=>`${r.reg}: mới nhất <b>${fmtD(r.have)}</b>, lẽ ra phải có đến <b>${fmtD(r.want)}</b>
@@ -1034,10 +1031,31 @@ function checkStale(){
   const updated=(window.XS_META||{}).updated;
   p.className="pill live action";
   p.title=updated
-    ? `Mở kết quả trực tiếp. Kho thống kê cập nhật lần cuối: ${updated}.`
+    ? `Mở kết quả mới nhất. Kho thống kê cập nhật lần cuối: ${updated}.`
     : "Mở kết quả xổ số trực tiếp.";
 })();
-setInterval(()=>{ if(ST.view==="live"){updateLiveStatus();$("#v-live")?.classList.toggle("is-live",livePhase(ST.region).live)} }, 30000);
+let metaVersion=(window.XS_META||{}).updated||"";
+function pollLiveMeta(){
+  const script=document.createElement("script");
+  script.src=`data/meta.js?ts=${Date.now()}`;
+  script.async=true;
+  script.onload=()=>{
+    script.remove();
+    const next=(window.XS_META||{}).updated||"";
+    if(next&&metaVersion&&next!==metaVersion){ location.reload(); return }
+    metaVersion=next||metaVersion;
+    updateLiveStatus();
+  };
+  script.onerror=()=>script.remove();
+  document.head.append(script);
+}
+setInterval(()=>{
+  if(ST.view!=="live") return;
+  const phase=livePhase(ST.region);
+  updateLiveStatus();
+  $("#v-live")?.classList.toggle("is-live",phase.live);
+  if(phase.live) pollLiveMeta();
+}, 30000);
 setInterval(checkStale, 5*60000);
 
 /* --------- khởi động --------- */
@@ -1057,10 +1075,11 @@ setInterval(checkStale, 5*60000);
     <div class="foot-grid">
       <div class="foot-brand"><span class="foot-brand-mark" aria-hidden="true"><img src="/icon.svg?v=2" width="30" height="30" alt=""></span><span><b>Kết Số</b><span>Kết quả rõ ràng, mỗi ngày.</span></span></div>
       <div class="foot-trust">
-        <span><b style="color:var(--txt)">Kết quả trực tiếp</b><br>Nhúng nguyên trạng từ <a href="https://www.minhngoc.net.vn/tao-ma-nhung/ket-qua-xo-so.html" target="_blank" rel="noopener noreferrer">Minh Ngọc™</a>.</span>
+        <span><b style="color:var(--txt)">Kết quả mới nhất</b><br>Hiển thị từ kho dữ liệu tự cập nhật của Kết Số.</span>
         <span><b style="color:var(--txt)">Kho dữ liệu</b><br>Cập nhật tự động sau kỳ quay · lần cuối ${window.XS_META?.updated||"chưa xác định"}.</span>
       </div>
     </div>
     <div class="foot-legal"><b style="color:var(--txt)">Lưu ý:</b> website chỉ tổng hợp kết quả và phân tích dữ liệu đã công bố. Mọi kết quả có tính ngẫu nhiên; dữ liệu quá khứ không dự báo tương lai. Website không yêu cầu tài khoản và không cung cấp giao dịch. <a href="/privacy.html">Quyền riêng tư</a>.</div>`;
+  updateThemeToggle();
   refresh();
 })();
