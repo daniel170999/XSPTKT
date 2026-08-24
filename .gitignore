@@ -1,3 +1,4 @@
 __pycache__/
 *.py[cod]
 .claude/settings.local.json
+work/_removed_for_rewrite/

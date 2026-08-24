@@ -132,7 +132,7 @@ function analyze(days, region, scope, digits){
       }
     }
     if(prev){
-      // "lặp lại kỳ trước": số ra hôm qua → có ra tiếp hôm nay không
+      // lặp lại kỳ trước: số đã ra kỳ trước có ra tiếp kỳ này không
       carryBase += prev.size;
       for(const t of prev) if(seen.has(t)){ carryHits++; S.get(t).carryHit++ }
       for(const t of prev) S.get(t).carryBase++;
@@ -284,7 +284,7 @@ function probit(p){
 }
 
 /* ============================================================================
-   CHẤM ĐIỂM & DỰ ĐOÁN — CO NGÓT BAYES THỰC NGHIỆM (Empirical Bayes)
+   PHÂN TÍCH THỐNG KÊ NỘI BỘ — CO NGÓT BAYES THỰC NGHIỆM (Empirical Bayes)
    ----------------------------------------------------------------------------
    Vấn đề của cách làm ngây thơ: "số ra nhiều thì xếp hạng cao".
    Sai, vì phần lớn chênh lệch tần suất giữa các số CHỈ LÀ NHIỄU LẤY MẪU.
@@ -299,7 +299,7 @@ function probit(p){
 
    Ý nghĩa: nếu dữ liệu không phân biệt được với ngẫu nhiên thì τ²=0 → w=0
    → MỌI số cho ra đúng cùng một điểm p̄. Thuật toán tự vô hiệu hoá chính nó
-   thay vì bịa ra thứ hạng. Đây là cơ chế chống ngụy biện "số nóng".
+   thay vì bịa ra thứ hạng. Đây là cơ chế chống ngụy biện từ dao động ngắn hạn.
    ========================================================================== */
 
 /** Tính hệ số tin cậy w cho một tập đếm counts[] trên n phép thử. */
@@ -340,15 +340,15 @@ function hazardWeight(A){
 /** Tên hiển thị của từng tín hiệu */
 const SIGNAL_INFO = {
   freq:  "Tần suất toàn mẫu",
-  rec:   "Phong độ gần đây",
+  rec:   "Tần suất gần đây",
   dow:   "Theo thứ trong tuần",
-  gap:   "Nhịp gan (hazard)",
+  gap:   "Khoảng chờ (hazard)",
   carry: "Lặp lại kỳ liền trước",
 };
 
 /* Chưa có cấu hình nào vượt kiểm chứng ngoài mẫu. Một lệch có ý nghĩa ngay
    trong cửa sổ đang nhìn chỉ mô tả quá khứ; nó không được phép tự động biến
-   thành khuyến nghị cho kỳ sau nếu chưa có chứng nhận OOS riêng. */
+   thành suy luận cho kết quả tương lai nếu chưa có chứng nhận OOS riêng. */
 const MODEL_OOS_VALIDATED = false;
 
 /**
@@ -460,10 +460,10 @@ function rankAll(A, targetDow){
 }
 
 /* ============================================================================
-   MÔ HÌNH CƯỢC — cho máy tính EV (Trợ giúp)
+   HÀM THỐNG KÊ LEGACY
    n = số vị trí trung bình/kỳ hợp lệ với "digits" chữ số (VD: G7 2 chữ số bị
-   loại khỏi cược 3 số — analyze() đã xử lý đúng qua tailsOfDay/perDay).
-   p = xác suất thực đo được số đó về ≥1 lần trong kỳ (dùng cho kiểu trả 1 lần cố định).
+   loại khỏi thống kê 3 số — analyze() đã xử lý đúng qua tailsOfDay/perDay).
+   p = tỉ lệ lịch sử số đó xuất hiện ít nhất 1 lần trong kỳ.
    Với XSMN, n là TRUNG BÌNH vì số đài dao động 3–4 theo thứ — analyze() đã gộp đúng.
    ========================================================================== */
 function evModel(region, scope, digits){
@@ -473,7 +473,7 @@ function evModel(region, scope, digits){
 
 /* ============================================================================
    PHÂN TÍCH LIÊN MIỀN — XSMN quay 16:15, XSMB quay 18:15 CÙNG NGÀY
-   Câu hỏi đáng tiền: biết kết quả XSMN chiều thì có đoán được XSMB tối không?
+   Câu hỏi kiểm tra: kết quả XSMN chiều có liên hệ với XSMB tối không?
    Mọi phép đo dưới đây tính trực tiếp từ dữ liệu, không hằng số cứng.
    ========================================================================== */
 function crossAnalyze(digits){
@@ -514,7 +514,7 @@ function crossAnalyze(digits){
   }
   const zCrit=-probit(0.025/U);
 
-  /* T4: backtest "đánh lại số miền Nam ở miền Bắc" */
+  /* T4: đối chiếu số miền Nam với miền Bắc trong cùng ngày */
   const bt=[];
   for(const N of [5,10,20]){
     let hit=0,base=0,n=0;
@@ -543,11 +543,10 @@ function mergedDays(digits){
 }
 
 /* ---------------------------------------------------------------------------
-   BỘ CHỌN KHÔNG THIÊN VỊ
-   Khi mô hình phẳng (w≈0), toán học nói mọi số có kỳ vọng như nhau.
-   Lúc đó cách chọn đúng đắn nhất là chọn ngẫu nhiên đều — nhưng phải
-   TÁI LẬP ĐƯỢC (cùng ngày → cùng số) để không biến thành máy kéo xèng.
-   Dùng PRNG mulberry32 gieo hạt từ chuỗi ngày+miền+số chữ số.
+   BỘ PHÂN BỔ ĐỀU (legacy)
+   Khi mô hình phẳng (w≈0), mọi số có kỳ vọng như nhau.
+   Hàm giữ kết quả tái lập được theo ngày bằng PRNG mulberry32 gieo hạt từ
+   chuỗi ngày+miền+số chữ số.
 --------------------------------------------------------------------------- */
 function hashSeed(str){
   let h=2166136261>>>0;
@@ -573,7 +572,7 @@ function unbiasedPick(U, digits, n, seedStr){
   }
   return out;
 }
-/** Xác suất trúng ≥1 số khi chọn cả dàn (giả định độc lập gần đúng) */
+/** Xác suất có ít nhất một số xuất hiện trong tập số (giả định độc lập gần đúng) */
 function setHitProb(list){
   let q=1; for(const r of list) q*= (1-Math.min(r.score!=null?r.score:r,0.99));
   return 1-q;

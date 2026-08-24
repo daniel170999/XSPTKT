@@ -1,5 +1,32 @@
 # WORKLOG — Kết Số
 
+## 2026-08-24 — WP0: làm sạch bản public và cô lập tệp nội bộ
+
+### Phạm vi đã làm
+
+- Thêm `.vercelignore`: chặn tài liệu nội bộ, mã crawler/server/test, `work/`, `.github/` và dữ liệu thô `data/xsmn.json` khỏi artifact Vercel.
+- Siết `robots.txt` và thêm `X-Robots-Tag: noindex, nofollow, noarchive` cho phần mở rộng nội bộ còn có thể được request.
+- Gỡ khỏi giao diện public toàn bộ luồng chọn số, ghim/loại, nhật ký, kiểm chứng và EV; `Mẫu lịch sử` chỉ còn mô tả kết quả đã công bố, không tạo suy luận cho kỳ sau.
+- Lưu bản trích xuất các block UI cũ dưới `work/_removed_for_rewrite/`, đồng thời ignore thư mục này để không thể vô tình commit/deploy.
+- Đồng bộ tên thương hiệu và thuật ngữ trong tài liệu/code đang theo dõi. `app.js` chỉ thay chuỗi hiển thị và comment (20 dòng thêm / 21 dòng bỏ); không đổi công thức, scoring hay dữ liệu lịch sử.
+
+### Kiểm chứng local có số liệu
+
+| Hạng mục | Kết quả |
+|---|---|
+| Cú pháp + model | `node --check app.js`, `node --check ui.js`, `node test_model.cjs`: đạt |
+| Liên kết UI | `node work/check-ui-ids.cjs`: **72** ID được gọi, **0** ID thiếu |
+| Browser matrix | **56/56** lượt render: 5 tab public + 3 màn Thống kê × XSMN/XSMB × 2/3 số tại **375px** và **1280px**; **0px** tràn ngang, **0** lỗi console từ app |
+| Backtest nội bộ | XSMB / tất cả giải / 3 số / W365 / 300 kỳ / dàn 10: **0,897 giây**; hit **66** vs kỳ vọng **68,36**, uplift **−3,45%**, top1 z **0,45** |
+| Crawler | `test_update.py`: **4/4 đạt**. `update.py --max-fetch 40`: XSMB **7.532→7.532**, XSMN **6.677→6.677**, cùng đến **24/08/2026**; không mất kỳ cũ |
+| Quét public source | Không có cụm định hướng chọn số trong file đang theo dõi/deploy; scan focused không thấy secret, credential, path máy hay email riêng trong source public |
+| Kiểm tra diff | `git diff --check`: đạt; `vercel.json` parse JSON: đạt |
+
+### Ranh giới phát hành
+
+- Đây là dọn bề mặt public và kiểm soát artifact deploy, không phải chứng nhận pháp lý hay giấy phép kinh doanh.
+- Bước viết lại lịch sử Git chỉ được chuẩn bị sau khi bản public đã được xác minh. Lệnh force-push bị giữ lại để chủ dự án phê duyệt riêng.
+
 ## 2026-08-23 — Chuyển thành Kết Số: kết quả/live đứng đầu, public mainstream
 
 ### Phạm vi đã làm
@@ -32,7 +59,7 @@
 | Auto-update | Scheduled run GitHub Actions **#2**, ID `32635122337`: `success`, **17 giây**, ngày 23/08/2026; workflow vẫn có cron 16:42/18:42 ICT |
 | Production | Commit giao diện `b87460a` đã lên `main`; `https://xsptkt.vercel.app/` trả **HTTP 200**, mobile/desktop **0px tràn**, **0 lỗi console**; favicon/social card/privacy/sitemap đều HTTP 200 |
 | Security headers | Production có CSP, HSTS 2 năm, `nosniff`, `SAMEORIGIN`, Referrer-Policy, Permissions-Policy; `data/meta.js` trả `Cache-Control: no-store` |
-| Copy public | Quét 5 view đang hiển thị: **0** từ/cụm liên quan trò chơi số ngoài luồng, bộ số, cược, đơn vị tổ chức hoặc dự đoán kỳ sau |
+| Copy public | Quét 5 view đang hiển thị: **0** từ/cụm định hướng chọn số cho kỳ sau; bản public chỉ mô tả kết quả và dữ liệu đã công bố |
 | PII/secrets | Không có private key, credential, email riêng hay path người dùng trong source chuẩn bị commit; GitHub owner và email `users.noreply.github.com` trong lịch sử là metadata public sẵn có |
 
 Kết luận thống kê không đổi: dữ liệu chưa chứng minh lợi thế dự báo. Bản public chỉ phục vụ kết quả,

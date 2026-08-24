@@ -95,32 +95,15 @@ score(i) = pBaseFor(targetDow) + Σ_signals w_s · (p̂_s(i) − mean_s)
   và **bảng đối chứng in-sample vs out-of-sample** (shift bội 7 để giữ thứ) — thước đo overfit, cấm gỡ.
 - Mặc định 300 kỳ; <200 kỳ phải hiện cảnh báo mẫu nhỏ.
 
-### 3.4b Máy tính EV (code legacy của Trợ giúp, không public)
-Xác nhận với người dùng: host trả **theo số lần về** ("trả theo số lần xuất hiện"), không phải 1 lần cố định.
-Với kiểu trả này, EV rút gọn đẹp: `EV% = tỉ lệ trả/U − 1`, **không phụ thuộc n hay phạm vi cược**
-(chứng minh bằng linearity of expectation: E[số lần về] = n/U đúng dù các vị trí độc lập hay không).
-Ví dụ đã kiểm chứng: 2 số với tỉ lệ trả 80 → mọi scope đều **−20%** đúng như nhau (n=27,5,56.4,6.26 cho ra cùng %);
-3 số với tỉ lệ trả 600 → mọi scope đều **−40%**. `evModel(region,scope,digits)` chỉ là lớp bọc mỏng quanh
-`analyze()` (dùng lại `perDay`, `pBase` — không logic mới), cache 8 tổ hợp trong `EV_MODELS` vì `analyze()`
-chạy lại mỗi lần đổi input sẽ tốn không cần thiết. Có toggle sang chế độ "1 lần cố định" (dùng `pBase` đo được)
-cho host nào trả kiểu đó — khi đó scope hẹp (n nhỏ) thường đỡ lỗ hơn vì dễ trúng hơn.
-**Không có dòng EV nào dương** — không sửa để "tìm cửa thắng", chỉ xếp hạng "lỗ ít nhất".
+### 3.5 Phạm vi lọc thống kê
+Phạm vi giải là một thuộc tính của phép phân tích: `all` dùng toàn bộ giải, còn `dd` dùng
+G7 + GĐB (XSMB) hoặc G8 + GĐB (XSMN). Mỗi phạm vi có số vị trí quay và mức nền khác nhau,
+nên mọi bảng phải tính `pBaseFor(w)` theo đúng phạm vi đang xem.
 
-### 3.5 Nhật ký legacy (localStorage `xs_journal_v1`, không public)
-`{id,date,region,digits,scope,provs,picks[],appPicks[],note}` — `appPicks` **chốt cứng lúc lưu**
-bằng `appPicksFor()` (chỉ dùng dữ liệu trước ngày đích). Cấm tính lại khi hiển thị. Có export/import JSON.
-
-**Phạm vi giải là thuộc tính của từng bộ số, không phải bộ lọc chung.** Người dùng thật chọn nhiều
-kiểu cùng ngày (vd XSMB: 6 số cho G7+GĐB *và* 1 số cho tất cả giải) — mỗi kiểu có mức nền khác hẳn:
-
-| Kiểu bộ số (XSMB, 2 số) | Bộ số/kỳ | Nền mỗi số |
-|---|---|---|
+| Phạm vi (XSMB, 2 số) | Bộ số/kỳ | Mức nền mỗi số |
+|---|---:|---:|
 | Tất cả giải | 27 | 23,77% |
-| Chỉ G7+GĐB | 5 | **4,90%** |
-
-Vì vậy `jResolve()` phải chấm bằng đúng `e.scope` của bộ số, và `appPicks` phải sinh cùng `scope`
-**và cùng số lượng** với `picks` (so kè công bằng). Form có chip chọn phạm vi + dòng `#jBase`
-hiển thị nền và kỳ vọng trúng ≥1 của đúng kiểu bộ số đang nhập.
+| G7 + GĐB | 5 | **4,90%** |
 
 ---
 
@@ -151,7 +134,6 @@ hiển thị nền và kỳ vọng trúng ≥1 của đúng kiểu bộ số đa
 | 20 | Số trùng nhau mỗi ngày giữa 2 miền | Thực tế **10,30**/ngày · nếu độc lập **10,28** | Đúng như độc lập |
 | 21 | Quét 100 phép dịch GĐB miền Nam +k → XSMB | Mạnh nhất k=30: z=−2,09 · ngưỡng Bonferroni 3,48 | **KHÔNG** |
 | 22 | Backtest "đánh lại số XSMN sang XSMB" | N=5 **+0,7%** · N=10 **+0,3%** · N=20 **−0,1%** so chọn bừa | Không có edge |
-| 13 | Kỳ vọng dài hạn (trả thưởng cố định) | lô MB ≈ −6%/điểm · đề −20…−30% · tổ hợp 3 chữ số ≈ −55% · vé ≈ −50% | EV như nhau với mọi số → dự đoán theo mẫu quá khứ chỉ đổi phương sai, không đổi kỳ vọng |
 | 23 | **Quét lệch cơ học từng vị trí chữ số** (không gộp đuôi — nhạy hơn hẳn vì mỗi giải dùng lồng cầu riêng cho từng chữ số) | MB: 107 vị trí, **0 vượt Bonferroni** (p<4,67e-4). MN: 82 vị trí, 2 vượt — cả hai đều giải thích được (dưới) | Không có bằng chứng lồng cầu/bóng nào lệch, ở bất kỳ vị trí nào đo được |
 | 24 | Soi 2 vị trí MN "lệch": GĐB-chữ-số-1 (χ²=1153!) và G4-chữ-số-2 (χ²=24,6) | GĐB-d1: số 0 chiếm 95,5% (2008) → 49,0% (2009) → ổn định 8–12% (2010→nay) — **GĐB đổi từ <6 sang đúng 6 chữ số năm 2010**, không phải lệch bóng. G4-d2: Monte Carlo p=0,004 nhưng kỳ vọng ~0,3/82 ô đạt mức này do ngẫu nhiên — **1 ô trong 82 phép thử không bất thường** | Cả hai là artifact/nhiễu đa so sánh, không phải rig. `norm_prov`/parser không cần sửa vì đuôi (chữ số cuối) không bị ảnh hưởng — GĐB-d1 là chữ số **đầu**, không nằm trong đuôi 2/3 số |
 | 25 | XSMB có còn quay trực tiếp trên truyền hình không? (tiền đề "hết ai giám sát bằng mắt") | **Sai.** Vẫn quay live hằng ngày 18:00–18:30 tại 53E Hàng Bài — chỉ đổi kênh (VTC9 "Let's Việt" → VTVCab4 "On Movie" từ 15/01/2025). XSMN: mỗi đài tự phát trực tiếp trên kênh truyền hình tỉnh mình (phân tán kênh, không phải ngừng phát) | Tiền đề "không ai xem live được nữa" không đúng thực tế — vẫn có kênh, giờ cố định, camera lưu theo TT 22/2021 |
@@ -160,7 +142,6 @@ hiển thị nền và kỳ vọng trúng ≥1 của đúng kiểu bộ số đa
 thiết bị quay, bóng, việc niêm phong và quy trình quay thưởng. Không giữ các chi tiết chưa đủ nguồn như xuất xứ thiết bị,
 dung sai hay thời gian lưu camera. Dữ liệu kết quả có thể phát hiện lệch phân phối, nhưng không tự xác định nguyên nhân
 hay chứng minh tuyệt đối không có can thiệp.
-Muốn hoà vốn lô MB cần một số lệch +6,5% so nền — phát hiện tin cậy mức đó cần ~6.900 kỳ (19 năm), hiệu chỉnh 100 số cần ~16.400 kỳ.
 Trong dữ liệu của app, chưa có phép phân tích tần suất nào tạo được lợi thế ngoài mẫu đủ tin cậy.
 
 **Lập luận về "yếu tố ngoại cảnh" (thời sự / thời tiết / bão / chính trị):** không cần kiểm từng yếu tố.
@@ -179,14 +160,14 @@ không tự động đồng nghĩa gian lận hay chỉ ra nguyên nhân vật l
 **Về việc XSMB quay sau XSMN (16:15 vs 18:15):** biết trước kết quả miền Nam **không** giúp đoán miền Bắc (#19–22).
 Hai miền dùng hai bộ lồng cầu, hai thành phố, hai hội đồng giám sát khác nhau — không có đường truyền vật lý.
 Tab 🔗 2 Miền tồn tại để người dùng **tự kiểm chứng điều này**, và để xem kết quả XSMN chiều khi XSMB chưa quay
-(thông tin thật, chỉ là không mang giá trị dự đoán). **Cấm** biến tab đó thành công cụ "đối chiếu hai miền".
+(thông tin thật, chỉ là không mang giá trị dự đoán). **Cấm** biến tab đó thành công cụ dự đoán đối chiếu hai miền.
 
 **Về nghi vấn thao túng ("rig"):** #23–25 là bộ kiểm tra granular nhất có thể làm từ dữ liệu công khai — soi
 từng chữ số ở từng vị trí (không phải đuôi gộp) vì đó là nơi lệch bóng/lồng cầu vật lý sẽ lộ rõ nhất, không bị
 trung hoà bởi việc gộp nhiều vị trí lại. Kết quả: **0 bằng chứng** ở cả hai miền, trên toàn bộ lịch sử có được.
 Một kiểm định thống kê "lệch" không tự nó chứng minh hay loại trừ gian lận — nó chỉ là cờ cần điều tra thêm bằng
 nguồn ngoài dữ liệu tần suất (băng ghi hình, biên bản Hội đồng giám sát…), việc mà app này không tiếp cận được.
-**Do đó app không xây tính năng "tín hiệu rig để theo đánh":** (a) chưa từng có bằng chứng nào trong dữ liệu,
+**Do đó app không xây tính năng "tín hiệu rig để hành động theo":** (a) chưa từng có bằng chứng nào trong dữ liệu,
 (b) phân biệt "lệch 3-sigma do may rủi" với "gian lian thật" từ tần suất lịch sử đơn thuần gần như bất khả thi —
 chính quá trình đo #17, #24 vừa cho thấy 2 lần suýt báo sai (LCG tự chế, và ngộ nhận GĐB-d1 là lệch bóng) dù đã
 rất cẩn thận, (c) các vụ gian lận xổ số có thật trong lịch sử (PA 1980 Triple Six Fix, Eddie Tipton/Hot Lotto)
@@ -199,7 +180,7 @@ tần suất kết quả của người dùng bên ngoài — nên đó không p
 | Fibonacci | Pisano mod 100 = chu kỳ 300, **chạm đủ 100/100** số; mod 1000 = chu kỳ 1500, **chỉ chạm 750/1000 (75%)** | 2 số: vô hại nhưng vô ích. 3 số: tự loại 25% không gian số, không đổi lại gì — **cấm dùng để lọc dàn** |
 | Chuỗi thời gian bậc cao (Markov bậc 2, Fourier/spectral, entropy) | Markov bậc 1→2 (MB) LR=876,6 p(chuẩn)=0,049 nhưng **Monte Carlo p thật=0,21** (xấp xỉ chuẩn sai vì ~7,5 quan sát/ô); spectral 100 chuỗi/miền: MB 0 chuỗi qua Bonferroni, MN "chu kỳ 7" hoá ra chỉ là cấu trúc T7-4-đài đã biết (tách riêng thì null); entropy = 99,85% mức tối đa (gần như không nén được) | **Không có trí nhớ bậc cao, không có chu kỳ ẩn.** Xấp xỉ χ² chuẩn không đáng tin khi ô thưa — luôn Monte Carlo khi nghi ngờ (đã ghi thành luật, xem cảnh báo PRNG ở trên) |
 | Số học / bay đa so sánh | Mọi phép chia tập con (chẵn/lẻ, kép, bống số, tổng chia hết…) đều có EV giống hệt nhau vì rút mẫu đều — chọn tập con nào cũng như tập con nào. Quét N cách chia càng nhiều thì càng chắc tìm ra ≥1 cách "có vẻ lệch" chỉ do may rủi | Nhóm số trong tab Cầu & Mẫu chỉ để **mô tả**, không phải căn cứ chọn — đã có disclaimer đúng chỗ |
-| Case thắng giải có thật (Mandel, [Cash WinFall](https://newsfeed.time.com/2012/08/07/how-mit-students-scammed-the-massachusetts-lottery-for-8-million/), Srivastava, Tipton, phương pháp Thorp) | Mọi ca đều đến từ: mua hết tổ hợp khi EV dương tạm thời (roll-down phá vỡ tính pari-mutuel), lỗi thiết kế vé in sẵn, gian lận phần mềm RNG, hoặc bài **không hoàn lại nên có bộ nhớ trạng thái** (khác rút thăm có hoàn lại) | **Không case nào** đến từ phân tích tần suất lịch sử của máy quay công bằng — nhóm này không áp dụng được cho app |
+| Các trường hợp tạo lợi thế có thật (Mandel, [Cash WinFall](https://newsfeed.time.com/2012/08/07/how-mit-students-scammed-the-massachusetts-lottery-for-8-million/), Srivastava, Tipton, phương pháp Thorp) | Mọi ca đều đến từ: mua hết tổ hợp khi EV dương tạm thời (roll-down phá vỡ tính pari-mutuel), lỗi thiết kế vé in sẵn, gian lận phần mềm RNG, hoặc bài **không hoàn lại nên có bộ nhớ trạng thái** (khác rút thăm có hoàn lại) | **Không trường hợp nào** đến từ phân tích tần suất lịch sử của máy quay công bằng — nhóm này không áp dụng được cho app |
 | Thần số học (Kinh Dịch/Lạc Thư, Pythagoras, Veda, quan niệm Việt/Hoa) | Có hiệu ứng kinh tế **thật** lên giá cả do con người định giá (biển số xe TQ/HK: số "8" +hàng chục nghìn USD, "4" giảm giá — [nghiên cứu ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S016748700700027X)) — nhưng đó là hành vi **người mua**, không phải xác suất **máy quay** | Giá trị thật của các hệ thống này là tâm lý/văn hoá/kỷ luật chọn số, không phải dự đoán — nêu ở tab Trợ giúp với sự tôn trọng, không dùng để tính điểm |
 | ARIMA | Giả định biến liên tục có tự tương quan; đuôi xổ số là biến **danh mục** (khoảng cách 00↔99 vô nghĩa) và tự tương quan lag-1 đã đo = 0,012±0,023 → ARIMA suy biến về ARIMA(0,0,0) = **dự đoán bằng trung bình**, đúng bằng nền app đã tính | Không có gì để ARIMA học — dùng nó chỉ là vỏ bọc phức tạp hoá cho phép tính đã có |
 | Machine Learning (LSTM/XGBoost…) | Nếu X (lịch sử) không mang thông tin về Y (kỳ tới) — đã chứng minh qua toàn bộ bảng #1–22 — mọi mô hình dù mạnh đến đâu cũng hội tụ về dự đoán = tỉ lệ nền khi tối ưu đúng cách; sai khác so với nền trên tập test chỉ là overfit (giống *y hệt* bảng đối chứng #4–5 app đã có) | Thêm ML = thêm nguy cơ overfit, không thêm tín hiệu. **Cấm build** |

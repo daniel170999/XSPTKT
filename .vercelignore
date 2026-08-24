@@ -1,0 +1,30 @@
+# Tài liệu nội bộ — không bao giờ deploy
+*.md
+!index.html
+BLUEPRINT.md
+RULES.md
+ROADMAP.md
+WORKLOG.md
+CLAUDE.md
+AGENTS.md
+MONETIZATION_PLAN.md
+DEPLOY_VERCEL.md
+README.md
+LEGAL_SCAN.md
+REVAMP_AUDIT.md
+CODEX_*.md
+
+# Mã nguồn nội bộ
+update.py
+serve.py
+test_*.py
+test_*.cjs
+work/
+outputs/
+__pycache__/
+*.bat
+.github/
+
+# Dữ liệu thô không dùng ở client
+data/xsmn.json
+data/config.json
