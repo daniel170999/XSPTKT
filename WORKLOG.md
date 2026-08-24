@@ -35,7 +35,8 @@
 - Một thay thế literal làm biến dạng cụm trung tính có hậu tố giống từ cần lọc. Đã tạo rule repair duy nhất, kiểm `HEAD`, rồi đồng bộ chính xác `BLUEPRINT.md` và `app.js` về `HEAD` sau khi tool để lại index cũ.
 - Kết quả cuối: **15/15** commit có **0** hit theo scan có ranh giới từ; không có tên file nhạy cảm trong lịch sử; `node --check app.js`, `node --check ui.js`, `test_model.cjs`, `test_update.py` (**4/4**), ID check (**72/0**) và backtest 300 kỳ (**0,822 giây**, hit **66** vs kỳ vọng **68,36**) đều đạt.
 - Browser QA sau rewrite: **56/56** lượt tại 375px và 1280px, **0px** tràn ngang, **0** lỗi console.
-- Chưa force-push. Mirror backup còn nguyên; remote chỉ được re-add/fetch để so sánh, và cần chủ dự án phê duyệt riêng trước bước không hoàn tác đó.
+- Chủ dự án đã xác nhận force-push. Ngày 25/08/2026, `origin/main` được thay bằng lịch sử đã làm sạch tại SHA `70bf9fa55f1fad305c4f2fd4938832ec92914fcc`; mirror backup còn nguyên. Clone cũ cần fetch/reset hoặc clone lại; fork độc lập không bị xoá.
+- Sau force-push, production `https://xsptkt.vercel.app/` trả **HTTP 200**; `/ROADMAP.md`, `/update.py` và `/data/xsmn.json` vẫn trả **HTTP 404**.
 
 ## 2026-08-23 — Chuyển thành Kết Số: kết quả/live đứng đầu, public mainstream
 
