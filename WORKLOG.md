@@ -21,11 +21,21 @@
 | Crawler | `test_update.py`: **4/4 đạt**. `update.py --max-fetch 40`: XSMB **7.532→7.532**, XSMN **6.677→6.677**, cùng đến **24/08/2026**; không mất kỳ cũ |
 | Quét public source | Không có cụm định hướng chọn số trong file đang theo dõi/deploy; scan focused không thấy secret, credential, path máy hay email riêng trong source public |
 | Kiểm tra diff | `git diff --check`: đạt; `vercel.json` parse JSON: đạt |
+| Production | Commit `d294a43` đã deploy: `/` **HTTP 200**; `/ROADMAP.md`, `/update.py`, `/data/xsmn.json` đều **HTTP 404** và có `X-Robots-Tag: noindex, nofollow, noarchive`; `robots.txt` **HTTP 200** |
 
 ### Ranh giới phát hành
 
 - Đây là dọn bề mặt public và kiểm soát artifact deploy, không phải chứng nhận pháp lý hay giấy phép kinh doanh.
 - Bước viết lại lịch sử Git chỉ được chuẩn bị sau khi bản public đã được xác minh. Lệnh force-push bị giữ lại để chủ dự án phê duyệt riêng.
+
+### Rewrite lịch sử local — 2026-08-25
+
+- Đã tạo mirror backup `../XSPTKT-backup-before-rewrite.git`; backup và repo đều có **15** commit, `git fsck --no-dangling` đạt trước khi rewrite.
+- File rule gốc có comment mà `git-filter-repo` không tự bỏ qua. Đã phát hiện lỗi ở preflight, khôi phục từ mirror, tạo bản lọc chỉ bỏ comment/blank nhưng giữ nguyên **88** luật thực, rồi chạy lại.
+- Một thay thế literal làm biến dạng cụm trung tính có hậu tố giống từ cần lọc. Đã tạo rule repair duy nhất, kiểm `HEAD`, rồi đồng bộ chính xác `BLUEPRINT.md` và `app.js` về `HEAD` sau khi tool để lại index cũ.
+- Kết quả cuối: **15/15** commit có **0** hit theo scan có ranh giới từ; không có tên file nhạy cảm trong lịch sử; `node --check app.js`, `node --check ui.js`, `test_model.cjs`, `test_update.py` (**4/4**), ID check (**72/0**) và backtest 300 kỳ (**0,822 giây**, hit **66** vs kỳ vọng **68,36**) đều đạt.
+- Browser QA sau rewrite: **56/56** lượt tại 375px và 1280px, **0px** tràn ngang, **0** lỗi console.
+- Chưa force-push. Mirror backup còn nguyên; remote chỉ được re-add/fetch để so sánh, và cần chủ dự án phê duyệt riêng trước bước không hoàn tác đó.
 
 ## 2026-08-23 — Chuyển thành Kết Số: kết quả/live đứng đầu, public mainstream
 
