@@ -16,8 +16,12 @@ REVAMP_AUDIT.md
 CODEX_*.md
 
 # Mã nguồn nội bộ
+# Dùng *.py để mọi script Python thêm sau này tự động bị chặn — trước đây liệt kê
+# từng tên nên build_pages.py lọt ra production và trả HTTP 200.
+*.py
 update.py
 serve.py
+build_pages.py
 test_*.py
 test_*.cjs
 work/
