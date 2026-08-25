@@ -24,6 +24,9 @@ ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data"
 TEMPLATE = ROOT / "templates" / "index.template.html"
 GENERATED = "<!-- KETSO-GENERATED -->"
+# Đầu mối liên hệ công khai — NĐ 147/2024 yêu cầu trang thông tin điện tử phải có
+# đầu mối tiếp nhận, dù trang cá nhân không phải xin giấy phép. Sửa ở đúng một chỗ này.
+CONTACT_EMAIL = "xsmbmn@service.com"
 DATE_DIR = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 TZ_VN = timezone(timedelta(hours=7))
 
@@ -144,7 +147,19 @@ def header() -> str:
 
 
 def footer() -> str:
-    return """<footer class=\"static-shell static-footer\"><p>Kết Số tổng hợp kết quả và dữ liệu đã công bố. Dữ liệu quá khứ chỉ dùng để tra cứu và mô tả.</p></footer>"""
+    # Ghi nguồn phải nằm trên MỌI trang có bảng kết quả, không chỉ trang Nguồn dữ liệu:
+    # kết quả là số liệu sự thật do công ty xổ số kiến thiết công bố (Khoản 1 Điều 15 Luật SHTT).
+    return (
+        """<footer class=\"static-shell static-footer\">"""
+        """<p><b>Nguồn:</b> kết quả do các công ty xổ số kiến thiết công bố, căn cứ biên bản của """
+        """Hội đồng giám sát xổ số. Kết quả chính thức lấy theo thông báo của công ty xổ số kiến thiết.</p>"""
+        """<p>Kết Số tổng hợp kết quả và dữ liệu đã công bố. Dữ liệu quá khứ chỉ dùng để tra cứu và mô tả, """
+        """không dự báo kết quả tương lai.</p>"""
+        """<p class=\"static-footer-links\"><a href=\"/gioi-thieu/\">Giới thiệu</a> · """
+        """<a href=\"/nguon-du-lieu/\">Nguồn dữ liệu</a> · <a href=\"/phuong-phap/\">Phương pháp</a> · """
+        """<a href=\"/lien-he/\">Liên hệ</a> · <a href=\"/privacy.html\">Quyền riêng tư</a></p>"""
+        """</footer>"""
+    )
 
 
 METHOD_GLOSSARY = (
@@ -414,9 +429,34 @@ def build(root: Path, days_limit: int, check: bool) -> int:
         changes += safe_write(ROOT / "xsmn" / province["slug"] / "index.html", province_hub(province, mn_days, schema, origin, modified), check)
 
     docs = {
-        "gioi-thieu": ("Giới thiệu Kết Số | Kết Số", "Giới thiệu Kết Số", "<p>Kết Số là trang tra cứu kết quả XSMN và XSMB, trình bày lại dữ liệu đã công bố theo hướng dễ xem trên điện thoại và máy tính.</p><p>Thông tin đơn vị vận hành và đầu mối liên hệ sẽ được công bố cùng kênh tiếp nhận chính thức.</p>"),
+        "gioi-thieu": ("Giới thiệu Kết Số | Kết Số", "Giới thiệu Kết Số", (
+            "<p>Kết Số là trang tra cứu kết quả XSMN và XSMB, trình bày lại dữ liệu đã công bố "
+            "theo hướng dễ xem trên điện thoại và máy tính.</p>"
+            "<h2>Cam kết</h2>"
+            "<ul><li>Không bán số, không nhận tiền của người xem, không làm trung gian cho bất kỳ giao dịch nào.</li>"
+            "<li>Không hứa hẹn trúng thưởng. Kết quả xổ số là ngẫu nhiên; dữ liệu quá khứ "
+            "không dự báo kết quả tương lai.</li>"
+            "<li>Không tổ chức dự thưởng, quay số may mắn hay trò chơi dựa trên kết quả xổ số.</li>"
+            "<li>Mọi con số thống kê đều kèm mức nền để so sánh, không trình bày tách rời.</li></ul>"
+            "<h2>Đơn vị vận hành và liên hệ</h2>"
+            "<p>Kết Số là trang thông tin cá nhân, hoạt động phi thương mại tại thời điểm công bố. "
+            f'Đầu mối tiếp nhận phản hồi: <a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a> '
+            '(xem thêm tại <a href="/lien-he/">Liên hệ</a>).</p>'
+            "<p>Kết quả chính thức căn cứ thông báo của công ty xổ số kiến thiết. "
+            'Cách thu thập và kiểm tra dữ liệu được mô tả tại <a href="/nguon-du-lieu/">Nguồn dữ liệu</a>; '
+            'phương pháp thống kê tại <a href="/phuong-phap/">Phương pháp</a>.</p>'
+        )),
         "nguon-du-lieu": ("Nguồn dữ liệu | Kết Số", "Nguồn dữ liệu", "<p>Dữ liệu được tổng hợp từ các nguồn công bố kết quả và kiểm tra cấu trúc trước khi cập nhật vào kho.</p><p>Crawler dùng nguồn dự phòng khi nguồn đầu tiên thiếu bảng; một số trang công ty xổ số kiến thiết được đối chiếu thêm khi robots.txt cho phép và HTML đủ cấu trúc. Dữ liệu cũ không bị thay bằng kết quả rỗng khi nguồn gặp sự cố.</p><p>GitHub Actions chạy sau giờ quay; thời điểm cập nhật hiển thị ngay trong ứng dụng.</p>"),
-        "lien-he": ("Liên hệ | Kết Số", "Liên hệ", "<p>Kênh liên hệ chính thức đang được hoàn thiện. Chúng tôi không công bố email cho đến khi chủ quản xác nhận đầu mối tiếp nhận.</p><p>Nếu phát hiện kết quả cần đối chiếu, vui lòng quay lại nguồn công bố của công ty xổ số kiến thiết tương ứng.</p>"),
+        "lien-he": ("Liên hệ | Kết Số", "Liên hệ", (
+            f'<p>Đầu mối tiếp nhận phản hồi về nội dung và dữ liệu của Kết Số: '
+            f'<a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a></p>'
+            "<p>Vui lòng dùng địa chỉ này khi cần báo sai lệch số liệu, đề nghị đính chính, "
+            "hoặc hỏi về nguồn dữ liệu. Kết Số không bán số, không nhận tiền của người xem và không cung cấp "
+            "bất kỳ giao dịch nào.</p>"
+            "<p>Kết quả chính thức luôn căn cứ thông báo của công ty xổ số kiến thiết tương ứng. "
+            "Nếu phát hiện kết quả cần đối chiếu, vui lòng kiểm tra lại tại nguồn công bố gốc "
+            "trước khi gửi phản hồi.</p>"
+        )),
     }
     for route, (title, heading, body) in docs.items():
         changes += safe_write(ROOT / route / "index.html", static_document(route, title, heading, body, origin, modified), check)
