@@ -1,13 +1,13 @@
 User-agent: *
-Allow: /$
-Allow: /index.html
-Allow: /privacy.html
+Allow: /
+Disallow: /data/
 Disallow: /work/
 Disallow: /outputs/
-Disallow: /data/
+Disallow: /templates/
 Disallow: /*.md$
 Disallow: /*.py$
 Disallow: /*.cjs$
 Disallow: /*.bat$
+Disallow: /*.json$
 
 Sitemap: https://xsptkt.vercel.app/sitemap.xml

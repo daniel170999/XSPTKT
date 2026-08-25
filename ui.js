@@ -229,16 +229,8 @@ function renderLive(){
 }
 
 /* ---------------- bảng kết quả của kho dữ liệu ---------------- */
-const RESULT_GROUPS={
-  MB:[
-    {n:"Đặc biệt",c:1,kind:"special"},{n:"Giải nhất",c:1,kind:"first"},{n:"Giải nhì",c:2},{n:"Giải ba",c:6},
-    {n:"Giải tư",c:4},{n:"Giải năm",c:6},{n:"Giải sáu",c:3},{n:"Giải bảy",c:4}
-  ],
-  MN:[
-    {n:"Giải tám",c:1},{n:"Giải bảy",c:1},{n:"Giải sáu",c:3},{n:"Giải năm",c:1},
-    {n:"Giải tư",c:7},{n:"Giải ba",c:2},{n:"Giải nhì",c:1},{n:"Giải nhất",c:1,kind:"first"},{n:"Đặc biệt",c:1,kind:"special"}
-  ]
-};
+const RESULT_GROUPS=window.XS_SITE_SCHEMA?.resultGroups;
+if(!RESULT_GROUPS) throw new Error("Không tải được cấu trúc bảng kết quả.");
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
 function resultDays(region){ return [...DB[region].days].reverse() }
 function resultRows(region){
@@ -1290,6 +1282,7 @@ function initApp(){
   updateThemeToggle();
   setSearchOpen(false);
   refresh();
+  requestAnimationFrame(()=>{ document.documentElement.dataset.appReady="true"; });
 }
 (function init(){
   const metaUpdated=(window.XS_META||{}).updated||"";

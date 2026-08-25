@@ -29,7 +29,7 @@
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f8fb">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111821">
-<script>try{const t=localStorage.getItem("xs_theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>document.documentElement.classList.add("js");try{const t=localStorage.getItem("xs_theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -52,6 +52,17 @@
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
+<div id="staticResults"><div class="static-page"><header class="static-shell static-nav">
+  <a class="static-brand" href="/"><img src="/icon.svg" width="34" height="34" alt=""><span>Kết Số</span></a>
+  <nav class="static-links" aria-label="Điều hướng">
+    <a href="/">Kết quả</a><a href="/xsmn/">XSMN</a><a href="/xsmb/">XSMB</a><a href="/nguon-du-lieu/">Nguồn dữ liệu</a>
+  </nav>
+</header><main class="static-shell static-main">
+  <section class="static-hero"><p class="static-kicker">Kết quả mới nhất</p><h1>Kết quả xổ số XSMN và XSMB hôm nay</h1><p>Xem nhanh các kết quả đã công bố gần nhất. Bật JavaScript để tra cứu lịch sử và xem bản đồ dữ liệu.</p></section>
+  <div class="static-grid"><article class="static-card"><div class="static-card-head"><h2>XSMB</h2><time datetime="2026-08-24">Thứ Hai, 24/08/2026</time></div><div class="static-table-wrap"><table class="static-table"><tbody><tr><th scope="row">Đặc biệt</th><td><div class="static-number-list"><span class="static-number static-number--special">36917</span></div></td></tr><tr><th scope="row">Giải nhất</th><td><div class="static-number-list"><span class="static-number">00086</span></div></td></tr></tbody></table></div></article><article class="static-card"><div class="static-card-head"><h2>TPHCM</h2><time datetime="2026-08-24">Thứ Hai, 24/08/2026</time></div><div class="static-table-wrap"><table class="static-table"><tbody><tr><th scope="row">Giải tám</th><td><div class="static-number-list"><span class="static-number">40</span></div></td></tr><tr><th scope="row">Đặc biệt</th><td><div class="static-number-list"><span class="static-number static-number--special">225824</span></div></td></tr></tbody></table></div></article><article class="static-card"><div class="static-card-head"><h2>Đồng Tháp</h2><time datetime="2026-08-24">Thứ Hai, 24/08/2026</time></div><div class="static-table-wrap"><table class="static-table"><tbody><tr><th scope="row">Giải tám</th><td><div class="static-number-list"><span class="static-number">40</span></div></td></tr><tr><th scope="row">Đặc biệt</th><td><div class="static-number-list"><span class="static-number static-number--special">078861</span></div></td></tr></tbody></table></div></article><article class="static-card"><div class="static-card-head"><h2>Cà Mau</h2><time datetime="2026-08-24">Thứ Hai, 24/08/2026</time></div><div class="static-table-wrap"><table class="static-table"><tbody><tr><th scope="row">Giải tám</th><td><div class="static-number-list"><span class="static-number">03</span></div></td></tr><tr><th scope="row">Đặc biệt</th><td><div class="static-number-list"><span class="static-number static-number--special">177307</span></div></td></tr></tbody></table></div></article></div>
+  <p class="static-note">Kho dữ liệu cập nhật đến Thứ Hai, 24/08/2026. Kết quả có thể được điều chỉnh nếu nguồn công bố cập nhật lại.</p>
+</main><footer class="static-shell static-footer"><p>Kết Số tổng hợp kết quả và dữ liệu đã công bố. Dữ liệu quá khứ chỉ dùng để tra cứu và mô tả.</p></footer></div></div>
+<div id="appShell">
 
 <a class="skip" href="#appMain">Đi đến nội dung chính</a>
 <header>
@@ -115,7 +126,7 @@
       <div class="live-stage-grid">
         <div>
           <div class="live-kicker"><span class="live-signal" id="liveSignal" aria-hidden="true"></span><span id="liveStatus">Đang kiểm tra lịch quay</span></div>
-          <h1 id="liveTitle">Kết quả xổ số hôm nay</h1>
+          <h2 id="liveTitle">Kết quả xổ số hôm nay</h2>
           <p id="liveLead">Xem kết quả theo từng giải, sau đó tra lại các kỳ gần nhất ngay trên cùng một trang.</p>
         </div>
         <div class="live-clock"><span>Giờ Việt Nam</span><b id="liveClock">--:--</b><small id="liveSchedule">XSMN 16:15 · XSMB 18:15</small><button type="button" class="live-tool" id="liveRefresh">Tải lại dữ liệu</button></div>
@@ -152,7 +163,7 @@
   <!-- ============ LỊCH SỬ KẾT QUẢ ============ -->
   <div class="view" id="v-history">
     <div class="view-intro">
-      <div><span class="eyebrow">Dữ liệu đã công bố</span><h1>Lịch sử kết quả</h1><p>Chọn một ngày để xem lại đầy đủ các giải XSMN hoặc XSMB.</p></div>
+      <div><span class="eyebrow">Dữ liệu đã công bố</span><h2>Lịch sử kết quả</h2><p>Chọn một ngày để xem lại đầy đủ các giải XSMN hoặc XSMB.</p></div>
     </div>
     <section class="result-shell" aria-labelledby="historyTitle">
       <div class="result-shell-head">
@@ -167,7 +178,7 @@
   <!-- ============ THỐNG KÊ DỮ LIỆU ĐÃ CÔNG BỐ ============ -->
   <div class="view" id="v-ana">
     <div class="view-intro">
-      <div><span class="eyebrow">Dễ nhìn, dễ tra cứu</span><h1>Thống kê số</h1><p>Màu sắc và bảng số giúp bạn nhìn lại tần suất trên dữ liệu đã công bố.</p></div>
+      <div><span class="eyebrow">Dễ nhìn, dễ tra cứu</span><h2>Thống kê số</h2><p>Màu sắc và bảng số giúp bạn nhìn lại tần suất trên dữ liệu đã công bố.</p></div>
       <div class="subnav" id="anaChips" aria-label="Màn thống kê"></div>
     </div>
 
@@ -286,7 +297,7 @@
   <!-- ============ 2 MIỀN ============ -->
   <div class="view" id="v-cross">
     <div class="view-intro">
-      <div><span class="eyebrow">Cùng ngày, cùng một màn hình</span><h1>Đối chiếu hai miền</h1><p>Xem kết quả XSMN và XSMB cạnh nhau, rồi kiểm tra mối liên hệ trên lịch sử.</p></div>
+      <div><span class="eyebrow">Cùng ngày, cùng một màn hình</span><h2>Đối chiếu hai miền</h2><p>Xem kết quả XSMN và XSMB cạnh nhau, rồi kiểm tra mối liên hệ trên lịch sử.</p></div>
     </div>
     <section>
       <div class="stitle">Kết quả hôm nay — hai miền</div>
@@ -308,13 +319,14 @@
   <!-- ============ NGUỒN VÀ PHƯƠNG PHÁP ============ -->
   <div class="view" id="v-verify">
     <div class="view-intro">
-      <div><span class="eyebrow">Minh bạch từ đầu</span><h1>Nguồn & cách cập nhật</h1><p>Biết bảng trực tiếp đến từ đâu, kho lịch sử sâu bao nhiêu và lần cập nhật gần nhất.</p></div>
+      <div><span class="eyebrow">Minh bạch từ đầu</span><h2>Nguồn & cách cập nhật</h2><p>Biết bảng trực tiếp đến từ đâu, kho lịch sử sâu bao nhiêu và lần cập nhật gần nhất.</p></div>
     </div>
     <div id="methodData"></div>
   </div>
 
   <div class="foot" id="foot"></div>
  </main>
+</div>
 
 <div class="mbg" id="mbg"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -322,6 +334,7 @@
 
 <script defer src="data/meta.js"></script>
 <script defer src="data/latest.js"></script>
+<script defer src="site-schema.js"></script>
 <script defer src="app.js"></script>
 <script defer src="ui.js"></script>
 </body>

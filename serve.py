@@ -57,7 +57,15 @@ def run_update(max_fetch=30, days=None):
         if days:
             cmd += ["--days", str(days)]
         print("\n[auto] " + " ".join(cmd))
-        subprocess.run(cmd, cwd=BASE, timeout=1800)
+        result = subprocess.run(cmd, cwd=BASE, timeout=1800)
+        if result.returncode != 0:
+            STATE["last_msg"] = "cap nhat that bai " + datetime.now().strftime("%H:%M")
+            return False
+        build = [sys.executable if sys.executable else "py", os.path.join(BASE, "build_pages.py")]
+        result = subprocess.run(build, cwd=BASE, timeout=1800)
+        if result.returncode != 0:
+            STATE["last_msg"] = "tao trang that bai " + datetime.now().strftime("%H:%M")
+            return False
         STATE["last_msg"] = "cap nhat xong " + datetime.now().strftime("%H:%M")
         return True
     except Exception as e:

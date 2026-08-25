@@ -28,3 +28,5 @@ __pycache__/
 # Dữ liệu thô không dùng ở client
 data/xsmn.json
 data/config.json
+data/site-schema.json
+templates/

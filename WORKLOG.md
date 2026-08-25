@@ -1,5 +1,25 @@
 # WORKLOG — Kết Số
 
+## 2026-08-25 — WP4: trang kết quả tĩnh và đường dẫn công khai
+
+### Phạm vi đã làm
+
+- Thêm `build_pages.py` chỉ dùng thư viện chuẩn, đọc `data/xsmb.js`/`data/xsmn.js` qua JSON, kiểm tra số lượng giải và sinh HTML nguyên tử từ một template riêng. `index.html` là đầu ra; `templates/index.template.html` mới là nguồn SPA không bị crawler ghi đè.
+- Sinh trang chủ có fallback kết quả thật trước JavaScript, hai hub `/xsmn/` và `/xsmb/`, **180** trang ngày gần nhất (90 mỗi miền), **21** hub đài XSMN, cùng các trang giới thiệu/nguồn/phương pháp/liên hệ/quyền riêng tư.
+- Sinh `site-schema.js` từ `data/site-schema.json` để renderer app và builder dùng cùng tên/nhóm giải; không sửa cấu trúc hay công thức trong `app.js`.
+- Chỉ đưa route hub/tài liệu vào sitemap (**29** URL); trang ngày vẫn có canonical nhưng không làm sitemap phình lên. `robots.txt` cho crawl public route, chặn dữ liệu thô và tệp nội bộ.
+- `serve.py` và GitHub Actions giờ tạo lại trang tĩnh sau khi crawler chạy thành công; nếu crawler hoặc builder lỗi, trạng thái local báo lỗi thay vì ghi nhận cập nhật thành công.
+
+### Kiểm chứng có số liệu
+
+| Hạng mục | Kết quả |
+|---|---|
+| Builder | Chạy lại `build_pages.py --days 90`: **180** trang ngày + **21** hub đài; lần kế tiếp **0** thay đổi. Chế độ `--check` cũng trả **0** thay đổi. |
+| Nội dung tĩnh | `/xsmn/` có đúng **1** `h1`, không nạp script app, và có số XSMN mới nhất `225824` trong HTML. Trang chủ chỉ có **1** `h1` fallback; năm `h1` SPA đã đổi thành `h2`. |
+| Browser local | `/xsmn/` tại **375px**: `scrollWidth=360`, viewport `375`, không tràn và console **0** lỗi. Trang chủ sau khi app render: fallback ẩn, app hiện; đổi sang XSMB/mở Lịch sử vẫn có kết quả đầy đủ, không tràn ở **375px**, console **0** lỗi. |
+| Server local | `/` và `/xsmn/` đều HTTP **200**; `/api/status` báo `live:true`, XSMB **7.532** và XSMN **6.677** kỳ, cùng tới **24/08/2026**. |
+| Cú pháp | Python bundled biên dịch `build_pages.py`, `update.py`, `test_update.py`; `node --check app.js` và `node --check ui.js` đạt. |
+
 ## 2026-08-25 — WP3: tách tải dữ liệu và cache
 
 ### Phạm vi đã làm
