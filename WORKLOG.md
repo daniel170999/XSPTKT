@@ -1,5 +1,26 @@
 # WORKLOG — Kết Số
 
+## 2026-08-25 — WP8 A: thang chữ và kỷ luật token
+
+### Phạm vi đã làm
+
+- Bỏ alias `--r`, `--r-sm`, `--sh`; toàn bộ bo góc còn dùng `--radius-sm` / `--radius` / `--radius-lg`, mọi bóng còn `--shadow-1`, `--shadow-2` hoặc `none`.
+- Nắn `margin` / `padding` / `gap` về thang 4–8–12–16–24–32–48, không đổi kích thước vùng bấm hay tọa độ định vị.
+- Dựng lại hierarchy: số giải đặc biệt `clamp(34px,9vw,48px)`, số giải khác 20px, heading mục 22px, tên đài 18px/600, nội dung 16px, nhãn phụ 14px. Preload thêm font 600.
+- Bỏ toàn bộ eyebrow và rule `.grid3` đã chết; nhãn “Miền” chuyển sang chữ thường. Tăng tương phản token `--text-subtle` sáng từ `#718095` lên `#627186`.
+- Không sửa `app.js`, dữ liệu, crawler hay công thức thống kê.
+
+### Kiểm chứng có số liệu
+
+| Hạng mục | Kết quả |
+|---|---|
+| 375×812, theme sáng/tối | **272** element nhìn thấy; cỡ chữ: 14px **126** (46,3%), 16px 101, 17px 4, 18px 2, 20px 36, 22px 1, 34px 2. Weight: 400×122, **600×44**, 700×106. Header **95px**; tràn ngang **0px** (raw `scrollWidth - innerWidth = -15px`). |
+| 1280×900, theme tối | **402** element nhìn thấy; 14px **194** (48,3%), 16px 89, 18px 1, 20px 109, 22px 3, 48px 6. Weight: 400×161, **600×44**, 700×197. Không tràn ngang. |
+| Số kết quả | 375px: số thường **20px**, đặc biệt **34px**; 1280px: đặc biệt **48px**. Bậc 22px có mặt. |
+| Token render | Bán kính: **8/12/16px + 50%**; bóng: đúng **2** kiểu. `radial-gradient=0`, `backdrop-filter=0`, eyebrow còn **0**. |
+| Tương phản token | Sáng: text **15,01:1**, muted **5,84:1**, subtle **4,67:1**; tối: **16,45:1 / 10,94:1 / 6,83:1** trên nền chính. |
+| Hành vi app | Đổi đủ 3 trạng thái theme system → sáng → tối → system; duyệt 5 tab public, console local rỗng. `node --check app.js`, `node --check ui.js`, `test_update.py` **8/8**, builder `--check` **0** thay đổi. |
+
 ## 2026-08-25 — WP7 P0: hiển thị app không phụ thuộc `requestAnimationFrame`
 
 ### Phạm vi đã làm

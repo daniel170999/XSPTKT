@@ -42,11 +42,12 @@
 }
 </script>
 <link rel="preload" href="fonts/be-vietnam-pro-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/be-vietnam-pro-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/be-vietnam-pro-700.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-:root{color-scheme:light;--surface:#f6f8fb;--surface-raised:#fff;--surface-muted:#eef3f8;--border:#d7e0ea;--text:#172234;--text-muted:#526278;--text-subtle:#718095;--accent:#0b6edc;--accent-strong:#0758b5;--accent-rgb:11,110,220;--accent-contrast:#fff;--positive:#087f59;--warning:#9a6100;--danger:#bf3246;--numeric:#8a5700;--shadow-1:0 1px 2px rgba(23,34,52,.06);--shadow-2:0 12px 30px rgba(23,34,52,.10);--radius-sm:8px;--radius:12px;--radius-lg:16px;--bg:var(--surface);--bg2:var(--surface-muted);--card:var(--surface-raised);--card2:var(--surface-muted);--line:var(--border);--txt:var(--text);--dim:var(--text-muted);--dim2:var(--text-subtle);--acc:var(--accent);--acc2:var(--accent-strong);--acc-rgb:var(--accent-rgb);--hot:var(--danger);--gold:var(--warning);--ok:var(--positive);--warn:var(--warning);--r:var(--radius-lg);--r-sm:var(--radius-sm);--sh:var(--shadow-2)}
+:root{color-scheme:light;--surface:#f6f8fb;--surface-raised:#fff;--surface-muted:#eef3f8;--border:#d7e0ea;--text:#172234;--text-muted:#526278;--text-subtle:#627186;--accent:#0b6edc;--accent-strong:#0758b5;--accent-rgb:11,110,220;--accent-contrast:#fff;--positive:#087f59;--warning:#9a6100;--danger:#bf3246;--numeric:#8a5700;--shadow-1:0 1px 2px rgba(23,34,52,.06);--shadow-2:0 12px 30px rgba(23,34,52,.10);--radius-sm:8px;--radius:12px;--radius-lg:16px;--bg:var(--surface);--bg2:var(--surface-muted);--card:var(--surface-raised);--card2:var(--surface-muted);--line:var(--border);--txt:var(--text);--dim:var(--text-muted);--dim2:var(--text-subtle);--acc:var(--accent);--acc2:var(--accent-strong);--acc-rgb:var(--accent-rgb);--hot:var(--danger);--gold:var(--warning);--ok:var(--positive);--warn:var(--warning)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--surface:#111821;--surface-raised:#17212d;--surface-muted:#202d3a;--border:#334354;--text:#f2f6fb;--text-muted:#bfccda;--text-subtle:#91a2b4;--accent:#65a9ff;--accent-strong:#3385eb;--accent-rgb:101,169,255;--accent-contrast:#0d1721;--positive:#69d0a5;--warning:#f0be62;--danger:#ff8c9b;--numeric:#f0be62;--shadow-1:0 1px 2px rgba(0,0,0,.24);--shadow-2:0 12px 30px rgba(0,0,0,.26)}}:root[data-theme="dark"]{color-scheme:dark;--surface:#111821;--surface-raised:#17212d;--surface-muted:#202d3a;--border:#334354;--text:#f2f6fb;--text-muted:#bfccda;--text-subtle:#91a2b4;--accent:#65a9ff;--accent-strong:#3385eb;--accent-rgb:101,169,255;--accent-contrast:#0d1721;--positive:#69d0a5;--warning:#f0be62;--danger:#ff8c9b;--numeric:#f0be62;--shadow-1:0 1px 2px rgba(0,0,0,.24);--shadow-2:0 12px 30px rgba(0,0,0,.26)}
-@font-face{font-family:"Be Vietnam Pro";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/be-vietnam-pro-400.woff2") format("woff2")}@font-face{font-family:"Be Vietnam Pro";font-style:normal;font-weight:700;font-display:swap;src:url("fonts/be-vietnam-pro-700.woff2") format("woff2")}
+@font-face{font-family:"Be Vietnam Pro";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/be-vietnam-pro-400.woff2") format("woff2")}@font-face{font-family:"Be Vietnam Pro";font-style:normal;font-weight:600;font-display:swap;src:url("fonts/be-vietnam-pro-600.woff2") format("woff2")}@font-face{font-family:"Be Vietnam Pro";font-style:normal;font-weight:700;font-display:swap;src:url("fonts/be-vietnam-pro-700.woff2") format("woff2")}
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%;background:var(--surface)}body{margin:0;min-height:100vh;overflow-x:hidden;background:var(--surface);color:var(--text);font:16px/1.65 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}.wrap{max-width:1240px;margin:0 auto;padding:0 20px}header{position:sticky;top:0;z-index:60;background:var(--surface-raised);border-bottom:1px solid var(--border);box-shadow:var(--shadow-1)}.hbar{display:grid;grid-template-columns:auto minmax(260px,1fr) auto;align-items:center;gap:16px;padding:12px 0}.view{display:none}.view.on{display:block}
 </style>
 <link rel="stylesheet" href="app.css">
@@ -128,7 +129,6 @@
       <section class="result-shell" id="recentShell" aria-labelledby="latestTitle">
         <div class="result-shell-head">
           <div>
-            <span class="eyebrow">Kho kết quả tự động cập nhật</span>
             <h2 id="latestTitle">Kết quả gần nhất</h2>
             <p id="latestNote">Chọn ngày để xem lại đầy đủ từng giải.</p>
           </div>
@@ -154,11 +154,11 @@
   <!-- ============ LỊCH SỬ KẾT QUẢ ============ -->
   <div class="view" id="v-history">
     <div class="view-intro">
-      <div><span class="eyebrow">Dữ liệu đã công bố</span><h2>Lịch sử kết quả</h2><p>Chọn một ngày để xem lại đầy đủ các giải XSMN hoặc XSMB.</p></div>
+      <div><h2>Lịch sử kết quả</h2><p>Chọn một ngày để xem lại đầy đủ các giải XSMN hoặc XSMB.</p></div>
     </div>
     <section class="result-shell" aria-labelledby="historyTitle">
       <div class="result-shell-head">
-        <div><span class="eyebrow">Các kỳ gần nhất</span><h2 id="historyTitle">Chọn ngày muốn xem</h2></div>
+        <div><h2 id="historyTitle">Chọn ngày muốn xem</h2></div>
       </div>
       <div class="date-strip history-dates" id="historyDates" role="group" aria-label="Chọn ngày trong lịch sử"></div>
       <div id="historyResult" aria-live="polite"></div>
@@ -169,7 +169,7 @@
   <!-- ============ THỐNG KÊ DỮ LIỆU ĐÃ CÔNG BỐ ============ -->
   <div class="view" id="v-ana">
     <div class="view-intro">
-      <div><span class="eyebrow">Dễ nhìn, dễ tra cứu</span><h2>Thống kê số</h2><p>Màu sắc và bảng số giúp bạn nhìn lại tần suất trên dữ liệu đã công bố.</p></div>
+      <div><h2>Thống kê số</h2><p>Màu sắc và bảng số giúp bạn nhìn lại tần suất trên dữ liệu đã công bố.</p></div>
       <div class="subnav" id="anaChips" aria-label="Màn thống kê"></div>
     </div>
 
@@ -288,7 +288,7 @@
   <!-- ============ 2 MIỀN ============ -->
   <div class="view" id="v-cross">
     <div class="view-intro">
-      <div><span class="eyebrow">Cùng ngày, cùng một màn hình</span><h2>Đối chiếu hai miền</h2><p>Xem kết quả XSMN và XSMB cạnh nhau, rồi kiểm tra mối liên hệ trên lịch sử.</p></div>
+      <div><h2>Đối chiếu hai miền</h2><p>Xem kết quả XSMN và XSMB cạnh nhau, rồi kiểm tra mối liên hệ trên lịch sử.</p></div>
     </div>
     <section>
       <div class="stitle">Kết quả hôm nay — hai miền</div>
@@ -310,7 +310,7 @@
   <!-- ============ NGUỒN VÀ PHƯƠNG PHÁP ============ -->
   <div class="view" id="v-verify">
     <div class="view-intro">
-      <div><span class="eyebrow">Minh bạch từ đầu</span><h2>Nguồn & cách cập nhật</h2><p>Biết bảng trực tiếp đến từ đâu, kho lịch sử sâu bao nhiêu và lần cập nhật gần nhất.</p></div>
+      <div><h2>Nguồn & cách cập nhật</h2><p>Biết bảng trực tiếp đến từ đâu, kho lịch sử sâu bao nhiêu và lần cập nhật gần nhất.</p></div>
     </div>
     <div id="methodData"></div>
   </div>

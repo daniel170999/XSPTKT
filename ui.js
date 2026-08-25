@@ -933,7 +933,7 @@ function renderMethod(){
       </div>
     </section>
     <section class="data-overview" aria-labelledby="dataOverviewTitle">
-      <div class="result-shell-head"><div><span class="eyebrow">Độ sâu dữ liệu</span><h2 id="dataOverviewTitle">Kho đang có</h2></div></div>
+      <div class="result-shell-head"><div><h2 id="dataOverviewTitle">Kho đang có</h2></div></div>
       <div class="data-kpis">
         <div><span>XSMN</span><b>${(archiveReady?mn.length:Number(meta.xsmn_days||mn.length)).toLocaleString("vi-VN")}</b><small>kỳ · ${range(mn,Number(meta.xsmn_days))}</small></div>
         <div><span>XSMB</span><b>${(archiveReady?mb.length:Number(meta.xsmb_days||mb.length)).toLocaleString("vi-VN")}</b><small>kỳ · ${range(mb,Number(meta.xsmb_days))}</small></div>
