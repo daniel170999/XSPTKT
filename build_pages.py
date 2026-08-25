@@ -266,7 +266,7 @@ def mn_cards(day: MNDay, groups: list[dict], *, compact: bool = False, only: str
 def static_home(mb: MBDay, mn: MNDay, schema: dict, latest: str) -> str:
     return f"""<div class=\"static-page\">{header()}<main class=\"static-shell static-main\">
   <section class=\"static-hero\"><p class=\"static-kicker\">Kết quả mới nhất</p><h1>Kết quả xổ số XSMN và XSMB hôm nay</h1><p>Xem nhanh các kết quả đã công bố gần nhất. Bật JavaScript để tra cứu lịch sử và xem bản đồ dữ liệu.</p></section>
-  <div class=\"static-grid\">{mb_card(mb, schema["resultGroups"]["MB"], compact=True)}{mn_cards(mn, schema["resultGroups"]["MN"], compact=True, wrap=False)}</div>
+  <div class=\"static-grid\">{mb_card(mb, schema["resultGroups"]["MB"])}{mn_cards(mn, schema["resultGroups"]["MN"], wrap=False)}</div>
   <p class=\"static-note\">Kho dữ liệu cập nhật đến {e(format_date(latest))}. Kết quả có thể được điều chỉnh nếu nguồn công bố cập nhật lại.</p>
 </main>{footer()}</div>"""
 

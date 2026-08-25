@@ -1,5 +1,20 @@
 # WORKLOG — Kết Số
 
+## 2026-08-25 — WP8 B: bảng kết quả đầy đủ trong fallback trang chủ
+
+### Phạm vi đã làm
+
+- `static_home()` dùng trực tiếp `mb_card()` và `mn_cards()` ở chế độ đầy đủ, cùng renderer đang phục vụ trang ngày/hub; không tạo renderer thứ hai.
+- Không sửa sitemap, `app.js`, dữ liệu, crawler hay công thức thống kê.
+
+### Kiểm chứng có số liệu
+
+| Hạng mục | Kết quả |
+|---|---|
+| HTML fallback `/` | **4** card, **35** hàng bảng, **116** số; **46** số có 5–6 chữ số (ngưỡng ≥40), đúng **1** `<h1>`. |
+| Phạm vi dữ liệu | Fallback chứa cả XSMB và XSMN; XSMB mới nhất 24/08/2026, XSMN mới nhất 25/08/2026 trong worktree tại lúc build. |
+| Đồng bộ sinh trang | `build_pages.py` sinh **1** thay đổi rồi `build_pages.py --check` trả **0**; `#staticResults` dài **8.158** ký tự, có **35** hàng và **46** số 5–6 chữ số trước khi JavaScript chạy. |
+
 ## 2026-08-25 — WP8 A: thang chữ và kỷ luật token
 
 ### Phạm vi đã làm

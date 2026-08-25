@@ -100,6 +100,7 @@ XS/
       4 phép đo quan hệ liên miền tính live, thống kê gộp. Cache theo `digits` trong `CROSS_CACHE`.
 - [x] **WP0 pháp lý 24/08/2026**: gỡ khối giao diện legacy về chọn số, nhật ký và tỉ lệ trả thưởng; chỉ giữ kết quả, thống kê mô tả và kiểm chứng phương pháp trên website public.
 - [x] **WP4 static 25/08/2026**: 90 ngày mỗi miền, 21 hub đài và các trang công khai sinh từ kho dữ liệu; sitemap chỉ chứa hub/tài liệu, không sinh URL theo từng bộ số.
+- [x] **WP8 giao diện + fallback 25/08/2026**: thang chữ công khai ưu tiên số kết quả (đặc biệt 34–48px, số thường 20px), token chỉ còn 3 bán kính/2 bóng, không còn eyebrow/grid 3 card; fallback `/` dùng đúng renderer đầy đủ của trang ngày cho cả XSMB/XSMN (**46** số 5–6 chữ số, **35** hàng, **1** h1). Không đổi `app.js`, sitemap, crawler hoặc công thức.
 
 ### Cần theo dõi / còn thiếu
 - [ ] **Theo dõi hướng dẫn vận hành mới:** 21 công ty XSMN vẫn hoạt động và lịch quay hiện không đổi. Con số 9 là phạm vi tỉnh/thành theo quy định phân vùng, không phải số công ty. Nếu có chỉ đạo mới làm đổi tên đài/lịch quay, cập nhật `PROV_ALIAS`, `expected_mn_draws()` và chạy kiểm 21 tên.
