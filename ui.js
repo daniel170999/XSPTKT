@@ -95,6 +95,7 @@ function toast(msg){
    ========================================================================== */
 const GLOSSARY={
   nen:{t:"Xác suất nền",b:"Khả năng một số BẤT KỲ xuất hiện ít nhất 1 lần trong kỳ, nếu xổ số hoàn toàn ngẫu nhiên. Ví dụ XSMB quay 27 bộ số mỗi kỳ trên 100 khả năng → nền ≈ 23,8%. Đây là mốc để so: số nào cũng quanh mốc này thì không số nào đáng gọi là 'dễ ra'."},
+  lift:{t:"Tỷ lệ so với nền",b:"Tần suất quan sát được chia cho mức nền. 1,00 nghĩa là gần mức ngẫu nhiên; chênh lệch nhỏ thường là nhiễu lấy mẫu."},
   ganht:{t:"Khoảng hiện tại",b:"Số kỳ liên tiếp chưa thấy số này, tính đến kết quả mới nhất. Đây chỉ là khoảng cách trong lịch sử; chờ lâu không làm xác suất ở kỳ sau tăng lên."},
   hazard:{t:"Tỉ lệ lịch sử theo khoảng chờ",b:"Trong các khoảng chờ cũ có cùng độ dài, chỉ số này cho biết bao nhiêu khoảng đã kết thúc ở kỳ kế tiếp. Đây là thống kê quá khứ, không phải dự báo."},
   longest:{t:"Khoảng dài nhất",b:"Số kỳ dài nhất giữa hai lần xuất hiện trong khoảng dữ liệu đang xem, tính cả khoảng hiện tại."},
@@ -103,11 +104,19 @@ const GLOSSARY={
   cv:{t:"Độ đều (CV)",b:"Nhịp ra có đều không. CV thấp = ra khá đều đặn; CV cao = lúc dồn dập lúc mất hút. Chỉ mang tính mô tả quá khứ."},
   ktc:{t:"Khoảng tin cậy đồng thời 95%",b:"App đang soi 100 hoặc 1.000 số cùng lúc, nên khoảng này đã hiệu chỉnh Bonferroni để cả bảng có độ tin cậy xấp xỉ 95%. Nó rộng hơn khoảng 95% của một số đơn lẻ. Cận dưới vượt nền mới là dấu hiệu đáng kiểm tra tiếp."},
   sigma:{t:"σ (độ lệch chuẩn) và z",b:"Thước đo 'lệch bao xa so với trung bình'. z=+2σ = cao hơn trung bình ở mức chỉ ~2% số ô đạt được do ngẫu nhiên. Trong 100 ô thì ngẫu nhiên thuần tuý cũng tạo ra ~5 ô vượt ±2σ — nên vài ô nổi bật là chuyện bình thường."},
+  chi2:{t:"Kiểm định chi-square (χ²)",b:"Phép thử xem tần suất các số có lệch khỏi mức mọi số như nhau nhiều hơn mức ngẫu nhiên cho phép hay không. p nhỏ cần được kiểm tra thêm, không phải kết luận về kỳ sau."},
+  wilson:{t:"Khoảng Wilson",b:"Một cách ước lượng khoảng tin cậy cho tỉ lệ, ổn định hơn khi số quan sát chưa nhiều hoặc tỉ lệ gần 0% hay 100%."},
+  uplift:{t:"Uplift ngoài mẫu",b:"Chênh lệch tương đối giữa phép đo trên dữ liệu chưa nhìn thấy và mức ngẫu nhiên. Giá trị quanh 0% là điều thường thấy khi không có tín hiệu."},
+  bttest:{t:"Trong mẫu và ngoài mẫu",b:"Ngoài mẫu là đo trên ngày chưa được dùng để lập bảng; trong mẫu dùng lại dữ liệu cũ nên thường đẹp hơn. Chỉ kết quả ngoài mẫu mới phù hợp để đối chiếu."},
+  w:{t:"Trọng số độ tin cậy",b:"Trọng số thu nhỏ một chênh lệch quan sát được khi nó có thể chỉ do nhiễu lấy mẫu. Gần 0 nghĩa là chênh lệch không đủ ổn định để dùng làm tín hiệu."},
   heatmap:{t:"Bản đồ số",b:"Mỗi ô là một số. Màu giúp so sánh nhanh các số trong cùng khoảng dữ liệu. Bấm vào ô để xem lịch sử chi tiết."},
   hangvsthuc:{t:"Màu theo thứ hạng",b:"Màu được trải theo thứ hạng để dễ nhìn. Màu đậm hơn chỉ cho biết vị trí tương đối trong dữ liệu cũ, không cho biết kết quả kỳ tiếp theo."},
   carry:{t:"Lặp lại từ kỳ trước",b:"So sánh tần suất một số xuất hiện ở hai kỳ liên tiếp với mức chung trong dữ liệu. Kết quả chỉ mô tả quá khứ."},
   momentum:{t:"So sánh gần và dài hạn",b:"So tần suất 30 kỳ gần nhất với toàn bộ khoảng đang xem. Chênh lệch thường là dao động ngắn hạn."},
   pair:{t:"Cặp số cùng xuất hiện",b:"Hai số xuất hiện trong cùng một ngày nhiều hơn hoặc ít hơn mức kỳ vọng nếu độc lập. Đây chỉ là mô tả lịch sử."},
+  score:{t:"Điểm xếp hạng thử nghiệm",b:"Điểm tổng hợp các phép đo lịch sử để phục vụ kiểm chứng. Khi chưa có xác nhận ngoài mẫu, điểm này không là kết luận cho kỳ sau."},
+  edge:{t:"Ưu thế và sai số",b:"Ưu thế là phần chênh của giá trị đứng đầu so với nền; sai số là độ không chắc của phép đo. Nếu ưu thế nhỏ hơn sai số, khác biệt không tách được khỏi ngẫu nhiên."},
+  nendow:{t:"Mức nền theo thứ",b:"XSMN có số đài quay khác nhau theo ngày trong tuần nên số vị trí kết quả thay đổi. Mức nền được tính theo đúng thứ để so sánh công bằng."},
   duehan:{t:"So với khoảng trung bình",b:"Khoảng hiện tại so với khoảng xuất hiện trung bình của chính số đó. 120% nghĩa là khoảng hiện tại dài hơn mức trung bình 20%; đây chỉ là mô tả quá khứ."},
   klucpct:{t:"% so khoảng dài nhất",b:"Khoảng hiện tại bằng bao nhiêu phần khoảng dài nhất từng ghi nhận của số đó. Chỉ số này không cho biết kết quả kỳ tiếp theo."},
 };

@@ -168,17 +168,17 @@ Số đã pad 0 sẵn (`"08"` chứ không phải `"8"`). Đừng pad lại lầ
 ## R5. Quy trình bắt buộc trước khi báo "xong"
 
 ```bash
-node --check app.js && node --check ui.js
+node --check app.js && node --check ui.js && node --check method.js
 ```
 Rồi mở app và kiểm tra đủ **5 tab public (+3 màn con của Thống kê) × 2 miền × 2 chế độ số** không lỗi console:
 
-- [ ] `node --check` sạch cho `app.js` và `ui.js`
+- [ ] `node --check` sạch cho `app.js`, `ui.js` và `method.js`
 - [ ] Console trình duyệt không có lỗi đỏ
 - [ ] Cả 5 tab public + 3 màn con Thống kê render được ở XSMB và XSMN
 - [ ] Trang chủ, `/xsmn/`, `/xsmb/` và một trang ngày có đúng một `h1`, chứa kết quả trong HTML thô và vẫn đọc được khi JavaScript không chạy
 - [ ] Đổi 2 số ↔ 3 số không vỡ
 - [ ] Bảng thống kê, ô tìm kiếm và modal lịch sử thống nhất cùng bộ lọc; tần suất luôn có mức nền/mức chung
-- [ ] Backtest 300 kỳ chạy xong dưới 10 giây
+- [ ] Backtest `/phuong-phap/` 300 kỳ chạy xong dưới 10 giây, kết luận có uplift/p-value và không suy luận kết quả tương lai
 - [ ] `py update.py` chạy được, không mất dữ liệu cũ
 - [ ] Nếu đổi công thức → đã chạy lại backtest và cập nhật bảng số liệu trong ROADMAP
 

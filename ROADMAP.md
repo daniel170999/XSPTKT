@@ -23,6 +23,7 @@ BLUEPRINT §4 đã chỉ ra hướng đó không có kết quả, tốn công m�
 > hiển thị kho kết quả gần nhất trước và sinh HTML tĩnh cho trang chủ, hai miền, ngày gần đây và 21 đài;
 > Actions chạy 16:42/18:42 giờ Việt Nam, sau crawler luôn chạy `build_pages.py`. Vẫn không đổi `app.js` hay công thức.
 > Xem `DEPLOY_VERCEL.md`.
+> `/phuong-phap/` có lớp kiểm chứng rolling ngoài mẫu mở theo thao tác người xem, nhưng không có tab chọn số, nhật ký hay công cụ tính tỉ lệ trả thưởng. Cổng `MODEL_OOS_VALIDATED` vẫn `false`.
 
 ---
 
@@ -66,6 +67,7 @@ XS/
 │                   buildModel/scoreOf/rankAll (flat theo zCrit), unbiasedPick, percentile
 ├── ui.js           LỚP VẼ: 5 view public (live/history/ana/cross/verify) + 3 màn con của ana;
 │                   GLOSSARY, tooltip và modal lịch sử công khai
+├── method.js        Kiểm chứng rolling ngoài mẫu chỉ ở `/phuong-phap/`, tải kho khi bấm
 ├── update.py       Crawler đa luồng 8 workers, PROV_ALIAS (21 đài), lock, ghi nguyên tử
 ├── serve.py        LIVE server 127.0.0.1:8368, tự crawl 16:35/18:32, /api/status
 ├── build_pages.py  Sinh HTML kết quả tĩnh, sitemap, robots và `site-schema.js`
@@ -90,13 +92,13 @@ XS/
 - [x] Nền dàn số tính chính xác theo từng kỳ bằng `baseSetProb(n,w)`, không cắm số vị trí trung bình vào công thức phi tuyến
 - [x] Hazard không ngoại suy gap cực dài: scoring chỉ dùng g≤25 và risk-set≥200; ngoài vùng đó về nền
 - [x] Heatmap màu theo thứ hạng phần trăm, 9 nấc navy→đỏ, chữ tự tương phản, viền ±2σ, 3 chế độ tô
-- [x] Tooltip dấu **!** toàn app + từ điển 27 mục (GLOSSARY trong ui.js); nhãn đã Việt hoá theo audit UX
-- [x] Backtest theo lô + đối chứng in/out-sample và χ² được giữ trong công cụ kiểm toán nội bộ, không còn UI public.
+- [x] Tooltip dấu **!** toàn app + từ điển thuật ngữ thống kê; `/phuong-phap/` có từ điển tĩnh **29** mục, đọc được không cần JavaScript.
+- [x] **WP6 kiểm chứng 25/08/2026**: phép rolling ngoài mẫu nằm duy nhất tại `/phuong-phap/`, mặc định 300 kỳ/W=365/10 giá trị thử nghiệm; tải kho khi bấm, không tạo khuyến nghị hay mở cổng hành động. Lần chạy local: XSMN 2 số uplift **−0,9%**, p=**0,141**, **1,0 giây**; XSMB 3 số uplift **−3,5%**, p=**0,325**, **0,9 giây**.
 - [x] Không tràn ngang 375px/1280px (đã có script kiểm ở RULES §R4)
 - [x] Sửa 12 ngày XSMN lịch sử thiếu đài bằng nguồn dự phòng xskt.com.vn; thêm unit test parser nguồn chính + nguồn phụ
 - [x] **Tab 🔗 2 Miền** (`renderCross`, `crossAnalyze`, `mergedDays`): kết quả 2 miền hôm nay,
       4 phép đo quan hệ liên miền tính live, thống kê gộp. Cache theo `digits` trong `CROSS_CACHE`.
-- [x] **WP0 pháp lý 24/08/2026**: gỡ khối giao diện legacy về chọn số, nhật ký, backtest UI và tỉ lệ trả thưởng; chỉ giữ kết quả và thống kê mô tả trên website public.
+- [x] **WP0 pháp lý 24/08/2026**: gỡ khối giao diện legacy về chọn số, nhật ký và tỉ lệ trả thưởng; chỉ giữ kết quả, thống kê mô tả và kiểm chứng phương pháp trên website public.
 - [x] **WP4 static 25/08/2026**: 90 ngày mỗi miền, 21 hub đài và các trang công khai sinh từ kho dữ liệu; sitemap chỉ chứa hub/tài liệu, không sinh URL theo từng bộ số.
 
 ### Cần theo dõi / còn thiếu
@@ -146,4 +148,4 @@ Local:  16:15 XSMN quay → 16:35 serve.py crawl · 18:15 XSMB → 18:32 crawl
 Public: 16:42 GitHub Actions crawl XSMN · 18:42 crawl XSMB → sinh HTML tĩnh → commit → Vercel redeploy
 ```
 Người dùng public mở tab Kết quả để xem kho mới nhất; HTML tĩnh và kho tương tác cùng được cập nhật qua Actions.
-Người dùng local chỉ cần `MoApp.bat`; các phép kiểm toán mô hình chỉ dành cho công cụ nội bộ.
+Người dùng local chỉ cần `MoApp.bat`; trang `/phuong-phap/` cho phép chạy lại kiểm chứng lịch sử công khai trên chính kho dữ liệu đó.

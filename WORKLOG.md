@@ -1,5 +1,23 @@
 # WORKLOG — Kết Số
 
+## 2026-08-25 — WP6: kiểm chứng lịch sử và từ điển thống kê
+
+### Phạm vi đã làm
+
+- Khôi phục phép đo rolling ngoài mẫu tại `/phuong-phap/`: từng kỳ chỉ dùng **365** kỳ đứng trước để lập bảng thử nghiệm, sau đó so sánh **10** giá trị đầu bảng với mức ngẫu nhiên. Kho đầy đủ chỉ tải sau thao tác bấm nút; không có mục điều hướng riêng, không có luồng nhật ký, EV hoặc chọn số.
+- Giữ nguyên `MODEL_OOS_VALIDATED = false`; hàm chỉ trả kết quả đo và không thay đổi công thức trong `app.js`.
+- Thêm lớp tăng cường `method.js` có tiến trình, lỗi tải có thể thử lại, và khoá miền/số cuối tại lúc bấm để tránh đổi lựa chọn giữa lượt chạy. `/phuong-phap/` vẫn có giải thích tĩnh khi JavaScript tắt.
+- Bổ sung từ điển **29** thuật ngữ dữ liệu/thống kê tại trang phương pháp; tooltip UI khôi phục các thuật ngữ thống kê an toàn (χ², Wilson, uplift, trong/ngoài mẫu, trọng số, điểm thử nghiệm, mức nền theo thứ). Các định nghĩa về sản phẩm trả thưởng và luồng chọn số không được đưa trở lại.
+
+### Kiểm chứng có số liệu
+
+| Hạng mục | Kết quả |
+|---|---|
+| XSMN · 2 số | UI local chạy **300** kỳ ngoài mẫu trong **1,0 giây**: trung bình **4,28/kỳ**, mức ngẫu nhiên **4,32/kỳ**, uplift **−0,9%**; giá trị đầu bảng **46,3%** so nền **43,3%**, p = **0,141**. Kết luận UI: không có bằng chứng tốt hơn mức ngẫu nhiên. |
+| XSMB · 3 số | UI local chạy **300** kỳ trong **0,9 giây**: trung bình **0,22/kỳ**, mức ngẫu nhiên **0,23/kỳ**, uplift **−3,5%**; giá trị đầu bảng **2,7%** so nền **2,3%**, p = **0,325**. |
+| Trang phương pháp | Local 375px: đúng **1** `h1`, **29** dòng glossary, `scrollWidth=360` trong viewport **375**; chỉ nạp `xsmb.js`/`xsmn.js` sau khi chạy. |
+| Cú pháp và cổng | `node --check app.js`, `node --check ui.js`, `node --check method.js`, Python compile builder, `node test_model.cjs`, `work/check_words.py`, `git diff --check`: đạt. `MODEL_OOS_VALIDATED` vẫn literal `false` trong `app.js`. |
+
 ## 2026-08-25 — WP5: nguồn dữ liệu, tài liệu vận hành và kế hoạch phát triển
 
 ### Phạm vi đã làm

@@ -35,7 +35,8 @@
 | File | Vai trò | Cấm |
 |---|---|---|
 | `app.js` | **Toán thuần**: parse, `analyze()`, EB shrinkage, hazard, Wilson, χ², `rankAll()`, `unbiasedPick()` | đụng DOM |
-| `ui.js` | **Vẽ**: 5 view public (`live/history/ana/cross/verify`), modal lịch sử, tooltip; model/backtest/nhật ký cũ là code legacy không public | tự chế công thức |
+| `ui.js` | **Vẽ**: 5 view public (`live/history/ana/cross/verify`), modal lịch sử, tooltip | tự chế công thức |
+| `method.js` | Lớp tăng cường riêng cho `/phuong-phap/`: tải kho đầy đủ khi người xem bấm và chạy kiểm chứng rolling ngoài mẫu | thay đổi scoring hoặc bật `MODEL_OOS_VALIDATED` |
 | `templates/index.template.html` | Nguồn khung SPA; `index.html` là đầu ra có fallback kết quả tĩnh | logic |
 | `app.css` | CSS chung của app và các trang công khai tĩnh | logic |
 | `update.py` | Crawler đa luồng, alias tên đài, lock, ghi nguyên tử | logic hiển thị |
@@ -88,9 +89,9 @@ score(i) = pBaseFor(targetDow) + Σ_signals w_s · (p̂_s(i) − mean_s)
 
 ### 3.4 Giao thức backtest (cấm vi phạm)
 - Cửa sổ huấn luyện chỉ chứa ngày `< ngày đích`. Chạy theo lô ≤110ms/lô để không treo UI.
-- Báo cáo: trúng TB/kỳ vs chọn bừa, uplift, top1 vs nền + p-value nhị thức,
-  và **bảng đối chứng in-sample vs out-of-sample** (shift bội 7 để giữ thứ) — thước đo overfit, cấm gỡ.
-- Mặc định 300 kỳ; <200 kỳ phải hiện cảnh báo mẫu nhỏ.
+- Trang `/phuong-phap/` mặc định đo **300** kỳ ngoài mẫu với cửa sổ **365** kỳ, tất cả giải và 10 giá trị đầu bảng thử nghiệm; kho đầy đủ chỉ tải sau thao tác bấm.
+- Báo cáo trung bình/kỳ so với mức ngẫu nhiên, uplift ngoài mẫu, tỷ lệ giá trị đầu bảng xuất hiện so nền và p-value. Kết luận bắt buộc nêu giới hạn: một lượt đo không suy luận kết quả tương lai.
+- `MODEL_OOS_VALIDATED` giữ `false`; backtest là công cụ kiểm chứng, không mở cổng hành động.
 
 ### 3.5 Phạm vi lọc thống kê
 Phạm vi giải là một thuộc tính của phép phân tích: `all` dùng toàn bộ giải, còn `dd` dùng

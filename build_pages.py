@@ -147,6 +147,39 @@ def footer() -> str:
     return """<footer class=\"static-shell static-footer\"><p>Kết Số tổng hợp kết quả và dữ liệu đã công bố. Dữ liệu quá khứ chỉ dùng để tra cứu và mô tả.</p></footer>"""
 
 
+METHOD_GLOSSARY = (
+    ("Xác suất nền", "Mức xuất hiện kỳ vọng nếu mọi số có cơ hội như nhau trong cùng một kỳ."),
+    ("Tần suất", "Số lần một giá trị xuất hiện trong phạm vi dữ liệu đang xem."),
+    ("Ngày có xuất hiện", "Số ngày một giá trị có mặt ít nhất một lần; khác với tổng số lần xuất hiện."),
+    ("Khoảng hiện tại", "Số kỳ liên tiếp chưa thấy một giá trị, tính đến kết quả mới nhất."),
+    ("Khoảng dài nhất", "Khoảng cách lớn nhất từng ghi nhận giữa hai lần xuất hiện trong dữ liệu."),
+    ("Khoảng ngắn nhất", "Khoảng cách nhỏ nhất giữa hai lần xuất hiện; 0 nghĩa là hai kỳ liên tiếp."),
+    ("Khoảng trung bình", "Trung bình số kỳ giữa các lần xuất hiện trong phạm vi dữ liệu."),
+    ("Độ đều (CV)", "Thước đo mức dao động của các khoảng cách; chỉ mô tả lịch sử."),
+    ("Hazard lịch sử", "Tỷ lệ các khoảng chờ cũ kết thúc ở kỳ kế tiếp tại cùng một độ dài; không phải dự báo."),
+    ("Cỡ mẫu", "Số kỳ dùng để tính. Cỡ mẫu nhỏ làm các tỷ lệ dao động mạnh hơn."),
+    ("Khoảng tin cậy", "Khoảng giá trị hợp lý của một tỉ lệ sau khi tính đến bất định lấy mẫu."),
+    ("Khoảng Wilson", "Cách ước lượng khoảng tin cậy cho tỉ lệ, ổn định khi dữ liệu còn ít."),
+    ("z-score", "Độ lệch so với trung bình tính theo đơn vị độ lệch chuẩn."),
+    ("Chi-square (χ²)", "Phép thử xem các tần suất có lệch khỏi mức đều nhau nhiều hơn ngẫu nhiên cho phép hay không."),
+    ("p-value", "Mức độ dữ liệu phù hợp với giả thuyết không có khác biệt. p nhỏ không tự nó chứng minh nguyên nhân."),
+    ("Đa so sánh", "Khi xem nhiều số cùng lúc, vài số nổi bật có thể xuất hiện chỉ do ngẫu nhiên."),
+    ("Tỷ lệ so với nền", "Tần suất quan sát chia mức nền. Gần 1,00 nghĩa là gần mức ngẫu nhiên."),
+    ("Uplift ngoài mẫu", "Chênh lệch giữa phép đo trên dữ liệu chưa nhìn thấy và mức ngẫu nhiên."),
+    ("Mức nền theo thứ", "Số vị trí kết quả XSMN thay đổi theo thứ, nên mức nền cũng cần đổi theo."),
+    ("Lặp lại từ kỳ trước", "So sánh lịch sử một giá trị xuất hiện ở hai kỳ liên tiếp với mức chung."),
+    ("Gần và dài hạn", "So tần suất một đoạn gần đây với đoạn dữ liệu dài hơn; chênh lệch ngắn có thể là dao động."),
+    ("Cặp cùng xuất hiện", "Hai giá trị xuất hiện trong cùng ngày nhiều hoặc ít hơn mức kỳ vọng độc lập."),
+    ("Bản đồ nhiệt", "Màu giúp so sánh nhanh các giá trị trong cùng phạm vi; không diễn giải kết quả kỳ tiếp theo."),
+    ("Màu theo thứ hạng", "Màu đậm hơn chỉ thể hiện vị trí tương đối trong dữ liệu cũ."),
+    ("Trọng số độ tin cậy", "Cơ chế giảm ảnh hưởng của một chênh lệch chưa đủ ổn định."),
+    ("Điểm thử nghiệm", "Điểm tổng hợp dùng để kiểm chứng một quy tắc trên dữ liệu cũ, không phải kết luận cho kỳ sau."),
+    ("Ưu thế và sai số", "Một chênh lệch nhỏ hơn sai số không tách được khỏi ngẫu nhiên."),
+    ("Trong mẫu", "Đo trên dữ liệu đã dùng để lập bảng nên thường đẹp hơn thực tế."),
+    ("Ngoài mẫu", "Đo trên dữ liệu chưa dùng để lập bảng; đây là phép đối chiếu phù hợp hơn."),
+)
+
+
 def page_document(
     *,
     title: str,
@@ -155,6 +188,7 @@ def page_document(
     h1: str,
     content: str,
     modified: str,
+    scripts: str = "",
 ) -> str:
     description = description[:155]
     parts = url.split("/", 3)
@@ -182,7 +216,7 @@ def page_document(
 <meta property=\"og:type\" content=\"website\"><meta property=\"og:locale\" content=\"vi_VN\"><meta property=\"og:site_name\" content=\"Kết Số\"><meta property=\"og:title\" content=\"{e(title)}\"><meta property=\"og:description\" content=\"{e(description)}\"><meta property=\"og:url\" content=\"{e(url)}\"><meta property=\"og:image\" content=\"{e(site_url + 'social-card.png')}\">
 <meta name=\"twitter:card\" content=\"summary_large_image\"><meta name=\"theme-color\" content=\"#f6f8fb\"><script type=\"application/ld+json\">{schema}</script>
 </head>
-<body class=\"static-page\">{header()}<main class=\"static-shell static-main\"><section class=\"static-hero\"><p class=\"static-kicker\">Dữ liệu đã công bố</p><h1>{e(h1)}</h1></section>{content}</main>{footer()}</body></html>
+<body class=\"static-page\">{header()}<main class=\"static-shell static-main\"><section class=\"static-hero\"><p class=\"static-kicker\">Dữ liệu đã công bố</p><h1>{e(h1)}</h1></section>{content}</main>{footer()}{scripts}</body></html>
 """
 
 
@@ -279,9 +313,20 @@ def province_hub(province: dict, days: list[MNDay], schema: dict, origin: str, m
     return page_document(title=f"{label} hôm nay và các kỳ gần nhất | Kết Số", description=f"Xem kết quả {label} theo từng giải và lịch sử các kỳ đã công bố.", url=canonical(origin, f"xsmn/{province['slug']}"), h1=label, content=content, modified=modified)
 
 
-def static_document(route: str, title: str, heading: str, body: str, origin: str, modified: str) -> str:
+def static_document(route: str, title: str, heading: str, body: str, origin: str, modified: str, scripts: str = "") -> str:
     content = crumbs((("Trang chủ", "/"), (heading, None))) + f'<div class="static-copy">{body}</div>'
-    return page_document(title=title, description=heading + " — Kết Số.", url=canonical(origin, route), h1=heading, content=content, modified=modified)
+    return page_document(title=title, description=heading + " — Kết Số.", url=canonical(origin, route), h1=heading, content=content, modified=modified, scripts=scripts)
+
+
+def method_document(origin: str, modified: str) -> str:
+    glossary = "".join(f"<tr><th scope=\"row\">{e(term)}</th><td>{e(description)}</td></tr>" for term, description in METHOD_GLOSSARY)
+    body = """<p>Các bảng tần suất, bản đồ nhiệt và khoảng cách chỉ mô tả dữ liệu đã công bố trong phạm vi người xem chọn.</p>
+<p>Không có phép đo lịch sử nào dự báo kết quả tương lai. Phần kiểm chứng dưới đây so sánh một quy tắc thử nghiệm với mức ngẫu nhiên trên dữ liệu chưa nhìn thấy.</p>
+<section id=\"backtestApp\" class=\"method-panel\"><h2>Kiểm chứng trên dữ liệu cũ</h2><p>Chạy 300 kỳ ngoài mẫu. Kho đầy đủ chỉ được tải khi bạn bấm chạy.</p>
+<form id=\"methodForm\" class=\"method-form\"><label>Miền<select name=\"region\"><option value=\"MN\">XSMN</option><option value=\"MB\">XSMB</option></select></label><label>Số cuối<select name=\"digits\"><option value=\"2\">2 số</option><option value=\"3\">3 số</option></select></label><button type=\"submit\">Chạy 300 kỳ</button></form><div id=\"methodOutput\" aria-live=\"polite\"><p class=\"method-note\">Phép đo chỉ để kiểm tra dữ liệu đã có; chưa chạy thì chưa có kết quả để diễn giải.</p></div></section>
+<section class=\"method-glossary\"><h2>Cách đọc số liệu</h2><p>29 thuật ngữ thường gặp, giải thích ngắn gọn theo ngữ cảnh dữ liệu.</p><div class=\"static-table-wrap\"><table class=\"static-table\"><tbody>""" + glossary + "</tbody></table></div></section>"
+    scripts = '<script defer src="/app.js"></script><script defer src="/method.js"></script>'
+    return static_document("phuong-phap", "Phương pháp thống kê | Kết Số", "Phương pháp", body, origin, modified, scripts)
 
 
 def safe_write(path: Path, value: str, check: bool) -> bool:
@@ -371,11 +416,11 @@ def build(root: Path, days_limit: int, check: bool) -> int:
     docs = {
         "gioi-thieu": ("Giới thiệu Kết Số | Kết Số", "Giới thiệu Kết Số", "<p>Kết Số là trang tra cứu kết quả XSMN và XSMB, trình bày lại dữ liệu đã công bố theo hướng dễ xem trên điện thoại và máy tính.</p><p>Thông tin đơn vị vận hành và đầu mối liên hệ sẽ được công bố cùng kênh tiếp nhận chính thức.</p>"),
         "nguon-du-lieu": ("Nguồn dữ liệu | Kết Số", "Nguồn dữ liệu", "<p>Dữ liệu được tổng hợp từ các nguồn công bố kết quả và kiểm tra cấu trúc trước khi cập nhật vào kho.</p><p>Crawler dùng nguồn dự phòng khi nguồn đầu tiên thiếu bảng; một số trang công ty xổ số kiến thiết được đối chiếu thêm khi robots.txt cho phép và HTML đủ cấu trúc. Dữ liệu cũ không bị thay bằng kết quả rỗng khi nguồn gặp sự cố.</p><p>GitHub Actions chạy sau giờ quay; thời điểm cập nhật hiển thị ngay trong ứng dụng.</p>"),
-        "phuong-phap": ("Phương pháp thống kê | Kết Số", "Phương pháp", "<p>Các bảng tần suất, bản đồ nhiệt và khoảng cách chỉ mô tả dữ liệu đã công bố trong phạm vi người xem chọn.</p><p>Các phép so sánh được đặt cạnh mức nền và kiểm tra trên dữ liệu tách riêng. Dữ liệu quá khứ không dự báo kết quả tương lai.</p><section id=\"backtestApp\"><h2>Kiểm chứng dữ liệu</h2><p>Bản kiểm chứng chạy trong ứng dụng khi JavaScript được bật; phần này luôn giữ phần giải thích cơ bản để có thể đọc độc lập.</p></section>"),
         "lien-he": ("Liên hệ | Kết Số", "Liên hệ", "<p>Kênh liên hệ chính thức đang được hoàn thiện. Chúng tôi không công bố email cho đến khi chủ quản xác nhận đầu mối tiếp nhận.</p><p>Nếu phát hiện kết quả cần đối chiếu, vui lòng quay lại nguồn công bố của công ty xổ số kiến thiết tương ứng.</p>"),
     }
     for route, (title, heading, body) in docs.items():
         changes += safe_write(ROOT / route / "index.html", static_document(route, title, heading, body, origin, modified), check)
+    changes += safe_write(ROOT / "phuong-phap" / "index.html", method_document(origin, modified), check)
     privacy = static_document("privacy.html", "Quyền riêng tư | Kết Số", "Quyền riêng tư", "<p>Kết Số không yêu cầu tạo tài khoản. Giao diện chỉ lưu tùy chọn hiển thị và danh sách theo dõi cục bộ trên trình duyệt của người dùng.</p><p>Website không thu thập thông tin định danh qua biểu mẫu trong phiên bản hiện tại.</p>", origin, modified)
     changes += safe_write(ROOT / "privacy.html", privacy, check)
 
