@@ -8,7 +8,8 @@ const el = (tag, cls, html) => { const e=document.createElement(tag); if(cls)e.c
 
 const ST = {
   region:"MN", scope:"all", digits:2, win:"max", provs:null, view:"live",
-  hmMode:"freq", anaSub:"board", homeIndex:0, historyIndex:0, historyCount:14
+  hmMode:"freq", anaSub:"board", homeIndex:0, historyIndex:0, historyCount:14,
+  homeProvince:0, historyProvince:0
 };
 const WINS = [
   {n:7, label:"7 ngày"}, {n:30, label:"1 tháng"}, {n:90, label:"3 tháng"},
@@ -230,45 +231,94 @@ function renderLive(){
 /* ---------------- bảng kết quả của kho dữ liệu ---------------- */
 const RESULT_GROUPS={
   MB:[
-    {n:"Đặc biệt",c:1,e:1},{n:"Giải nhất",c:1},{n:"Giải nhì",c:2},{n:"Giải ba",c:6},
-    {n:"Giải tư",c:4},{n:"Giải năm",c:6},{n:"Giải sáu",c:3},{n:"Giải bảy",c:4,e:1}
+    {n:"Đặc biệt",c:1,kind:"special"},{n:"Giải nhất",c:1,kind:"first"},{n:"Giải nhì",c:2},{n:"Giải ba",c:6},
+    {n:"Giải tư",c:4},{n:"Giải năm",c:6},{n:"Giải sáu",c:3},{n:"Giải bảy",c:4}
   ],
   MN:[
-    {n:"Giải tám",c:1,e:1},{n:"Giải bảy",c:1},{n:"Giải sáu",c:3},{n:"Giải năm",c:1},
-    {n:"Giải tư",c:7},{n:"Giải ba",c:2},{n:"Giải nhì",c:1},{n:"Giải nhất",c:1},{n:"Đặc biệt",c:1,e:1}
+    {n:"Giải tám",c:1},{n:"Giải bảy",c:1},{n:"Giải sáu",c:3},{n:"Giải năm",c:1},
+    {n:"Giải tư",c:7},{n:"Giải ba",c:2},{n:"Giải nhì",c:1},{n:"Giải nhất",c:1,kind:"first"},{n:"Đặc biệt",c:1,kind:"special"}
   ]
 };
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
 function resultDays(region){ return [...DB[region].days].reverse() }
-function drawNums(nums){
-  return `<div class="draw-values">${nums.map(n=>`<span class="draw-number">${esc(n)}</span>`).join("")}</div>`;
+function resultRows(region){
+  let start=0;
+  return RESULT_GROUPS[region].map(g=>{
+    const row={...g,start}; start+=g.c; return row;
+  }).sort((a,b)=>(a.kind==="special"?0:a.kind==="first"?1:2)-(b.kind==="special"?0:b.kind==="first"?1:2));
 }
-function renderResultSheet(region,day){
-  if(!day) return `<div class="result-empty">Chưa có kết quả để hiển thị.</div>`;
-  const groups=RESULT_GROUPS[region];
-  let table="";
+function rowNumbers(region,day,row,draw){
+  const nums=region==="MN" ? draw?.nums : day.nums;
+  return nums ? nums.slice(row.start,row.start+row.c) : [];
+}
+function drawNumber(n){
+  const raw=String(n??""), prefix=raw.length>2?raw.slice(0,-2):"", tail=raw.slice(-2);
+  return `<span class="draw-number">${esc(prefix)}<span class="draw-tail">${esc(tail)}</span></span>`;
+}
+function drawNums(nums){
+  return `<div class="draw-values">${nums.map(drawNumber).join("")}</div>`;
+}
+function renderResultPriority(region,day,rows){
+  const featured=rows.filter(row=>row.kind);
+  return `<div class="result-priority" aria-label="Giải đặc biệt và giải nhất">
+    ${featured.map(row=>{
+      const values=region==="MN"
+        ? day.draws.map(draw=>({label:draw.p,nums:rowNumbers(region,day,row,draw)}))
+        : [{label:"",nums:rowNumbers(region,day,row)}];
+      return `<section class="priority-prize ${row.kind}">
+        <div class="priority-prize-head"><b>${row.kind==="special"?"Giải đặc biệt":row.n}</b><small>${region==="MN"?`${day.draws.length} đài`:"XSMB"}</small></div>
+        <div class="priority-values${values.length===1?" single":""}">${values.map(v=>`<div class="priority-value"><small>${v.label?esc(v.label):"&nbsp;"}</small>${v.nums.length?drawNumber(v.nums[0]):"—"}</div>`).join("")}</div>
+      </section>`;
+    }).join("")}
+  </div>`;
+}
+function renderDesktopTable(region,day,rows){
+  const rest=rows.filter(row=>!row.kind);
   if(region==="MB"){
-    let at=0;
-    table=`<table class="draw-table" aria-label="Kết quả XSMB ngày ${esc(fmtD(day.d))}"><tbody>`+
-      groups.map(g=>{
-        const nums=day.nums.slice(at,at+g.c); at+=g.c;
-        return `<tr class="draw-row${g.e?" edge":""}"><th scope="row" class="prize-name">${g.n}</th><td>${drawNums(nums)}</td></tr>`;
-      }).join("")+`</tbody></table>`;
-  }else{
-    table=`<table class="draw-table draw-table-mn" aria-label="Kết quả XSMN ngày ${esc(fmtD(day.d))}">
-      <thead><tr><th scope="col">Giải</th>${day.draws.map(d=>`<th scope="col">${esc(d.p)}</th>`).join("")}</tr></thead><tbody>`;
-    let at=0;
-    for(const g of groups){
-      const start=at; at+=g.c;
-      table+=`<tr class="draw-row${g.e?" edge":""}"><th scope="row" class="prize-name">${g.n}</th>`+
-        day.draws.map(d=>`<td>${drawNums(d.nums.slice(start,start+g.c))}</td>`).join("")+`</tr>`;
-    }
-    table+=`</tbody></table>`;
+    return `<div class="result-scroll"><table class="draw-table" aria-label="Các giải còn lại XSMB ngày ${esc(fmtD(day.d))}"><tbody>${rest.map(row=>
+      `<tr class="draw-row"><th scope="row" class="prize-name">${row.n}</th><td>${drawNums(rowNumbers(region,day,row))}</td></tr>`
+    ).join("")}</tbody></table></div>`;
   }
-  const area=region==="MN"?"Miền Nam":"Miền Bắc";
-  return `<div class="result-sheet">
+  return `<div class="result-scroll"><table class="draw-table draw-table-mn" aria-label="Các giải còn lại XSMN ngày ${esc(fmtD(day.d))}">
+    <thead><tr><th scope="col">Giải</th>${day.draws.map(draw=>`<th scope="col">${esc(draw.p)}</th>`).join("")}</tr></thead><tbody>${rest.map(row=>
+      `<tr class="draw-row"><th scope="row" class="prize-name">${row.n}</th>${day.draws.map(draw=>`<td>${drawNums(rowNumbers(region,day,row,draw))}</td>`).join("")}</tr>`
+    ).join("")}</tbody></table></div>`;
+}
+function resultProvinceKey(slot){ return slot==="home"?"homeProvince":"historyProvince" }
+function selectedProvince(slot,day){
+  const key=resultProvinceKey(slot), max=Math.max(0,day.draws.length-1);
+  ST[key]=Math.min(Math.max(0,ST[key]),max);
+  return ST[key];
+}
+function renderMobileRows(region,day,rows,draw){
+  return `<div class="mobile-prize-list">${rows.map(row=>`<div class="mobile-prize-row${row.kind?` ${row.kind}`:""}"><span class="mobile-prize-name">${row.kind==="special"?"Giải đặc biệt":row.n}</span><div>${drawNums(rowNumbers(region,day,row,draw))}</div></div>`).join("")}</div>`;
+}
+function renderMobileResult(region,day,rows,slot){
+  if(region==="MB") return `<div class="result-mobile" data-result-slot="${slot}"><article class="mobile-result-card"><div class="mobile-card-head">XSMB · đầy đủ các giải</div>${renderMobileRows(region,day,rows)}</article></div>`;
+  const index=selectedProvince(slot,day), draw=day.draws[index], cardId=`resultCard-${slot}`;
+  return `<div class="result-mobile" data-result-slot="${slot}">
+    <div class="province-strip" role="tablist" aria-label="Chọn đài XSMN">${day.draws.map((item,i)=>`<button type="button" class="province-chip" role="tab" data-result-slot="${slot}" data-result-province="${i}" aria-selected="${i===index}" aria-controls="${cardId}">${esc(item.p)}</button>`).join("")}</div>
+    <article class="mobile-result-card province-result-card" id="${cardId}" role="tabpanel" data-result-slot="${slot}" data-result-total="${day.draws.length}" aria-label="Kết quả ${esc(draw.p)}"><div class="mobile-card-head">${esc(draw.p)} · ${fmtD(day.d)}</div>${renderMobileRows(region,day,rows,draw)}</article>
+    ${day.draws.length>1?`<p class="swipe-note">Vuốt sang trái hoặc phải để đổi đài.</p>`:""}
+  </div>`;
+}
+function renderTailRollup(region,day){
+  const counts=new Map();
+  for(const tail of tailsOfDay(day,region,"all",2,false)) counts.set(tail,(counts.get(tail)||0)+1);
+  const tails=[...counts].sort(([a],[b])=>Number(a)-Number(b));
+  return `<section class="tail-rollup" aria-label="Hai số cuối trong kỳ">
+    <div class="tail-rollup-head"><h4>2 số cuối trong kỳ</h4><p>Bấm một số để xem lịch sử đã công bố.</p></div>
+    <div class="tail-list">${tails.map(([tail,count])=>`<button type="button" class="tail-chip" data-tail-query="${tail}" aria-label="Xem lịch sử số ${tail}">${tail}${count>1?`<small>×${count}</small>`:""}</button>`).join("")}</div>
+  </section>`;
+}
+function renderResultSheet(region,day,slot="history"){
+  if(!day) return `<div class="result-empty">Chưa có kết quả để hiển thị.</div>`;
+  const rows=resultRows(region), area=region==="MN"?"Miền Nam":"Miền Bắc";
+  return `<div class="result-sheet" data-result-slot="${slot}">
     <div class="result-meta"><h3>${area} · ${DOW_VN[day.w]}, ${fmtD(day.d)}</h3><span>${region==="MN"?`${day.draws.length} đài mở thưởng`:"Bảng kết quả đầy đủ"}</span></div>
-    <div class="result-scroll">${table}</div>
+    <div class="result-desktop">${renderResultPriority(region,day,rows)}${renderDesktopTable(region,day,rows)}</div>
+    ${renderMobileResult(region,day,rows,slot)}
+    ${renderTailRollup(region,day)}
     <p class="result-source"><b>Nguồn:</b> kết quả do các công ty xổ số kiến thiết công bố, căn cứ biên bản của Hội đồng giám sát xổ số. Kết quả chính thức lấy theo thông báo của công ty xổ số kiến thiết.</p>
   </div>`;
 }
@@ -288,7 +338,7 @@ function renderHomeResults(){
   const d=shown[ST.homeIndex];
   $("#latestTitle").textContent=`Kết quả ${ST.region} gần nhất`;
   $("#latestNote").textContent=d?`Đã cập nhật đến ${fmtD(days[0].d)} · chọn ngày để xem đầy đủ từng giải.`:"Chưa có dữ liệu.";
-  $("#homeResult").innerHTML=renderResultSheet(ST.region,d);
+  $("#homeResult").innerHTML=renderResultSheet(ST.region,d,"home");
 }
 function renderHistory(){
   const days=resultDays(ST.region), shown=days.slice(0,ST.historyCount);
@@ -296,7 +346,7 @@ function renderHistory(){
   renderDateStrip($("#historyDates"),shown,ST.historyIndex,i=>{ST.historyIndex=i;renderHistory()});
   const d=shown[ST.historyIndex];
   $("#historyTitle").textContent=d?`Kết quả ${ST.region} ngày ${fmtD(d.d)}`:`Lịch sử ${ST.region}`;
-  $("#historyResult").innerHTML=renderResultSheet(ST.region,d);
+  $("#historyResult").innerHTML=renderResultSheet(ST.region,d,"history");
   const more=$("#historyMore");
   more.hidden=shown.length>=Math.min(days.length,120);
   more.textContent=`Hiện thêm ngày (${shown.length}/${Math.min(days.length,120)})`;
@@ -938,7 +988,43 @@ $("#homeToHistory").addEventListener("click",()=>showView("history"));
 $("#liveToHistory").addEventListener("click",()=>showView("history"));
 $("#liveToStats").addEventListener("click",()=>showView("ana"));
 $("#historyMore").addEventListener("click",()=>{ST.historyCount=Math.min(ST.historyCount+14,120);renderHistory()});
+function selectResultProvince(slot,index){
+  ST[resultProvinceKey(slot)]=Math.max(0,Number(index)||0);
+  if(slot==="home") renderHomeResults(); else renderHistory();
+}
+$("#appMain").addEventListener("click",e=>{
+  const province=e.target.closest("[data-result-province]");
+  if(province){
+    selectResultProvince(province.dataset.resultSlot,province.dataset.resultProvince);
+    return;
+  }
+  const tail=e.target.closest("[data-tail-query]");
+  if(tail) openNum(tail.dataset.tailQuery,2);
+});
+let resultSwipe=null;
+document.addEventListener("pointerdown",e=>{
+  const card=e.target.closest(".province-result-card");
+  if(!card||Number(card.dataset.resultTotal)<2){ resultSwipe=null; return }
+  resultSwipe={slot:card.dataset.resultSlot,total:Number(card.dataset.resultTotal),x:e.clientX};
+});
+document.addEventListener("pointerup",e=>{
+  const swipe=resultSwipe; resultSwipe=null;
+  if(!swipe||Math.abs(e.clientX-swipe.x)<44) return;
+  const key=resultProvinceKey(swipe.slot), delta=e.clientX<swipe.x?1:-1;
+  selectResultProvince(swipe.slot,(ST[key]+delta+swipe.total)%swipe.total);
+});
+document.addEventListener("pointercancel",()=>{resultSwipe=null});
 function currentTheme(){ return document.documentElement.dataset.theme||"system" }
+function isMobileSearch(){ return window.matchMedia("(max-width: 639px)").matches }
+function setSearchOpen(open){
+  const box=$("#searchBox"), toggle=$("#searchToggle");
+  if(!box||!toggle) return;
+  const active=!!open&&isMobileSearch();
+  box.classList.toggle("is-open",active);
+  box.setAttribute("aria-hidden",String(isMobileSearch()&&!active));
+  toggle.setAttribute("aria-expanded",String(active));
+  if(active) requestAnimationFrame(()=>$("#gs")?.focus());
+}
 function updateThemeToggle(){
   const mode=currentTheme(), labels={system:"Theo hệ thống",light:"Sáng",dark:"Tối"};
   const b=$("#themeToggle"), label=$("#themeToggleLabel");
@@ -956,9 +1042,17 @@ function setTheme(mode){
 $("#themeToggle").addEventListener("click",()=>{
   setTheme({system:"light",light:"dark",dark:"system"}[currentTheme()]);
 });
+$("#searchToggle").addEventListener("click",()=>{
+  setSearchOpen(!$("#searchBox").classList.contains("is-open"));
+});
+window.addEventListener("resize",()=>{ if(!isMobileSearch()) setSearchOpen(false) });
+document.addEventListener("pointerdown",e=>{
+  const box=$("#searchBox"), toggle=$("#searchToggle");
+  if(box?.classList.contains("is-open")&&!box.contains(e.target)&&!toggle?.contains(e.target)) setSearchOpen(false);
+});
 $("#regSeg").addEventListener("click", e=>{
   const b=e.target.closest("button"); if(!b) return;
-  ST.region=b.dataset.r; ST.provs=null; ST.win="max"; ST.homeIndex=0; ST.historyIndex=0; refresh();
+  ST.region=b.dataset.r; ST.provs=null; ST.win="max"; ST.homeIndex=0; ST.historyIndex=0; ST.homeProvince=0; ST.historyProvince=0; refresh();
 });
 $("#tf").addEventListener("input", renderFullTable);
 $("#gs").addEventListener("keydown", e=>{
@@ -972,11 +1066,18 @@ $("#gs").addEventListener("keydown", e=>{
   }
   openNum(v, v.length);
   e.target.value="";
+  setSearchOpen(false);
 });
 $("#mbg").addEventListener("click", e=>{ if(e.target.id==="mbg") closeM() });
 document.addEventListener("keydown", e=>{
-  if(e.key==="Escape") closeM();
-  if(e.key==="/" && document.activeElement!==$("#gs")){ e.preventDefault(); $("#gs").focus() }
+  if(e.key==="Escape"){
+    if($("#searchBox").classList.contains("is-open")){ setSearchOpen(false); return }
+    closeM();
+  }
+  if(e.key==="/" && document.activeElement!==$("#gs")){
+    e.preventDefault();
+    if(isMobileSearch()) setSearchOpen(true); else $("#gs").focus();
+  }
 });
 
 /* ============================================================================
@@ -1081,5 +1182,6 @@ setInterval(checkStale, 5*60000);
     </div>
     <div class="foot-legal"><b style="color:var(--txt)">Lưu ý:</b> website chỉ tổng hợp kết quả và phân tích dữ liệu đã công bố. Mọi kết quả có tính ngẫu nhiên; dữ liệu quá khứ không dự báo tương lai. Website không yêu cầu tài khoản và không cung cấp giao dịch. <a href="/privacy.html">Quyền riêng tư</a>.</div>`;
   updateThemeToggle();
+  setSearchOpen(false);
   refresh();
 })();

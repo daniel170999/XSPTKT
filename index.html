@@ -57,7 +57,7 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--surface:#111821;--surface-raised:#17212d;--surface-muted:#202d3a;--border:#334354;--text:#f2f6fb;--text-muted:#bfccda;--text-subtle:#91a2b4;--accent:#65a9ff;--accent-strong:#3385eb;--accent-rgb:101,169,255;--accent-contrast:#0d1721;--positive:#69d0a5;--warning:#f0be62;--danger:#ff8c9b;--numeric:#f0be62;--shadow-1:0 1px 2px rgba(0,0,0,.24);--shadow-2:0 12px 30px rgba(0,0,0,.26)}}
 :root[data-theme="dark"]{color-scheme:dark;--surface:#111821;--surface-raised:#17212d;--surface-muted:#202d3a;--border:#334354;--text:#f2f6fb;--text-muted:#bfccda;--text-subtle:#91a2b4;--accent:#65a9ff;--accent-strong:#3385eb;--accent-rgb:101,169,255;--accent-contrast:#0d1721;--positive:#69d0a5;--warning:#f0be62;--danger:#ff8c9b;--numeric:#f0be62;--shadow-1:0 1px 2px rgba(0,0,0,.24);--shadow-2:0 12px 30px rgba(0,0,0,.26)}
 html[data-region="MB"]{--accent:#0b6edc;--accent-strong:#0758b5;--accent-rgb:11,110,220}
-html[data-region="MN"]{--accent:#c85536;--accent-strong:#a23d24;--accent-rgb:200,85,54}
+html[data-region="MN"]{--accent:#c04f31;--accent-strong:#a23d24;--accent-rgb:192,79,49}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"])[data-region="MB"]{--accent:#65a9ff;--accent-strong:#3385eb;--accent-rgb:101,169,255}:root:not([data-theme="light"])[data-region="MN"]{--accent:#ff9b7f;--accent-strong:#df7053;--accent-rgb:255,155,127}}
 :root[data-theme="dark"][data-region="MB"]{--accent:#65a9ff;--accent-strong:#3385eb;--accent-rgb:101,169,255}:root[data-theme="dark"][data-region="MN"]{--accent:#ff9b7f;--accent-strong:#df7053;--accent-rgb:255,155,127}
 @font-face{font-family:"Be Vietnam Pro";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/be-vietnam-pro-400.woff2") format("woff2");unicode-range:U+0020-007E,U+00A0-00FF,U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+2000-206F,U+20AB,U+20AC,U+2122,U+2190-2193,U+2212,U+2215,U+FEFF,U+FFFD}
@@ -586,6 +586,46 @@ table,.sig{font-size:14px}th,td{border-color:var(--border);font-size:14px}th{bac
 .modal{background:var(--surface-raised);border-color:var(--border);box-shadow:var(--shadow-2)}.mbg{background:rgba(15,24,33,.62)}.mhead .big{color:var(--accent)}.ms div,.tag,code{background:var(--surface-muted);color:var(--text-muted)}.ms b{color:var(--text)}#tipPop{background:var(--surface-raised);border-color:var(--border);color:var(--text-muted);box-shadow:var(--shadow-2)}#tipPop b{color:var(--text)}
 .moreStats{background:var(--surface-raised)}.btn,.plain-link,.toast{font-size:14px}.btn.g{background:var(--surface-raised);color:var(--text);border-color:var(--border)}.btn.g:hover{background:var(--surface-muted)}.foot{font-size:14px;color:var(--text-muted);border-radius:var(--radius-lg)}.foot-brand b{color:var(--text)}.foot a{color:var(--accent)}
 @media(max-width:620px){.header-actions{gap:6px}.theme-toggle{width:44px;padding:0}.theme-toggle span{display:none}.pill.live{min-height:44px;padding:8px}.pill.live .dot{display:none}#liveP{font-size:14px;padding:8px}.hbar{align-items:center}.brand-copy small{display:none}.live-clock{justify-content:flex-start;flex-wrap:wrap}.live-clock .live-tool{width:100%}.result-meta{align-items:flex-start}.result-source{font-size:14px}.draw-table .prize-name{font-size:14px}.draw-table-mn{min-width:650px}.draw-table-mn td{min-width:164px}.source-row{grid-template-columns:auto minmax(0,1fr);gap:10px;padding:16px}.source-row .source-detail,.source-row a{grid-column:2;white-space:normal}.appnav{display:flex;overflow-x:auto;scrollbar-width:thin}.appnav button{flex:0 0 88px;min-width:88px}.nav-copy,.nav-title{font-size:14px;white-space:nowrap}.source-row .source-card-icon{align-self:start}}
+/* ---------- WP2: ưu tiên kết quả và mobile ---------- */
+.search-toggle{display:none;align-items:center;justify-content:center;width:44px;height:44px;min-height:44px;padding:0;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-raised);color:var(--text-muted);cursor:pointer}
+.search-toggle:hover{background:var(--surface-muted);border-color:var(--accent);color:var(--text)}
+.search-toggle svg{width:20px;height:20px}
+.result-desktop{display:block}
+.result-mobile{display:none}
+.result-priority{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:12px;padding:16px 0 14px}
+.priority-prize{min-width:0;padding:15px 16px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-muted)}
+.priority-prize.special{border-color:color-mix(in srgb,var(--accent) 46%,var(--border));background:color-mix(in srgb,var(--accent) 8%,var(--surface-raised))}
+.priority-prize-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px}
+.priority-prize-head b{color:var(--text);font-size:14px}.priority-prize-head small{color:var(--text-muted);font-size:13px}
+.priority-values{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px}
+.priority-values.single{grid-template-columns:1fr}
+.priority-value{min-width:0;text-align:center}.priority-value small{display:block;min-height:20px;overflow:hidden;color:var(--text-muted);font-size:13px;line-height:1.4;text-overflow:ellipsis;white-space:nowrap}
+.priority-prize .draw-number{font-size:24px;line-height:1.18}.priority-prize.special .draw-number{font-size:clamp(30px,3vw,42px)}
+.draw-tail{display:inline-block;margin-left:1px;padding:0 .08em;border-radius:4px;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+.draw-table .prize-name{position:sticky;left:0;z-index:2;background:var(--surface-muted)}
+.draw-table thead th:first-child{position:sticky;left:0;z-index:3;background:var(--surface-muted)}
+.tail-rollup{margin-top:16px;padding:14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-muted)}
+.tail-rollup-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}.tail-rollup-head h4{color:var(--text);font-size:15px;font-weight:700}.tail-rollup-head p{color:var(--text-muted);font-size:13px}
+.tail-list{display:flex;flex-wrap:wrap;gap:8px}.tail-chip{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:44px;min-height:44px;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-raised);color:var(--text);font:700 16px/1 "Be Vietnam Pro",system-ui,sans-serif;font-variant-numeric:tabular-nums;cursor:pointer}.tail-chip:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface-raised))}.tail-chip small{color:var(--text-muted);font-size:12px;font-weight:600}
+.province-strip{display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;padding:2px 0 10px;scroll-snap-type:x proximity}.province-chip{flex:0 0 auto;min-height:44px;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface-raised);color:var(--text-muted);font:600 14px/1.2 "Be Vietnam Pro",system-ui,sans-serif;cursor:pointer;scroll-snap-align:start}.province-chip[aria-selected="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-contrast)}
+.mobile-result-card{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-raised);overflow:hidden}.mobile-card-head{padding:12px 14px;border-bottom:1px solid var(--border);background:var(--surface-muted);color:var(--text);font-size:15px;font-weight:700}.mobile-prize-list{display:flex;flex-direction:column}.mobile-prize-row{display:grid;grid-template-columns:88px minmax(0,1fr);align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid var(--border)}.mobile-prize-row:last-child{border-bottom:0}.mobile-prize-name{color:var(--text-muted);font-size:14px;font-weight:600}.mobile-prize-row .draw-values{grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:6px 8px}.mobile-prize-row .draw-number{font-size:20px}.mobile-prize-row.special,.mobile-prize-row.first{grid-template-columns:1fr;text-align:center}.mobile-prize-row.special .mobile-prize-name,.mobile-prize-row.first .mobile-prize-name{text-align:center}.mobile-prize-row.special .draw-values,.mobile-prize-row.first .draw-values{grid-template-columns:1fr}.mobile-prize-row.special{background:color-mix(in srgb,var(--accent) 8%,var(--surface-raised))}.mobile-prize-row.special .draw-number{font-size:34px;line-height:1.16}.mobile-prize-row.first .draw-number{font-size:27px}.province-result-card{touch-action:pan-y}.swipe-note{margin:9px 2px 0;color:var(--text-muted);font-size:13px;text-align:center}
+@media(max-width:639px){
+  body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+  header{position:sticky;top:0;z-index:60}
+  header .wrap{padding:0 12px}
+  .hbar{grid-template-columns:minmax(0,1fr) auto;gap:6px;padding:2px 0}
+  .brand{gap:8px;font-size:17px;min-width:0}.brand-mark{width:36px;height:36px;border-radius:10px}.brand-copy small{display:none}
+  .searchbox{display:none}.searchbox.is-open{display:block;position:fixed;z-index:80;left:12px;right:12px;top:106px;max-width:none;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-raised);box-shadow:var(--shadow-2)}.searchbox.is-open input{height:52px;background:var(--surface-muted)}
+  .search-toggle{display:inline-flex}.theme-toggle{width:44px;height:44px;min-height:44px;padding:0}.theme-toggle span{display:none}.header-actions{gap:6px}#liveP{display:none}
+  .toolbar{display:block;padding:0 0 4px}.region-picker{display:block;height:46px}.region-label{display:none}.seg{height:46px;padding:0;gap:0}.seg button{min-height:44px;padding:0 8px;text-align:center}.reg-name{display:none}.reg-code{font-size:14px}
+  .appnav{position:fixed;z-index:70;left:0;right:0;bottom:0;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;min-width:0;padding:6px 6px max(6px,env(safe-area-inset-bottom));border-radius:0;border-left:0;border-right:0;border-bottom:0;background:var(--surface-raised);box-shadow:0 -8px 22px rgba(15,29,47,.12)}
+  .appnav button{display:flex;flex:0 1 auto;min-width:0!important;min-height:52px;padding:4px 1px;gap:3px;justify-content:center;align-items:center;text-align:center}.nav-icon{width:21px;height:21px;border-radius:7px}.nav-icon svg{width:14px;height:14px}.nav-copy{display:block;min-width:0;width:100%;line-height:1.1}.nav-title{display:block;overflow:hidden;color:inherit;font-size:10px!important;text-overflow:ellipsis;white-space:nowrap}.nav-hint{display:none}
+  .view{padding-top:10px}.live-stage{margin:0 0 8px;padding:7px 0;border:0;border-radius:0;background:transparent;box-shadow:none}.live-stage::before,.live-stage h1,.live-stage p,.live-clock{display:none}.live-stage-grid{display:block}.live-kicker{min-height:28px;font-size:13px;letter-spacing:0;text-transform:none}.live-signal{width:8px;height:8px}
+  .result-shell{border-radius:var(--radius-lg)}.result-shell-head{min-height:52px;align-items:center;gap:8px;padding:8px 12px}.result-shell-head h2{font-size:18px}.result-shell-head p{display:none}.plain-link{display:inline-flex;align-items:center;min-height:44px;padding:8px;font-size:14px}.result-sheet{padding:0 12px 14px}.result-meta{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:12px 0 9px}.result-meta h3{font-size:15px;line-height:1.4}.result-meta span{font-size:13px;white-space:nowrap}
+  .result-desktop{display:none}.result-mobile{display:block}.result-source{margin:12px 2px 0;font-size:13px}.tail-rollup{margin-top:12px;padding:12px}.tail-rollup-head{align-items:flex-start;flex-direction:column;gap:2px}.tail-rollup-head h4{font-size:15px}.tail-rollup-head p{font-size:13px}.tail-list{gap:6px}.tail-chip{min-width:44px;min-height:44px;padding:7px 8px;font-size:16px}
+  .date-strip{padding:10px 12px}.date-chip{min-height:52px;padding:7px 10px}.date-chip b,.date-chip span{font-size:13px}.history-dates{flex-wrap:nowrap;overflow-x:auto}
+  .live-next{margin-top:14px}.live-next button{min-height:64px}.trust-note{margin:14px 0;font-size:13px}
+}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -599,8 +639,11 @@ table,.sig{font-size:14px}th,td{border-color:var(--border);font-size:14px}th{bac
         <span class="brand-mark" aria-hidden="true"><img src="/icon.svg?v=2" width="42" height="42" alt=""></span>
         <span class="brand-copy">Kết Số<small>Kết quả rõ ràng, mỗi ngày</small></span>
       </a>
-      <div class="searchbox"><span class="ic" aria-hidden="true">⌕</span><input id="gs" name="tra-cuu-so" type="search" aria-label="Tra cứu lịch sử số có 2 hoặc 3 chữ số" placeholder="Nhập 68 hoặc 668 để xem lịch sử…" maxlength="3" inputmode="numeric" autocomplete="off" spellcheck="false"></div>
+      <div class="searchbox" id="searchBox"><span class="ic" aria-hidden="true">⌕</span><input id="gs" name="tra-cuu-so" type="search" aria-label="Tra cứu lịch sử số có 2 hoặc 3 chữ số" placeholder="Nhập 68 hoặc 668 để xem lịch sử…" maxlength="3" inputmode="numeric" autocomplete="off" spellcheck="false"></div>
       <div class="header-actions">
+        <button type="button" class="search-toggle" id="searchToggle" aria-label="Mở ô tra cứu số" aria-controls="searchBox" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 4.2 4.2" stroke-linecap="round"/></svg>
+        </button>
         <button type="button" class="theme-toggle" id="themeToggle" aria-label="Đổi giao diện, hiện theo hệ thống" title="Đổi giao diện">
           <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="4"/></svg>
           <span id="themeToggleLabel">Theo hệ thống</span>
@@ -666,8 +709,8 @@ table,.sig{font-size:14px}th,td{border-color:var(--border);font-size:14px}th{bac
           </div>
           <button type="button" class="plain-link" id="homeToHistory">Xem toàn bộ lịch sử <span aria-hidden="true">→</span></button>
         </div>
-        <div class="date-strip" id="homeDates" role="group" aria-label="Chọn ngày kết quả gần đây"></div>
         <div id="homeResult" aria-live="polite"></div>
+        <div class="date-strip" id="homeDates" role="group" aria-label="Chọn ngày kết quả gần đây"></div>
       </section>
 
     </div>

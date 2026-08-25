@@ -1,5 +1,28 @@
 # WORKLOG — Kết Số
 
+## 2026-08-25 — WP2: bố cục ưu tiên kết quả và mobile
+
+### Phạm vi đã làm
+
+- Giữ nguyên `app.js`, công thức thống kê, scoring, dữ liệu và luồng cập nhật.
+- Đưa kết quả lên trước: ngày/trạng thái, Giải đặc biệt, Giải nhất, các giải còn lại và tổng hợp 2 số cuối; dải ngày chuyển xuống sau kết quả.
+- XSMN trên mobile có thẻ một đài, chip đổi đài và vuốt ngang; XSMB dùng một thẻ. Desktop giữ bảng ngang trong vùng cuộn riêng với cột Giải và header dính.
+- Rút gọn header mobile thành 99px tại 375px, giữ chọn miền nổi bật, đưa 5 điểm đến vào thanh đáy và để tìm số mở khi chạm biểu tượng.
+- Sửa màu chọn XSMN ở giao diện sáng từ `#c85536` sang `#c04f31` để chữ trắng đạt tương phản đủ mức; số đuôi chỉ nhấn nhẹ bằng màu nhấn, không dùng màu cảnh báo.
+
+### Kiểm chứng có số liệu
+
+| Hạng mục | Kết quả |
+|---|---|
+| Syntax + model | `node --check app.js`, `node --check ui.js`, `node test_model.cjs`: đạt |
+| Crawler + quét từ | Python bundled `test_update.py`: **4/4 đạt**; `work/check_words.py`: đạt |
+| Liên kết UI + diff | `node work/check-ui-ids.cjs`: **72** ID được gọi, **0** ID thiếu; `git diff --check`: đạt |
+| Responsive | **60** điểm kiểm (5 màn × XSMN/XSMB × 6 kích thước): `scrollWidth - clientWidth = 0`; kích thước trình duyệt thực tế do làm tròn là 321/375/391/415/770/1282px và 1280px |
+| Mobile | Header **99px** tại 375px; Giải đặc biệt hiện trong màn hình đầu; tìm số mở/đóng, đổi đài và vuốt đài XSMN hoạt động |
+| Desktop | Bảng kết quả hiện đúng Giải đặc biệt → Giải nhất → giải còn lại; cột Giải/header `sticky`; không có body horizontal scroll |
+| Console | Console từ origin `127.0.0.1:8368` **0 lỗi**. Hai lỗi inject từ extension ví EVM của Chrome được tách riêng, không thuộc app |
+| Tương phản token chính | sáng: chữ **15.01:1**, phụ **6.22:1**, chọn MB **4.91:1**, chọn MN **4.77:1**; tối: **16.45:1**, **9.96:1**, **7.47:1**, **8.82:1** |
+
 ## 2026-08-25 — WP1: hệ thiết kế, font tiếng Việt và bảng kết quả tự dựng
 
 ### Phạm vi đã làm
