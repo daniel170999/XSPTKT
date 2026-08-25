@@ -1269,6 +1269,7 @@ setInterval(checkStale, 5*60000);
 /* --------- khởi động --------- */
 function initApp(){
   if(!DB.MB.days.length && !DB.MN.days.length){
+    document.documentElement.dataset.appReady="true";
     $("#noData").style.display="";
     $$(".view").forEach(n=>n.classList.toggle("on",n.id==="v-live"));
     document.querySelector(".filters").style.display="none";
@@ -1291,7 +1292,7 @@ function initApp(){
   updateThemeToggle();
   setSearchOpen(false);
   refresh();
-  requestAnimationFrame(()=>{ document.documentElement.dataset.appReady="true"; });
+  document.documentElement.dataset.appReady="true";
 }
 (function init(){
   const metaUpdated=(window.XS_META||{}).updated||"";

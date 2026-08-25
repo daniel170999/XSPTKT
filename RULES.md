@@ -174,6 +174,7 @@ Rồi mở app và kiểm tra đủ **5 tab public (+3 màn con của Thống k�
 
 - [ ] `node --check` sạch cho `app.js`, `ui.js` và `method.js`
 - [ ] Console trình duyệt không có lỗi đỏ
+- [ ] Tải trang trong tab nền: app hiện theo CSS mặc định, không phụ thuộc `requestAnimationFrame` và không tráo fallback tĩnh khi chuyển sang tab đó
 - [ ] Cả 5 tab public + 3 màn con Thống kê render được ở XSMB và XSMN
 - [ ] Trang chủ, `/xsmn/`, `/xsmb/` và một trang ngày có đúng một `h1`, chứa kết quả trong HTML thô và vẫn đọc được khi JavaScript không chạy
 - [ ] Đổi 2 số ↔ 3 số không vỡ

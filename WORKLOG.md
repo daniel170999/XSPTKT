@@ -1,5 +1,25 @@
 # WORKLOG — Kết Số
 
+## 2026-08-25 — WP7 P0: hiển thị app không phụ thuộc `requestAnimationFrame`
+
+### Phạm vi đã làm
+
+- Đảo mặc định hiển thị: `#appShell` luôn là `display:block`; fallback tĩnh chỉ ẩn sau script đầu trang đã thêm lớp `html.js` đồng bộ.
+- `initApp()` đặt `data-app-ready="true"` đồng bộ cả ở nhánh dữ liệu rỗng và nhánh thường; bỏ riêng gate `requestAnimationFrame` của trạng thái app-ready. Không sửa `app.js`, dữ liệu hay công thức thống kê.
+- Thêm server kiểm thử cục bộ `work/test_wp7_p0_server.py`: chỉ biến đổi response trong bộ nhớ để tái lập lỗi, không ghi đè source hoặc kho dữ liệu.
+- Thêm ca “tải trang trong tab nền” vào checklist R5 để ngăn quay lại cơ chế phụ thuộc frame của tab hiển thị.
+
+### Tái lập và kiểm chứng có số liệu
+
+| Ca | Trước sửa | Sau sửa |
+|---|---|---|
+| 3 — ném lỗi ngay sau `checkStale()` | Lỗi `WP7_CASE3_AFTER_CHECK_STALE`; `#appShell=none`, `#staticResults=block`, `appReady=null` | Cùng lỗi có chủ đích; `#appShell=block`, `#staticResults=none`, nội dung app có mặt nên không còn màn hình trắng |
+| 4 — `DB.MB.days=[]; DB.MN.days=[]` | `#noData=block` nhưng bị `#appShell=none` che; `#staticResults=block`, `appReady=null` | `#noData=block` và nhìn thấy đúng “Chưa có dữ liệu.”; `#appShell=block`, `#staticResults=none`, `appReady=true` |
+| Tải bình thường | — | `#appShell=block`, `#staticResults=none`, `appReady=true`, không tràn ngang ở viewport kiểm thử |
+| Cổng kỹ thuật | — | `node --check` cho `app.js`, `ui.js`, `method.js`; `test_model: OK`; `check-ui-ids`: **73** ID, **0** thiếu; `test_update.py`: **8/8**; builder `--check`: **0** thay đổi (180 trang ngày, 21 trang đài); `check_words: OK`; `git diff --check`: đạt |
+
+Ca tab nền đã được loại bỏ phụ thuộc bằng code: không còn CSS `data-app-ready` và không còn `requestAnimationFrame` nào đặt app-ready. Trình duyệt kiểm thử cục bộ không có API mở tab ở trạng thái ẩn, nên đây là chứng minh theo đường chạy thay vì mô phỏng foreground/background của hệ điều hành.
+
 ## 2026-08-25 — WP6: kiểm chứng lịch sử và từ điển thống kê
 
 ### Phạm vi đã làm
