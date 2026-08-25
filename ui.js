@@ -348,8 +348,11 @@ function renderHistory(){
   $("#historyTitle").textContent=d?`Kết quả ${ST.region} ngày ${fmtD(d.d)}`:`Lịch sử ${ST.region}`;
   $("#historyResult").innerHTML=renderResultSheet(ST.region,d,"history");
   const more=$("#historyMore");
-  more.hidden=shown.length>=Math.min(days.length,120);
-  more.textContent=`Hiện thêm ngày (${shown.length}/${Math.min(days.length,120)})`;
+  const canLoadArchive=archiveState!=="ready" && days.length>=90;
+  more.hidden=shown.length>=Math.min(days.length,120)&&!canLoadArchive;
+  more.textContent=canLoadArchive
+    ? "Xem thêm từ kho đầy đủ"
+    : `Hiện thêm ngày (${shown.length}/${Math.min(days.length,120)})`;
 }
 /* Nhãn phạm vi dùng trong bộ lọc và modal lịch sử công khai. */
 const scopeLabel=(reg,sc)=> sc==="dd" ? (reg==="MB"?"G7 + GĐB":"G8 + GĐB") : "Tất cả giải";
@@ -906,7 +909,10 @@ const ANA_SUBS=[
 ];
 function renderMethod(){
   const meta=window.XS_META||{}, mb=DB.MB.days, mn=DB.MN.days;
-  const range=a=>a.length?`${fmtD(a[0].d)} → ${fmtD(a[a.length-1].d)}`:"Chưa có dữ liệu";
+  const archiveReady=archiveState==="ready";
+  const range=(a,total)=>archiveReady&&a.length
+    ? `${fmtD(a[0].d)} → ${fmtD(a[a.length-1].d)}`
+    : `Kho đầy đủ: ${(total||a.length).toLocaleString("vi-VN")} kỳ`;
   $("#methodData").innerHTML=`
     <section class="source-list" aria-label="Nguồn dữ liệu">
       <div class="source-row">
@@ -928,9 +934,9 @@ function renderMethod(){
     <section class="data-overview" aria-labelledby="dataOverviewTitle">
       <div class="result-shell-head"><div><span class="eyebrow">Độ sâu dữ liệu</span><h2 id="dataOverviewTitle">Kho đang có</h2></div></div>
       <div class="data-kpis">
-        <div><span>XSMN</span><b>${mn.length.toLocaleString("vi-VN")}</b><small>kỳ · ${range(mn)}</small></div>
-        <div><span>XSMB</span><b>${mb.length.toLocaleString("vi-VN")}</b><small>kỳ · ${range(mb)}</small></div>
-        <div><span>Đài Miền Nam</span><b>${DB.MN.provs.length}</b><small>đài có dữ liệu thường xuyên</small></div>
+        <div><span>XSMN</span><b>${(archiveReady?mn.length:Number(meta.xsmn_days||mn.length)).toLocaleString("vi-VN")}</b><small>kỳ · ${range(mn,Number(meta.xsmn_days))}</small></div>
+        <div><span>XSMB</span><b>${(archiveReady?mb.length:Number(meta.xsmb_days||mb.length)).toLocaleString("vi-VN")}</b><small>kỳ · ${range(mb,Number(meta.xsmb_days))}</small></div>
+        <div><span>Đài Miền Nam</span><b>${archiveReady?DB.MN.provs.length:"21"}</b><small>${archiveReady?"đài có dữ liệu thường xuyên":"đài trong kho công bố"}</small></div>
       </div>
     </section>
     <div class="method-note" role="note">
@@ -949,6 +955,83 @@ function renderAna(){
 const RENDER = { live:renderLive, history:renderHistory, ana:renderAna, cross:renderCross, verify:renderMethod };
 let dirty = {};
 const VIEW_HASH={live:"ket-qua",history:"lich-su",ana:"thong-ke",cross:"hai-mien",verify:"nguon"};
+const FULL_DATA_VIEWS=new Set(["ana","cross"]);
+const DATA_SCRIPT_PROMISES=new Map();
+let archiveState="latest", archivePromise=null, archiveError="", dataEpoch=0;
+
+function setDataLoading(show, message=""){
+  const node=$("#dataLoad"); if(!node) return;
+  node.hidden=!show;
+  node.textContent=message;
+}
+function loadDataScript(key, src){
+  if(DATA_SCRIPT_PROMISES.has(key)) return DATA_SCRIPT_PROMISES.get(key);
+  const promise=new Promise((resolve,reject)=>{
+    const script=document.createElement("script");
+    script.src=src; script.async=true;
+    script.onload=()=>{script.remove();resolve()};
+    script.onerror=()=>{script.remove();reject(new Error(`Không tải được ${src}`))};
+    document.head.append(script);
+  });
+  DATA_SCRIPT_PROMISES.set(key,promise);
+  return promise.catch(err=>{DATA_SCRIPT_PROMISES.delete(key);throw err});
+}
+function setDeferredView(v, state, message){
+  const host=$("#v-"+v); if(!host) return;
+  let panel=host.querySelector(".data-state");
+  if(state==="ready"){
+    host.classList.remove("data-pending"); panel?.remove(); return;
+  }
+  if(!panel){ panel=el("div","data-state"); host.prepend(panel); }
+  host.classList.add("data-pending");
+  panel.innerHTML=state==="error"
+    ? `<b>Không tải được kho dữ liệu</b><span>${esc(message||"Kiểm tra kết nối rồi thử lại.")}</span><button type="button" class="btn g" data-load-archive>Thử lại</button>`
+    : `<b>Đang tải kho dữ liệu</b><span>${esc(message||"Chuẩn bị bảng thống kê đầy đủ.")}</span>`;
+}
+function currentRevision(){ return (window.XS_META||{}).updated||window.XS_LATEST?.updated||"" }
+function loadLatestData(revision){
+  const wanted=revision||currentRevision(), epoch=++dataEpoch;
+  const suffix=wanted?`?rev=${encodeURIComponent(wanted)}`:"";
+  setDataLoading(true,"Đang nhận bản kết quả mới…");
+  return loadDataScript(`latest:${wanted}`,`data/latest.js${suffix}`).then(()=>{
+    if(epoch!==dataEpoch) return false;
+    const latest=window.XS_LATEST;
+    if(!latest||!Array.isArray(latest.mb)||!Array.isArray(latest.mn)) throw new Error("Bản kết quả mới không hợp lệ.");
+    window.XS_RELOAD_DATA(latest.mb,latest.mn);
+    CROSS_CACHE={}; archiveState="latest"; archiveError=""; archivePromise=null;
+    setDataLoading(false); return true;
+  }).catch(err=>{setDataLoading(false);throw err});
+}
+function ensureFullData(message="Đang tải kho dữ liệu đầy đủ…"){
+  if(archiveState==="ready") return Promise.resolve(true);
+  if(archiveState==="loading") return archivePromise;
+  archiveState="loading"; archiveError="";
+  const revision=currentRevision(), suffix=revision?`?rev=${encodeURIComponent(revision)}`:"", epoch=dataEpoch;
+  setDataLoading(true,message);
+  archivePromise=Promise.all([
+    loadDataScript(`xsmb:${revision}`,`data/xsmb.js${suffix}`),
+    loadDataScript(`xsmn:${revision}`,`data/xsmn.js${suffix}`)
+  ]).then(()=>{
+    if(epoch!==dataEpoch){
+      archiveState="latest"; archivePromise=null;
+      return ensureFullData(message);
+    }
+    if(!Array.isArray(window.XSMB_LINES)||!Array.isArray(window.XSMN_LINES)) throw new Error("Kho dữ liệu đầy đủ không hợp lệ.");
+    window.XS_RELOAD_DATA(window.XSMB_LINES,window.XSMN_LINES);
+    CROSS_CACHE={}; archiveState="ready"; archivePromise=null;
+    setDataLoading(false); return true;
+  }).catch(err=>{
+    archiveState="error"; archiveError=err.message; archivePromise=null;
+    setDataLoading(false); throw err;
+  });
+  return archivePromise;
+}
+function openHistoryNumber(tail, digits){
+  if(archiveState==="ready"){ openNum(tail,digits); return }
+  ensureFullData("Đang tải kho dữ liệu để tra cứu lịch sử…")
+    .then(()=>{refresh();openNum(tail,digits)})
+    .catch(err=>toast(`Chưa thể tra cứu toàn bộ lịch sử: ${err.message}`));
+}
 
 function refresh(){
   const sl=recompute();
@@ -968,6 +1051,16 @@ function showView(v){
   $$(".view").forEach(n=>n.classList.toggle("on", n.id==="v-"+v));
   const stale=$("#staleBar");
   if(stale) stale.style.display=v==="live"||!stale.innerHTML?"none":"";
+  if(FULL_DATA_VIEWS.has(v) && archiveState!=="ready"){
+    setDeferredView(v,"loading","Đang tải kho dữ liệu đầy đủ để tính từ toàn bộ các kỳ đã công bố.");
+    ensureFullData().then(loaded=>{
+      if(loaded&&ST.view===v) refresh();
+    }).catch(err=>{
+      if(ST.view===v) setDeferredView(v,"error",err.message);
+    });
+    return;
+  }
+  setDeferredView(v,"ready");
   if(dirty[v]){ RENDER[v](); dirty[v]=0 }
   const hash=VIEW_HASH[v];
   if(hash && location.hash!==`#${hash}`) history.replaceState(null,"",`#${hash}`);
@@ -987,7 +1080,16 @@ $("#liveRefresh").addEventListener("click",()=>location.reload());
 $("#homeToHistory").addEventListener("click",()=>showView("history"));
 $("#liveToHistory").addEventListener("click",()=>showView("history"));
 $("#liveToStats").addEventListener("click",()=>showView("ana"));
-$("#historyMore").addEventListener("click",()=>{ST.historyCount=Math.min(ST.historyCount+14,120);renderHistory()});
+$("#historyMore").addEventListener("click",()=>{
+  if(archiveState!=="ready"){
+    setDeferredView("history","loading","Đang tải kho dữ liệu đầy đủ để mở thêm kỳ cũ.");
+    ensureFullData("Đang tải kho dữ liệu đầy đủ để mở thêm lịch sử…")
+      .then(()=>{setDeferredView("history","ready");ST.historyCount=Math.min(ST.historyCount+14,120);refresh()})
+      .catch(err=>setDeferredView("history","error",err.message));
+    return;
+  }
+  ST.historyCount=Math.min(ST.historyCount+14,120);renderHistory()
+});
 function selectResultProvince(slot,index){
   ST[resultProvinceKey(slot)]=Math.max(0,Number(index)||0);
   if(slot==="home") renderHomeResults(); else renderHistory();
@@ -999,7 +1101,13 @@ $("#appMain").addEventListener("click",e=>{
     return;
   }
   const tail=e.target.closest("[data-tail-query]");
-  if(tail) openNum(tail.dataset.tailQuery,2);
+  if(tail) openHistoryNumber(tail.dataset.tailQuery,2);
+  const retry=e.target.closest("[data-load-archive]");
+  if(retry){
+    const view=retry.closest(".view")?.id.replace("v-","")||ST.view;
+    archiveState="latest";
+    showView(view);
+  }
 });
 let resultSwipe=null;
 document.addEventListener("pointerdown",e=>{
@@ -1064,7 +1172,7 @@ $("#gs").addEventListener("keydown", e=>{
     toast("Nhập đúng 2 hoặc 3 chữ số, ví dụ 68 hoặc 668.");
     setTimeout(()=>e.target.style.borderColor="",900); return;
   }
-  openNum(v, v.length);
+  openHistoryNumber(v, v.length);
   e.target.value="";
   setSearchOpen(false);
 });
@@ -1137,18 +1245,16 @@ function checkStale(){
 })();
 let metaVersion=(window.XS_META||{}).updated||"";
 function pollLiveMeta(){
-  const script=document.createElement("script");
-  script.src=`data/meta.js?ts=${Date.now()}`;
-  script.async=true;
-  script.onload=()=>{
-    script.remove();
+  loadDataScript(`meta:${Date.now()}`,`data/meta.js?ts=${Date.now()}`)
+    .then(()=>{
     const next=(window.XS_META||{}).updated||"";
-    if(next&&metaVersion&&next!==metaVersion){ location.reload(); return }
+    if(next&&metaVersion&&next!==metaVersion){
+      metaVersion=next;
+      return loadLatestData(next).then(loaded=>{ if(loaded) refresh() });
+    }
     metaVersion=next||metaVersion;
     updateLiveStatus();
-  };
-  script.onerror=()=>script.remove();
-  document.head.append(script);
+  }).catch(()=>{});
 }
 setInterval(()=>{
   if(ST.view!=="live") return;
@@ -1160,7 +1266,7 @@ setInterval(()=>{
 setInterval(checkStale, 5*60000);
 
 /* --------- khởi động --------- */
-(function init(){
+function initApp(){
   if(!DB.MB.days.length && !DB.MN.days.length){
     $("#noData").style.display="";
     $$(".view").forEach(n=>n.classList.toggle("on",n.id==="v-live"));
@@ -1184,4 +1290,11 @@ setInterval(checkStale, 5*60000);
   updateThemeToggle();
   setSearchOpen(false);
   refresh();
+}
+(function init(){
+  const metaUpdated=(window.XS_META||{}).updated||"";
+  const latestUpdated=window.XS_LATEST?.updated||"";
+  if(metaUpdated&&latestUpdated!==metaUpdated){
+    loadLatestData(metaUpdated).catch(()=>{}).finally(initApp);
+  }else initApp();
 })();

@@ -282,6 +282,29 @@ def write_js(path, var, lines):
     os.replace(tmp, path)
 
 
+LATEST_LIMIT = 90
+
+
+def latest_js_body(mb_lines, mn_lines, updated="", limit=LATEST_LIMIT):
+    """Payload nhe cho man hinh ket qua ban dau.
+
+    Tach rieng payload nhanh khoi bien toan kho de hai script dong khong the
+    tao DB nua cu nua day du. app.js nhan mang tuong minh khi khoi tao.
+    """
+    mb = mb_lines[-limit:]
+    mn = mn_lines[-limit:]
+    return "window.XS_LATEST = %s;\n" % json.dumps(
+        {"updated": updated, "mb": mb, "mn": mn}, ensure_ascii=False
+    )
+
+
+def write_latest_js(path, mb_lines, mn_lines, updated):
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        f.write(latest_js_body(mb_lines, mn_lines, updated))
+    os.replace(tmp, path)
+
+
 def crawl_parallel(items, work_fn, workers, label, on_progress=None):
     """items: list; work_fn(item) -> (key, value or None). Tra ve dict ket qua."""
     out, done, t0 = {}, [0], time.time()
@@ -359,7 +382,7 @@ def update_xsmb(workers):
     out = [allrows[d] for d in sorted(allrows)]
     write_js(os.path.join(DATA_DIR, "xsmb.js"), "XSMB_LINES", out)
     log("  -> data/xsmb.js: %d ngay" % len(out))
-    return len(out), (max(allrows) if allrows else "")
+    return len(out), (max(allrows) if allrows else ""), out
 
 
 # ---------- XSMN ----------
@@ -440,7 +463,7 @@ def update_xsmn(target_days, fetch_all, workers, max_fetch):
             out.append(ds + "|" + "|".join(norm_prov(p) + ":" + ",".join(n) for p, n in provs))
     write_js(os.path.join(DATA_DIR, "xsmn.js"), "XSMN_LINES", out)
     log("  -> data/xsmn.js: %d ngay co ket qua" % len(out))
-    return len(out), (out[-1][:10] if out else "")
+    return len(out), (out[-1][:10] if out else ""), out
 
 
 def main():
@@ -474,8 +497,10 @@ def main():
 
     t0 = time.time()
     try:
-        mb_n, mb_last = update_xsmb(args.workers)
-        mn_n, mn_last = update_xsmn(target, fetch_all, args.workers, args.max_fetch)
+        mb_n, mb_last, mb_lines = update_xsmb(args.workers)
+        mn_n, mn_last, mn_lines = update_xsmn(target, fetch_all, args.workers, args.max_fetch)
+        updated = time.strftime("%Y-%m-%d %H:%M")
+        write_latest_js(os.path.join(DATA_DIR, "latest.js"), mb_lines, mn_lines, updated)
     finally:
         try:
             os.remove(lock)
@@ -483,7 +508,7 @@ def main():
             pass
 
     meta = {
-        "updated": time.strftime("%Y-%m-%d %H:%M"),
+        "updated": updated,
         "xsmb_days": mb_n, "xsmb_last": mb_last,
         "xsmn_days": mn_n, "xsmn_last": mn_last,
     }

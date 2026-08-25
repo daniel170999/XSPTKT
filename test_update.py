@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from update import merge_xsmn_store, parse_xsmn_backup_page, parse_xsmn_page
+from update import LATEST_LIMIT, latest_js_body, merge_xsmn_store, parse_xsmn_backup_page, parse_xsmn_page
 
 
 PRIMARY_HTML = """
@@ -63,6 +63,17 @@ class ParserTests(unittest.TestCase):
         merged = merge_xsmn_store({}, {"2008-01-02": []})
         self.assertIn("2008-01-02", merged)
         self.assertEqual(merged["2008-01-02"], [])
+
+    def test_latest_payload_keeps_only_the_newest_days(self):
+        mb = ["2026-01-%02d,00000" % (i + 1) for i in range(LATEST_LIMIT + 4)]
+        mn = ["2026-02-%02d|A:00" % (i + 1) for i in range(LATEST_LIMIT + 4)]
+        body = latest_js_body(mb, mn, "2026-08-25 16:42")
+        self.assertIn('window.XS_LATEST = {', body)
+        self.assertIn('"updated": "2026-08-25 16:42"', body)
+        self.assertIn(mb[-1], body)
+        self.assertIn(mn[-1], body)
+        self.assertNotIn(mb[0], body)
+        self.assertNotIn(mn[0], body)
 
 
 if __name__ == "__main__":

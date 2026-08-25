@@ -44,16 +44,18 @@ function addDays(ds,n){const[y,m,d]=ds.split("-").map(Number);const dt=new Date(
 
 /* ---------- nạp dữ liệu thô ---------- */
 const DB = { MB:{days:[],provs:[]}, MN:{days:[],provs:[]} };
-(function loadRaw(){
-  if(window.XSMB_LINES){
-    for(const l of XSMB_LINES){
+function loadRawData(mbLines=window.XSMB_LINES||[], mnLines=window.XSMN_LINES||[]){
+  DB.MB.days.length=0; DB.MB.provs.length=0;
+  DB.MN.days.length=0; DB.MN.provs.length=0;
+  if(Array.isArray(mbLines)){
+    for(const l of mbLines){
       const a=l.split(",");
       DB.MB.days.push({d:a[0], w:dowOf(a[0]), nums:a.slice(1)});
     }
   }
-  if(window.XSMN_LINES){
+  if(Array.isArray(mnLines)){
     const pset=new Map();
-    for(const l of XSMN_LINES){
+    for(const l of mnLines){
       const seg=l.split("|"), draws=[];
       for(let i=1;i<seg.length;i++){
         const ci=seg[i].indexOf(":");
@@ -69,7 +71,10 @@ const DB = { MB:{days:[],provs:[]}, MN:{days:[],provs:[]} };
   }
   DB.MB.days.sort((a,b)=>a.d<b.d?-1:1);
   DB.MN.days.sort((a,b)=>a.d<b.d?-1:1);
-})();
+  return DB;
+}
+loadRawData(window.XS_LATEST?.mb, window.XS_LATEST?.mn);
+window.XS_RELOAD_DATA = loadRawData;
 
 /* ============================================================================
    TRÍCH SỐ ĐUÔI

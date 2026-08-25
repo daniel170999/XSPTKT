@@ -1,5 +1,26 @@
 # WORKLOG — Kết Số
 
+## 2026-08-25 — WP3: tách tải dữ liệu và cache
+
+### Phạm vi đã làm
+
+- Sinh `data/latest.js` cùng lượt với crawler: 90 kỳ mới nhất mỗi miền; trang đầu chỉ nạp `meta.js` + payload này, còn kho đầy đủ được chèn script động khi mở Thống kê, Hai miền hoặc tra cứu lịch sử sâu.
+- Tách CSS còn lại sang `app.css`, giữ token/header thiết yếu inline và preload font 400/700; vẫn dùng đường dẫn tương đối để bản local không phụ thuộc framework hay CDN.
+- Thay cache Vercel từ `no-store` cho toàn bộ dữ liệu sang thời hạn ngắn theo từng tệp; local `serve.py` vẫn cố ý `no-store` để nhận dữ liệu mới ngay.
+- Thêm trạng thái đang tải/lỗi/thử lại cho kho đầy đủ, và xử lý trường hợp revision dữ liệu đổi trong lúc tải để loader khởi động lại với revision mới.
+- `app.js` chỉ đổi lớp nạp dữ liệu từ mảng truyền vào; không sửa bất kỳ công thức hay cổng kiểm chứng nào.
+
+### Kiểm chứng có số liệu
+
+| Hạng mục | Kết quả |
+|---|---|
+| Payload đầu trang | `data/latest.js`: **46.049 bytes**; XSMB **90** kỳ, XSMN **90** kỳ, cùng khoảng **27/05/2026–24/08/2026** |
+| Crawler và kho | Python bundled chạy `update.py --max-fetch 40`: **3 giây**; XSMB **7.532**, XSMN **6.677** kỳ đến 24/08/2026. SHA-256 trước/sau giữ nguyên: XSMB `78D148FE…00417`, XSMN `CD3C864F…9625D`, kho thô `2A4EA89F…4218` |
+| Dung lượng truyền ước tính | Các response đầu trang nén gzip riêng từng tệp: **130.551 bytes** (HTML, CSS, `latest.js`, JS và 2 font); HTML riêng **6.371 bytes gzip**. Đây là phép đo local, không thay cho Core Web Vitals production |
+| Cú pháp và kiểm thử | `node --check app.js`, `node --check ui.js`, `node test_model.cjs`, `node work/check-ui-ids.cjs`: đạt (**73** ID, **0** thiếu). Python bundled `test_update.py`: **5/5**; `work/check_words.py`: đạt |
+| UI tải chậm | Browser local: trang đầu có kết quả ngay; mở Thống kê nạp kho đầy đủ; nhập `323` từ trang đầu trả modal **6.677 kỳ** XSMN. Console origin: **0 lỗi**, không tràn ngang ở viewport desktop đang dùng |
+| Header local | `curl` local: TTFB **0,001448 s**, HTML **23.291 bytes**; local vẫn trả `Cache-Control: no-store` theo thiết kế LIVE. Header Vercel sẽ xác minh sau deploy |
+
 ## 2026-08-25 — WP2: bố cục ưu tiên kết quả và mobile
 
 ### Phạm vi đã làm
