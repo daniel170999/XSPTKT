@@ -36,16 +36,13 @@
 |---|---|---|
 | `app.js` | **Toán thuần**: parse, `analyze()`, EB shrinkage, hazard, Wilson, χ², `rankAll()`, `unbiasedPick()` | đụng DOM |
 | `ui.js` | **Vẽ**: 5 view public (`live/history/ana/cross/verify`), modal lịch sử, tooltip; model/backtest/nhật ký cũ là code legacy không public | tự chế công thức |
-| `index.html` | Khung + toàn bộ CSS (design tokens ở `:root`) | logic |
+| `templates/index.template.html` | Nguồn khung SPA; `index.html` là đầu ra có fallback kết quả tĩnh | logic |
+| `app.css` | CSS chung của app và các trang công khai tĩnh | logic |
 | `update.py` | Crawler đa luồng, alias tên đài, lock, ghi nguyên tử | logic hiển thị |
 | `serve.py` | HTTP + vòng tự cập nhật 16:35/18:32 | logic thống kê |
 
-Không framework, không npm/pip/CDN. Mở `index.html` trực tiếp phải chạy được (chế độ tĩnh),
-`MoApp.bat` → chế độ LIVE.
-
-Bản public có thêm một nguồn chỉ-đọc độc lập: tab `live` nhúng iframe miễn phí chính thức của
-`minhngoc.net.vn/free/`. Iframe chỉ phục vụ **bảng kết quả trực tiếp**, luôn kèm credit + link nguồn và
-không được nhập nhằng với kho lịch sử do `update.py` tổng hợp. Không chèn script bên thứ ba vào origin app.
+Không framework, không npm/pip/CDN. `build_pages.py` tạo HTML có kết quả sẵn cho các route công khai;
+`MoApp.bat` → chế độ LIVE cho lớp app tương tác.
 
 ---
 
@@ -186,8 +183,7 @@ tần suất kết quả của người dùng bên ngoài — nên đó không p
 | Machine Learning (LSTM/XGBoost…) | Nếu X (lịch sử) không mang thông tin về Y (kỳ tới) — đã chứng minh qua toàn bộ bảng #1–22 — mọi mô hình dù mạnh đến đâu cũng hội tụ về dự đoán = tỉ lệ nền khi tối ưu đúng cách; sai khác so với nền trên tập test chỉ là overfit (giống *y hệt* bảng đối chứng #4–5 app đã có) | Thêm ML = thêm nguy cơ overfit, không thêm tín hiệu. **Cấm build** |
 | Big Data (nhiều dữ liệu hơn) | Thêm dữ liệu giảm **phương sai** của ước lượng (khoảng tin cậy hẹp lại) chứ không tạo ra tín hiệu nếu tín hiệu thật = 0. Bảng #1–22 đã dùng *toàn bộ* dữ liệu có được | Không có "thêm data để đoán đúng hơn" — chỉ có "thêm data để đo chính xác hơn rằng không có gì" |
 
-**⚠ Theo dõi 2026:** từ 01/01/2026, 21 công ty XSMN sáp nhập còn 9 (TP.HCM, Cần Thơ, Đồng Nai, Cà Mau, Đồng Tháp, Vĩnh Long, Tây Ninh, Lâm Đồng, An Giang) —
-tổng kỳ/ngày giữ nguyên, nguồn crawl hiện vẫn dùng tên đài cũ. Nếu tên đổi → thêm vào `PROV_ALIAS` trong `update.py` (quy trình ROADMAP).
+**⚠ Theo dõi 2026:** 21 công ty XSMN hiện vẫn hoạt động và lịch quay không đổi. Con số 9 trong quy định phân vùng là số tỉnh/thành, không phải số công ty. Nếu có chỉ đạo mới làm đổi tên đài hoặc lịch quay thì cập nhật `PROV_ALIAS` và `expected_mn_draws()` theo quy trình ROADMAP.
 Lỗ hổng dữ liệu hợp lệ (không phải lỗi crawler): COVID 4/2020 cả nước · XSMN 09/7–21/10/2021 · XSMB 08–22/8/2021 · Tết ~4 ngày/năm (chỉ XSMB nghỉ).
 
 **Ghi đè bảng này chỉ khi có phép đo mới ≥300 kỳ, và phải cập nhật cả ROADMAP.**
@@ -198,7 +194,7 @@ Lỗ hổng dữ liệu hợp lệ (không phải lỗi crawler): COVID 4/2020 c
 
 | Tab | Mục đích | Thành phần chính |
 |---|---|---|
-| 🔴 **Kết quả** | Xem số đang quay | XSMN/XSMB switch · trạng thái theo giờ Việt Nam · iframe chính thức Minh Ngọc · credit/link nguồn · tải lại |
+| 🔴 **Kết quả** | Xem kết quả mới nhất | XSMN/XSMB switch · trạng thái theo giờ Việt Nam · bảng tự dựng từ kho dữ liệu · tải lại |
 | 🗓️ **Lịch sử** | Xem lại theo ngày | 14 kỳ gần nhất mặc định · mở dần đến 120 kỳ · bảng đầy đủ từng giải |
 | 📊 **Thống kê** | Tra cứu dữ liệu cũ | 3 màn con: Bản đồ số · Khoảng cách · Mẫu lịch sử |
 | 🔗 **Hai miền** | Dò và kiểm tra liên miền | Kết quả hai miền cùng ngày · phép đo XSMN chiều vs XSMB tối · thống kê gộp |
@@ -210,8 +206,7 @@ Lỗ hổng dữ liệu hợp lệ (không phải lỗi crawler): COVID 4/2020 c
   (`heatColor`), viền nổi bật khi |z|≥2σ. Chú giải dùng lời đời thường và luôn nêu mức chung; không bao giờ
   biến màu nổi bật thành lời dự báo.
 - Bấm số ở bất kỳ đâu → `openNum(tail, digits)`.
-- Bảng live bên thứ ba phải nằm trong iframe sandbox riêng, có nút mở nguồn trực tiếp và không được tuyên bố
-  kho lịch sử của app là dữ liệu Minh Ngọc.
+- Trang Kết quả hiển thị bảng tự dựng từ kho dữ liệu; nguồn và thời điểm cập nhật phải đọc được ngay trong ứng dụng.
 - Không tràn ngang ở 375px và 1280px (script kiểm ở RULES §R4; bẫy `min-width:auto` của grid/flex).
 - Thanh kỳ mẫu trên mobile cuộn ngang một hàng; không có bộ chọn “Tại ngày”.
 - Việc nặng chia lô ≤110ms (mẫu: `runBacktest`).
@@ -224,8 +219,7 @@ Lỗ hổng dữ liệu hợp lệ (không phải lỗi crawler): COVID 4/2020 c
 - Định dạng `data/xsmb.js`, `data/xsmn.js`, alias tên đài (`PROV_ALIAS` — TP.HCM≡TPHCM…, đúng **21 đài**),
   lock chống chạy trùng, ghi nguyên tử — chi tiết ở RULES §R3.
 - Local: XSMN quay 16:15 → `serve.py` tự crawl 16:35 · XSMB 18:15 → 18:32 · trang tự reload.
-- Public: GitHub Actions crawl 16:42 và 18:42 giờ Việt Nam, commit `data/` khi có đổi để Vercel redeploy;
-  iframe Minh Ngọc hiển thị live độc lập trong lúc quay.
+- Public: GitHub Actions crawl 16:42 và 18:42 giờ Việt Nam, sinh lại HTML tĩnh rồi commit khi có đổi để Vercel redeploy.
 - `TaiDuLieu.bat` (một lần) · `MoApp.bat` (hằng ngày) · `CapNhat.bat` (thủ công).
 - Nguồn hỏng → quy trình chẩn đoán RULES §R6. Kho `data/xsmn.json` là tài sản — cấm xoá.
 

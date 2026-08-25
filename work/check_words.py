@@ -67,6 +67,10 @@ def main() -> int:
     )
     hits: list[str] = []
     for path in tracked_paths():
+        # Cho phép chạy giữa lúc một file tracked đang được đổi tên; Git index
+        # chưa cập nhật nhưng filesystem đã không còn file cũ.
+        if not path.exists():
+            continue
         raw = path.read_bytes()
         if is_binary(raw):
             continue

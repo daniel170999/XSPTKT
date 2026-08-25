@@ -14,8 +14,9 @@ Chay:
 Chi dung thu vien chuan cua Python — khong can cai them gi.
 Nguon:
   XSMB: dataset GitHub (khiemdoan/vietnam-lottery-xsmb-analysis) tu 01/10/2005
-        + tu crawl xosodaiphat.com cho nhung ngay dataset chua kip cap nhat.
-  XSMN: crawl xosodaiphat.com (kho luu tru tu ~2008).
+        + nguồn công khai dự phòng khi dataset chưa có kỳ mới.
+  XSMN: hai nguồn công khai có parser riêng; một số trang công ty XSKT được
+        đối chiếu thêm khi robots.txt cho phép và HTML đủ cấu trúc.
 """
 import argparse
 import json
@@ -25,6 +26,8 @@ import sys
 import threading
 import time
 import urllib.request
+import urllib.robotparser
+from urllib.parse import urlsplit
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, timedelta
 from html import unescape
@@ -36,13 +39,30 @@ except Exception:
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE, "data")
-UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                    "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"}
+BOT_NAME = "KetSoDataBot/1.0 (+https://xsptkt.vercel.app/nguon-du-lieu/)"
+UA = {"User-Agent": BOT_NAME, "Accept": "text/html,application/json;q=0.9,*/*;q=0.1"}
 
 XSMB_CSV_URL = ("https://raw.githubusercontent.com/khiemdoan/"
                 "vietnam-lottery-xsmb-analysis/main/data/xsmb.csv")
 DAIPHAT = "https://xosodaiphat.com"
 XSKT_BACKUP = "https://xskt.com.vn"
+
+# Chỉ dùng để đối chiếu kết quả mới từ các trang đã mở và kiểm tra robots.
+# Không có parser tổng quát nào đủ an toàn cho toàn bộ 21 đài; vì vậy những
+# nguồn không có HTML số có cấu trúc bị vô hiệu hoá rõ ràng, không "đoán".
+OFFICIAL_SOURCES = {
+    "TPHCM": {"url": "https://www.xskthcm.com/", "check": True},
+    "Tiền Giang": {"url": "https://www.xskttg.com.vn/", "check": False},
+    "Vĩnh Long": {"url": "https://xosovinhlong.com.vn/", "check": True},
+    "Cần Thơ": {"url": "https://xsktcantho.vn/ket-qua-xo-so/ket-qua-xo-so-truyen-thong", "check": True},
+    "Đồng Nai": {"url": "https://xosodongnai.com.vn/ket-qua-xo-so-kien-thiet-dong-nai/", "check": False},
+    "Bến Tre": {"url": "https://xosobentre.com.vn/kq-xo-so/", "check": False},
+}
+OFFICIAL_MIN_DELAY = 0.5
+_robots_cache = {}
+_robots_lock = threading.Lock()
+_host_lock = threading.Lock()
+_host_last_fetch = {}
 
 # Ngay som nhat kho luu tru con du lieu (do bang binary search).
 EARLIEST_MN = date(2008, 1, 1)
@@ -116,8 +136,8 @@ def norm_label(s):
     return s.strip()
 
 
-def fetch(url, timeout=15, retries=2):
-    """Tai 1 URL -> (html, final_url) hoac (None, None)."""
+def _fetch_raw(url, timeout=15, retries=2):
+    """Tải URL không kiểm robots; chỉ dùng nội bộ cho robots và nguồn cũ."""
     for i in range(retries + 1):
         try:
             req = urllib.request.Request(url, headers=UA)
@@ -127,6 +147,74 @@ def fetch(url, timeout=15, retries=2):
             if i < retries:
                 time.sleep(0.8 * (i + 1))
     return None, None
+
+
+def robots_allowed(url):
+    """Chỉ cho crawl nguồn mới khi robots.txt đọc được và cho phép URL đó."""
+    parsed = urlsplit(url)
+    origin = "%s://%s" % (parsed.scheme, parsed.netloc)
+    with _robots_lock:
+        cached = _robots_cache.get(origin)
+    if cached is None:
+        robots_url = origin + "/robots.txt"
+        body, _ = _fetch_raw(robots_url, timeout=10, retries=0)
+        if body is None or not re.search(r"(?im)^\s*user-agent\s*:", body):
+            allowed = False
+        else:
+            parser = urllib.robotparser.RobotFileParser()
+            parser.set_url(robots_url)
+            parser.parse(body.splitlines())
+            allowed = parser.can_fetch(BOT_NAME, url)
+        with _robots_lock:
+            _robots_cache[origin] = allowed
+    else:
+        allowed = cached
+    return allowed
+
+
+def _polite_delay(url, min_delay=OFFICIAL_MIN_DELAY):
+    host = urlsplit(url).netloc
+    with _host_lock:
+        wait = min_delay - (time.monotonic() - _host_last_fetch.get(host, 0.0))
+        if wait > 0:
+            time.sleep(wait)
+        _host_last_fetch[host] = time.monotonic()
+
+
+def fetch(url, timeout=15, retries=2, require_robots=False):
+    """Tai 1 URL -> (html, final_url) hoac (None, None)."""
+    if require_robots:
+        if not robots_allowed(url):
+            log("  ! robots.txt khong cho phep hoac khong doc duoc: %s" % urlsplit(url).netloc)
+            return None, None
+        _polite_delay(url)
+    return _fetch_raw(url, timeout=timeout, retries=retries)
+
+
+def official_confirms_numbers(html, nums):
+    """Xác minh dãy 18 số liên tiếp trên trang chính thức, không tự suy diễn.
+
+    Nguồn dự phòng vẫn là parser ghi dữ liệu. Chỉ khi 18 số đã parse xuất hiện
+    nguyên thứ tự trong nội dung trang công bố mới ghi nhận đối chiếu thành công.
+    """
+    if not html or len(nums) != 18:
+        return False
+    observed = re.findall(r"(?<!\d)(\d{2,6})(?!\d)", _text_in(html))
+    needle = list(nums)
+    return any(observed[i:i + len(needle)] == needle for i in range(len(observed) - len(needle) + 1))
+
+
+def verify_official_today(dt, province, nums):
+    """Đối chiếu ngày hiện tại ở nguồn chính thức có HTML số an toàn.
+
+    Không quét lịch sử hoặc ép parser với trang iframe/ảnh; mỗi trường hợp chưa
+    đủ cấu trúc đều để pipeline dự phòng hoạt động như cũ và được log rõ ràng.
+    """
+    source = OFFICIAL_SOURCES.get(norm_prov(province))
+    if not source or not source["check"] or dt != date.today():
+        return None
+    body, _ = fetch(source["url"], timeout=15, retries=1, require_robots=True)
+    return official_confirms_numbers(body, nums)
 
 
 def _nums_in(cell):
@@ -305,6 +393,20 @@ def write_latest_js(path, mb_lines, mn_lines, updated):
     os.replace(tmp, path)
 
 
+def load_js_lines(path, var):
+    """Đọc kho JS cũ để một lần lỗi nguồn không thể làm tụt số ngày."""
+    if not os.path.exists(path):
+        return []
+    try:
+        with open(path, encoding="utf-8") as f:
+            text = f.read()
+        match = re.fullmatch(r"\s*window\.%s\s*=\s*(\[.*\])\s*;?\s*" % re.escape(var), text, re.S)
+        rows = json.loads(match.group(1)) if match else []
+        return rows if isinstance(rows, list) and all(isinstance(row, str) for row in rows) else []
+    except Exception:
+        return []
+
+
 def crawl_parallel(items, work_fn, workers, label, on_progress=None):
     """items: list; work_fn(item) -> (key, value or None). Tra ve dict ket qua."""
     out, done, t0 = {}, [0], time.time()
@@ -337,7 +439,8 @@ def crawl_parallel(items, work_fn, workers, label, on_progress=None):
 # ---------- XSMB ----------
 def update_xsmb(workers):
     log("== XSMB ==")
-    rows = {}
+    existing = {line.split(",", 1)[0]: line for line in load_js_lines(os.path.join(DATA_DIR, "xsmb.js"), "XSMB_LINES") if "," in line}
+    rows = dict(existing)
     csv_text, _ = fetch(XSMB_CSV_URL, timeout=45)
     if csv_text:
         for line in csv_text.strip().splitlines()[1:]:
@@ -440,6 +543,11 @@ def update_xsmn(target_days, fetch_all, workers, max_fetch):
                 if len(backup) > len(res):
                     res = backup
             if res:
+                checks = [verify_official_today(dt, province, nums) for province, nums in res]
+                confirmed = sum(value is True for value in checks)
+                conflicts = sum(value is False for value in checks)
+                if confirmed or conflicts:
+                    log("  Doi chieu nguon chinh thuc %s: khop %d, lech %d" % (ds, confirmed, conflicts))
                 return ds, [[p, n] for p, n in res]
             # hom nay chua quay -> khong ghi nhan, de lan sau thu lai
             return (None, None) if dt == today else (ds, [])

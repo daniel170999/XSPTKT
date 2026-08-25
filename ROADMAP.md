@@ -14,14 +14,14 @@ Toàn bộ checklist RULES §R5 đã chạy sạch (xem mục 4 dưới). Chỉ 
 Đừng đổi công thức chấm điểm hay thêm tín hiệu mới chỉ vì "có thể đoán chính xác hơn" — 25 phép đo ở
 BLUEPRINT §4 đã chỉ ra hướng đó không có kết quả, tốn công mà không đổi được kết luận cốt lõi.
 
-> Cập nhật triển khai 23/08/2026: theo yêu cầu chuyển sang website public, v1.0 được giữ nguyên phần
+> Cập nhật triển khai 25/08/2026: theo yêu cầu chuyển sang website public, v1.0 được giữ nguyên phần
 > thống kê/scoring để kiểm toán nội bộ. Lớp public có 5 tab `Kết quả/Lịch sử/Thống kê/Hai miền/Nguồn`,
 > không công bố dàn số, dự báo kỳ sau hay nhật ký dự đoán;
 > GitHub Actions cập nhật `data/` hằng ngày và Vercel deploy commit mới. Không dùng database, không có
 > service worker và không thêm tín hiệu dự đoán. Lượt redesign cùng ngày đặt XSMN làm miền mặc định,
 > sắp kỳ mẫu tăng dần với Toàn bộ lịch sử ở cuối và tách switch miền khỏi tab chức năng. Tab Kết quả
-> hiển thị kho kết quả gần nhất trước, đồng thời nhúng bảng live Minh Ngọc (credit/link nguồn rõ ràng),
-> độc lập với kho lịch sử; Actions chạy 16:42/18:42 giờ Việt Nam. Vẫn không đổi `app.js` hay công thức.
+> hiển thị kho kết quả gần nhất trước và sinh HTML tĩnh cho trang chủ, hai miền, ngày gần đây và 21 đài;
+> Actions chạy 16:42/18:42 giờ Việt Nam, sau crawler luôn chạy `build_pages.py`. Vẫn không đổi `app.js` hay công thức.
 > Xem `DEPLOY_VERCEL.md`.
 
 ---
@@ -60,13 +60,15 @@ App **chỉ** làm 2 số đuôi và 3 số đuôi.
 
 ```
 XS/
-├── index.html      Khung 5 tab public + toàn bộ CSS (tokens ở :root). Không chứa logic.
+├── templates/index.template.html  Nguồn khung SPA trang chủ; `index.html` là đầu ra đã sinh
+├── app.css         CSS chung cho app và trang kết quả tĩnh
 ├── app.js          BỘ NÃO: analyze(), ebWeight (co ngót Bayes), hazard KM, Wilson, χ²,
 │                   buildModel/scoreOf/rankAll (flat theo zCrit), unbiasedPick, percentile
 ├── ui.js           LỚP VẼ: 5 view public (live/history/ana/cross/verify) + 3 màn con của ana;
 │                   GLOSSARY, tooltip và modal lịch sử công khai
 ├── update.py       Crawler đa luồng 8 workers, PROV_ALIAS (21 đài), lock, ghi nguyên tử
 ├── serve.py        LIVE server 127.0.0.1:8368, tự crawl 16:35/18:32, /api/status
+├── build_pages.py  Sinh HTML kết quả tĩnh, sitemap, robots và `site-schema.js`
 ├── TaiDuLieu.bat   MỘT LẦN: tải toàn bộ lịch sử   ├── MoApp.bat  Hằng ngày: mở app LIVE
 ├── CapNhat.bat     Cập nhật tay 1 lần
 ├── BLUEPRINT.md    Đặc tả chuẩn + bảng sự thật    ├── RULES.md   Luật bắt buộc
@@ -75,10 +77,10 @@ XS/
 └── data/  xsmb.js · xsmn.js · xsmn.json (kho thô — CẤM XOÁ) · xsmb_extra.json · meta.js · config.json
 ```
 
-## 4. Trạng thái (23/08/2026)
+## 4. Trạng thái (25/08/2026)
 
 ### Đã xong
-- [x] Kho public hiện có (23/08/2026): XSMB **7.531 kỳ** (10/2005→23/08/2026) · XSMN **6.676 kỳ** (01/2008→23/08/2026)
+- [x] Kho public hiện có (24/08/2026): XSMB **7.532 kỳ** (10/2005→24/08/2026) · XSMN **6.677 kỳ** (01/2008→24/08/2026)
       · **21 tên đài** chuẩn hoá alias
 - [x] LIVE tự cập nhật + tự reload; đã chạy thật ngày 04/08 (crawl 2s sau giờ quay)
 - [x] 5 tab public tên đời thường; Kết quả/live và kỳ gần nhất đứng đầu; Lịch sử theo ngày; Thống kê gộp 3 màn con
@@ -95,10 +97,10 @@ XS/
 - [x] **Tab 🔗 2 Miền** (`renderCross`, `crossAnalyze`, `mergedDays`): kết quả 2 miền hôm nay,
       4 phép đo quan hệ liên miền tính live, thống kê gộp. Cache theo `digits` trong `CROSS_CACHE`.
 - [x] **WP0 pháp lý 24/08/2026**: gỡ khối giao diện legacy về chọn số, nhật ký, backtest UI và tỉ lệ trả thưởng; chỉ giữ kết quả và thống kê mô tả trên website public.
+- [x] **WP4 static 25/08/2026**: 90 ngày mỗi miền, 21 hub đài và các trang công khai sinh từ kho dữ liệu; sitemap chỉ chứa hub/tài liệu, không sinh URL theo từng bộ số.
 
 ### Cần theo dõi / còn thiếu
-- [ ] **Sáp nhập đài 2026:** 21 công ty XSMN → 9 từ 01/01/2026; nguồn crawl hiện vẫn dùng tên cũ.
-      Nếu tên đổi → thêm `PROV_ALIAS`, chạy lệnh kiểm 21 tên (RULES §R3).
+- [ ] **Theo dõi hướng dẫn vận hành mới:** 21 công ty XSMN vẫn hoạt động và lịch quay hiện không đổi. Con số 9 là phạm vi tỉnh/thành theo quy định phân vùng, không phải số công ty. Nếu có chỉ đạo mới làm đổi tên đài/lịch quay, cập nhật `PROV_ALIAS`, `expected_mn_draws()` và chạy kiểm 21 tên.
 - [x] Nguồn dự phòng xskt.com.vn khi trang chính thiếu đài hoặc đổi HTML; crawler tự đối chiếu số đài kỳ vọng
 - [ ] Mở rộng fixture parser rải 20 ngày mọi thời kỳ 2008–2026 (hiện có 2 fixture đại diện và audit 12 ngày lỗi)
 
@@ -141,7 +143,7 @@ XS/
 
 ```
 Local:  16:15 XSMN quay → 16:35 serve.py crawl · 18:15 XSMB → 18:32 crawl
-Public: 16:42 GitHub Actions crawl XSMN · 18:42 crawl XSMB → commit → Vercel redeploy
+Public: 16:42 GitHub Actions crawl XSMN · 18:42 crawl XSMB → sinh HTML tĩnh → commit → Vercel redeploy
 ```
-Người dùng public mở tab Kết quả để xem bảng live Minh Ngọc; kho thống kê theo sau qua Actions.
+Người dùng public mở tab Kết quả để xem kho mới nhất; HTML tĩnh và kho tương tác cùng được cập nhật qua Actions.
 Người dùng local chỉ cần `MoApp.bat`; các phép kiểm toán mô hình chỉ dành cho công cụ nội bộ.

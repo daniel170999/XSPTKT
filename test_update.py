@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
+import tempfile
 import unittest
+from pathlib import Path
+from datetime import date
+from unittest.mock import patch
 
-from update import LATEST_LIMIT, latest_js_body, merge_xsmn_store, parse_xsmn_backup_page, parse_xsmn_page
+import update
+from update import (LATEST_LIMIT, latest_js_body, load_js_lines, merge_xsmn_store,
+                    official_confirms_numbers, parse_xsmn_backup_page, parse_xsmn_page)
 
 
 PRIMARY_HTML = """
@@ -74,6 +80,35 @@ class ParserTests(unittest.TestCase):
         self.assertIn(mn[-1], body)
         self.assertNotIn(mb[0], body)
         self.assertNotIn(mn[0], body)
+
+    def test_official_check_requires_full_ordered_draw(self):
+        nums = ["07", "123", "0001", "0002", "0003", "0004", "00005", "00006", "00007", "00008", "00009", "00010", "00011", "00012", "00013", "00014", "00015", "000016"]
+        page = "<main>" + " ".join("<b>%s</b>" % value for value in nums) + "</main>"
+        self.assertTrue(official_confirms_numbers(page, nums))
+        self.assertFalse(official_confirms_numbers(page, nums[::-1]))
+        self.assertFalse(official_confirms_numbers(page, nums[:-1]))
+
+    def test_load_js_lines_rejects_non_string_values(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "rows.js"
+            path.write_text('window.XSMB_LINES = ["2026-01-01,00000"];\n', encoding="utf-8")
+            self.assertEqual(load_js_lines(str(path), "XSMB_LINES"), ["2026-01-01,00000"])
+            path.write_text('window.XSMB_LINES = [1];\n', encoding="utf-8")
+            self.assertEqual(load_js_lines(str(path), "XSMB_LINES"), [])
+
+    def test_xsmb_keeps_existing_lines_when_all_sources_fail(self):
+        with tempfile.TemporaryDirectory() as folder:
+            old_dir = update.DATA_DIR
+            try:
+                update.DATA_DIR = folder
+                today = date.today().isoformat()
+                row = today + "," + ",".join(["00000"] * 27)
+                Path(folder, "xsmb.js").write_text('window.XSMB_LINES = ["%s"];\n' % row, encoding="utf-8")
+                with patch("update.fetch", return_value=(None, None)):
+                    count, last, rows = update.update_xsmb(1)
+                self.assertEqual((count, last, rows), (1, today, [row]))
+            finally:
+                update.DATA_DIR = old_dir
 
 
 if __name__ == "__main__":

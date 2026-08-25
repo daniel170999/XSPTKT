@@ -1,5 +1,23 @@
 # WORKLOG — Kết Số
 
+## 2026-08-25 — WP5: nguồn dữ liệu, tài liệu vận hành và kế hoạch phát triển
+
+### Phạm vi đã làm
+
+- Bổ sung danh mục công khai **6** trang công ty XSKT: TPHCM, Tiền Giang, Vĩnh Long, Cần Thơ, Đồng Nai và Bến Tre. Chỉ TPHCM/Vĩnh Long/Cần Thơ được đối chiếu tự động hiện tại khi `robots.txt` cho phép và HTML có đủ **18** số theo đúng thứ tự; các trang iframe/ảnh hoặc không có robots hợp lệ không bị ép parse và không được ghi là đã kiểm.
+- Crawler dùng User-Agent nhận diện Kết Số, kiểm tra robots cho nguồn đối chiếu, giãn tối thiểu **0,5 giây/host** và chỉ ghi nhận đối chiếu. Nguồn kết quả ổn định hiện hữu vẫn là nguồn ghi dữ liệu; không tự nhận đã có nguồn chính thức cho toàn bộ 21 đài.
+- Sửa đường lỗi thực tế ở XSMB: khi dataset GitHub lỗi, kho `data/xsmb.js` cũ được nạp và giữ lại thay vì có nguy cơ bị ghi thành phần dữ liệu nhỏ.
+- Thay `MONETIZATION_PLAN.md` bằng `MARKETING_PLAN.md` với định hướng kết quả công khai/SEO/vận hành; cập nhật README, quy tắc, blueprint, roadmap, hướng dẫn deploy và trang nguồn để khớp kiến trúc trang tĩnh hiện tại. Làm rõ: **21** công ty vẫn vận hành; số **9** chỉ là số tỉnh XSMN theo phạm vi vùng, không phải sáp nhập 21 thành 9.
+
+### Kiểm chứng có số liệu
+
+| Hạng mục | Kết quả |
+|---|---|
+| Unit crawler | Python bundled `test_update.py`: **8/8 đạt**, gồm kiểm tra 18 số theo đúng thứ tự và regression nguồn XSMB hỏng vẫn giữ kho cũ. |
+| Crawler thật | `update.py --max-fetch 40`: **3 giây**; XSMB **7.532** và XSMN **6.677** kỳ, cùng đến **24/08/2026**; SHA-256 của `xsmb.js`, `xsmn.js`, `xsmn.json` trước/sau không đổi. |
+| Builder + kiểm tra | `build_pages.py --days 90 --check`: **0** thay đổi; vẫn có **180** trang ngày và **21** hub đài. `node --check app.js`, `node --check ui.js`, `node test_model.cjs`, Python compile, quét từ công khai và `git diff --check`: đạt. |
+| Công thức | `git diff c8d9bf3 -- app.js` không có output: không đổi công thức hoặc mô hình thống kê. |
+
 ## 2026-08-25 — WP4: trang kết quả tĩnh và đường dẫn công khai
 
 ### Phạm vi đã làm

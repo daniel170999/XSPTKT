@@ -18,17 +18,20 @@
 
 | File | Được chứa | KHÔNG được chứa |
 |---|---|---|
-| `index.html` | HTML khung + toàn bộ CSS | Logic thống kê, dữ liệu |
+| `templates/index.template.html` | Nguồn HTML của trang chủ SPA | Logic thống kê, dữ liệu |
+| `index.html` | Đầu ra trang chủ tĩnh có fallback kết quả | Sửa tay ngoài `build_pages.py` |
+| `app.css` | Toàn bộ CSS dùng chung cho app và các trang tĩnh | Logic thống kê, dữ liệu |
 | `app.js` | Toàn bộ toán học & thống kê | Truy cập DOM, `document`, `$` |
 | `ui.js` | State, render, sự kiện | Công thức thống kê tự chế |
 | `update.py` | Crawl + ghi `data/*.js` | Logic hiển thị |
 | `serve.py` | HTTP + tự động cập nhật | Logic thống kê |
+| `build_pages.py` | Sinh trang kết quả tĩnh từ dữ liệu đã kiểm tra | Crawl, công thức thống kê |
 
 **Bắt buộc:**
-- Thuần HTML/CSS/JS + Python chuẩn. **Không framework, không npm, không pip, không CDN.** App phải chạy khi mở file bằng trình duyệt.
+- Thuần HTML/CSS/JS + Python chuẩn. **Không framework, không npm, không pip, không CDN.** Trang tĩnh phải đọc được không cần JavaScript; dùng `serve.py` khi kiểm app tương tác local.
 - Cần một phép tính mới → viết hàm trong `app.js`, `ui.js` chỉ gọi.
 - Thêm view mới → thêm `<button data-v="tên">` trong `<nav>`, `<div class="view" id="v-tên">`, và `renderTên()` vào object `RENDER`.
-- Đổi giao diện → sửa CSS trong `index.html`. Không thêm file CSS mới.
+- Đổi giao diện → sửa CSS trong `app.css`; trang chủ nguồn sửa ở `templates/index.template.html`, rồi chạy `build_pages.py`.
 
 ---
 
@@ -117,6 +120,8 @@ chứng trước khi đưa vào code hoặc báo cáo cho người dùng. Không
 - Đổi định dạng `data/*.js` → phải sửa đồng bộ hàm nạp trong `app.js` **và** ghi rõ trong ROADMAP.
 - Tôn trọng khoá `data/.update.lock`. Không chạy 2 tiến trình crawl cùng lúc.
 - Tốc độ crawl tối đa **8 luồng**. Đừng tăng — sẽ bị chặn IP và mất luôn nguồn.
+- Khi nguồn XSMB hoặc kho phụ lỗi, dữ liệu XSMB đang có phải được giữ nguyên; không được ghi một kho ngắn hơn chỉ vì một lần tải thất bại.
+- Nguồn công ty xổ số kiến thiết chỉ được dùng để đối chiếu khi `robots.txt` cho phép và parser xác minh đúng 18 số theo thứ tự. Chưa đủ parser cho một đài thì ghi rõ giới hạn, không tự nhận đã đối chiếu.
 
 ### Định dạng dữ liệu (bất biến)
 ```js
@@ -170,7 +175,7 @@ Rồi mở app và kiểm tra đủ **5 tab public (+3 màn con của Thống k�
 - [ ] `node --check` sạch cho `app.js` và `ui.js`
 - [ ] Console trình duyệt không có lỗi đỏ
 - [ ] Cả 5 tab public + 3 màn con Thống kê render được ở XSMB và XSMN
-- [ ] Tab Kết quả tải được iframe XSMN/XSMB, đúng link nguồn/credit; lỗi bên thứ ba không được làm lỗi origin app
+- [ ] Trang chủ, `/xsmn/`, `/xsmb/` và một trang ngày có đúng một `h1`, chứa kết quả trong HTML thô và vẫn đọc được khi JavaScript không chạy
 - [ ] Đổi 2 số ↔ 3 số không vỡ
 - [ ] Bảng thống kê, ô tìm kiếm và modal lịch sử thống nhất cùng bộ lọc; tần suất luôn có mức nền/mức chung
 - [ ] Backtest 300 kỳ chạy xong dưới 10 giây
@@ -185,8 +190,7 @@ Nếu `xosodaiphat.com` đổi cấu trúc hoặc trả thiếu đài, crawler p
 Nếu cả hai nguồn hỏng, ngày đó không được ghi đè vào kho và log phải nói rõ.
 Cách xử lý đúng:
 
-1. Tải 1 trang về xem tận mắt:
-   `curl -s -H "User-Agent: Mozilla/5.0" "https://xosodaiphat.com/xsmn-03-08-2026.html" -o /tmp/x.html`
+1. Tải 1 trang về xem tận mắt với User-Agent định danh của crawler.
 2. Tìm marker: `grep -oE 'table-xsmn livetn[0-9]' /tmp/x.html`
 3. Sửa `MN_SPEC` / `norm_label` / parser nguồn tương ứng trong `update.py`.
 4. Kiểm tra lại **nhiều thời kỳ**, không chỉ hôm nay:
@@ -195,6 +199,12 @@ Cách xử lý đúng:
    ```
    Chạy cả `parse_xsmn_page()` và `parse_xsmn_backup_page()`. Kết quả dùng phải có đúng số đài kỳ vọng, mỗi đài đúng 18 số.
 5. **Không** nới lỏng điều kiện `len(nums)==18` để "cho qua". Thà thiếu ngày còn hơn có dữ liệu sai.
+
+## R6.1. Bề mặt public và nội dung sinh tự động
+
+- Chạy `python work/check_words.py` trước mỗi commit public; không đưa vào câu chữ cổ vũ hành vi không phù hợp, tỉ lệ chi trả hay sổ theo dõi giao dịch.
+- Chỉ sinh trang ngày trong giới hạn `build_pages.py --days 90`; không tạo URL theo tổ hợp số tự do, không nhân bản nội dung giữa nhiều domain.
+- Sau `update.py`, bắt buộc chạy `build_pages.py` trước khi commit dữ liệu để HTML, sitemap và kho app cùng revision.
 
 ---
 

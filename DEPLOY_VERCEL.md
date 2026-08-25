@@ -4,11 +4,11 @@
 
 Không cần database cho bản public này.
 
-`GitHub Actions` chạy `update.py` lúc **16:42** và **18:42** giờ Việt Nam mỗi ngày, ngay sau hai kỳ quay. Khi có dữ liệu mới, nó commit các file trong `data/`; Vercel nhận commit đó và tự redeploy website. Như vậy mọi người cùng xem một dữ liệu thống kê, không có dữ liệu cá nhân hay tài khoản cần lưu.
+`GitHub Actions` chạy `update.py` lúc **16:42** và **18:42** giờ Việt Nam mỗi ngày, ngay sau hai kỳ quay. Sau đó workflow chạy `build_pages.py` để cập nhật HTML kết quả tĩnh, sitemap và robots. Khi đầu ra có đổi, workflow commit các file public; Vercel nhận commit đó và tự deploy website. Như vậy mọi người cùng xem một kho dữ liệu, không có dữ liệu cá nhân hay tài khoản cần lưu.
 
 > GitHub Actions chạy theo UTC, nên hai lịch trong workflow là **09:42** và **11:42 UTC**. Lịch có thể bị GitHub xếp hàng trễ vài phút; workflow vẫn có nút chạy tay khi cần.
 
-Trang **Kết quả** không chờ workflow: nó dùng iframe miễn phí chính thức của Minh Ngọc để hiển thị bảng quay trực tiếp. Iframe có credit và link nguồn ngay trên giao diện. Kho `data/` chỉ phục vụ các màn thống kê lịch sử và được cập nhật sau kỳ quay.
+Trang **Kết quả** hiển thị bảng tự dựng từ payload dữ liệu mới nhất. Khi workflow hoàn tất, HTML tĩnh và lớp tra cứu trong trình duyệt nhận cùng một revision dữ liệu.
 
 ## Chỉ làm một lần
 
